@@ -51,27 +51,27 @@ export function NewPlanForm({ ideaId }: { ideaId: string }) {
 
   return (
     <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      <div style={{ display: "flex", gap: 10 }}>
-        <div className="field" style={{ flex: 1 }}>
-          <label htmlFor="startsAt">מתי (אופציונלי)</label>
-          <input
-            id="startsAt"
-            type="datetime-local"
-            value={startsAtLocal}
-            onChange={(e) => setStartsAtLocal(e.target.value)}
-            className="input"
-          />
-        </div>
-        <div className="field" style={{ flex: 1 }}>
-          <label htmlFor="endsAt">עד (אופציונלי)</label>
-          <input
-            id="endsAt"
-            type="datetime-local"
-            value={endsAtLocal}
-            onChange={(e) => setEndsAtLocal(e.target.value)}
-            className="input"
-          />
-        </div>
+      {/* מועדים בעמודה אחת, לא זו לצד זו — datetime-local בעברית מציג פורמט
+          מלא (יום+חודש+שעה) שלא נכנס בשני טורים ברוחב מסך טלפון (ראו globals.css). */}
+      <div className="field">
+        <label htmlFor="startsAt">מתי (אופציונלי)</label>
+        <input
+          id="startsAt"
+          type="datetime-local"
+          value={startsAtLocal}
+          onChange={(e) => setStartsAtLocal(e.target.value)}
+          className="input"
+        />
+      </div>
+      <div className="field">
+        <label htmlFor="endsAt">עד (אופציונלי)</label>
+        <input
+          id="endsAt"
+          type="datetime-local"
+          value={endsAtLocal}
+          onChange={(e) => setEndsAtLocal(e.target.value)}
+          className="input"
+        />
       </div>
       {fieldErrors.endsAt && (
         <p role="alert" className="alert-error">

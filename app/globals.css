@@ -235,6 +235,18 @@ button {
   min-width: 0;
 }
 
+/* input[type=date/datetime-local/time] ב-Mobile Safari: הפקד הילידי מתעלם
+   מ-width רגיל ומצייר את עצמו ברוחב הפורמט המקומי המלא (בעברית — עם שם
+   יום/חודש מלא) גם כשהאב צר בהרבה. -webkit-min-logical-width מבטל את
+   מינימום הרוחב הפנימי שה-WebKit engine כופה על פקדים ילידיים כאלה (אותה
+   בעיה קיימת גם ב-<select>); בלי זה, גם width:100%+min-width:0 לא עוזרים
+   כי החריגה קורית בתוך ה-shadow root של הפקד, לא ברמת ה-box model הרגיל. */
+.input[type="date"],
+.input[type="datetime-local"],
+.input[type="time"] {
+  -webkit-min-logical-width: 0px;
+}
+
 .input:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 1px;

@@ -275,27 +275,26 @@ function EditPlanForm({
 
   return (
     <form onSubmit={handleSubmit} className="card" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      <div style={{ display: "flex", gap: 10 }}>
-        <div className="field" style={{ flex: 1 }}>
-          <label htmlFor="editStartsAt">מתי</label>
-          <input
-            id="editStartsAt"
-            type="datetime-local"
-            value={startsAtLocal}
-            onChange={(e) => setStartsAtLocal(e.target.value)}
-            className="input"
-          />
-        </div>
-        <div className="field" style={{ flex: 1 }}>
-          <label htmlFor="editEndsAt">עד</label>
-          <input
-            id="editEndsAt"
-            type="datetime-local"
-            value={endsAtLocal}
-            onChange={(e) => setEndsAtLocal(e.target.value)}
-            className="input"
-          />
-        </div>
+      {/* עמודה אחת, לא שני טורים — ראו הערה מקבילה ב-NewPlanForm.tsx. */}
+      <div className="field">
+        <label htmlFor="editStartsAt">מתי</label>
+        <input
+          id="editStartsAt"
+          type="datetime-local"
+          value={startsAtLocal}
+          onChange={(e) => setStartsAtLocal(e.target.value)}
+          className="input"
+        />
+      </div>
+      <div className="field">
+        <label htmlFor="editEndsAt">עד</label>
+        <input
+          id="editEndsAt"
+          type="datetime-local"
+          value={endsAtLocal}
+          onChange={(e) => setEndsAtLocal(e.target.value)}
+          className="input"
+        />
       </div>
 
       <div className="field">
