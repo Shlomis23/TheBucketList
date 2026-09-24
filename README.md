@@ -11,10 +11,12 @@
 ## מצב נוכחי
 
 **שלב 0 (יסודות) — בתהליך.** מה שקיים כרגע: שלד Next.js App Router +
-TypeScript strict, מבנה תיקיות לפי סעיף 9.2 באפיון, migrations כטיוטה
-(סעיף 10) שעדיין **לא הורצו** מול Supabase אמיתי, ו-stub pages לכל המסכים
-מסעיף 6 בלי לוגיקה עסקית. אין עדיין Auth עובד, RLS מאומת בפועל, או RPC
-כתיבה מעבר לזה שכבר מפורט באפיון (`accept_invitation_internal`).
+TypeScript strict, מבנה תיקיות לפי סעיף 9.2 באפיון, ו-stub pages לכל
+המסכים מסעיף 6 בלי לוגיקה עסקית. Migrations `0001`-`0005` **כבר רצו
+בפועל** על פרויקט Supabase אמיתי (`wnsaynkcjpxpibywywal`) דרך Supabase
+MCP, כולל בדיקת security/performance advisors אחרי כל DDL. אין עדיין
+מסכי Auth עובדים מול הפרויקט הזה (login/callback/onboarding עדיין
+placeholder), ואין RPC כתיבה נוספות מעבר ל-`accept_invitation_internal`.
 
 **אל תניחו שמשהו כאן "עובד" רק כי הקובץ קיים** — ראו TODO בכל קובץ.
 
