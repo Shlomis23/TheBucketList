@@ -39,8 +39,10 @@ type IdeaRow = {
 // listIdeas — קריאה בלבד, דרך client עם JWT המשתמש ו-RLS (member_read /
 // own_reaction_read). ראו spec סעיף 13.3.
 // TODO (המשך F3): חיפוש, פילטר קטגוריה/מאצ'ים/תגובה שלי, מיון, pagination —
-// כרגע כל הרעיונות הפעילים של המרחב, מהחדש לישן, בלי הגבלה.
-export async function listIdeas(): Promise<IdeaDto[]> {
+// כרגע כל הרעיונות של המרחב בסטטוס מבוקש, מהחדש לישן, בלי הגבלה.
+// status ברירת מחדל 'active' (המאגר הרגיל); 'archived' למסך הארכיון
+// (ראו app/(app)/ideas/page.tsx?status=archived).
+export async function listIdeas(status: IdeaStatus = "active"): Promise<IdeaDto[]> {
   const supabase = await createSupabaseServerClient();
 
   const { data: ideas } = await supabase
@@ -48,7 +50,7 @@ export async function listIdeas(): Promise<IdeaDto[]> {
     .select(
       "id, title, description, category, location_text, source_url, cost_minor, duration_minutes, created_at, status, version",
     )
-    .eq("status", "active")
+    .eq("status", status)
     .order("created_at", { ascending: false })
     .returns<IdeaRow[]>();
 

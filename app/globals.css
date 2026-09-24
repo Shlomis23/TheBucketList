@@ -326,7 +326,8 @@ button {
   cursor: pointer;
 }
 
-.chip[aria-pressed="true"] {
+.chip[aria-pressed="true"],
+.chip[aria-current="page"] {
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: var(--color-primary-contrast);

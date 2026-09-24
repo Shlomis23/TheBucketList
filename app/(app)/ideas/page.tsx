@@ -4,10 +4,18 @@ import { ReactionControl } from "@/components/ReactionControl";
 import { listIdeas } from "@/lib/dal/ideas";
 import { categoryLabels, formatCostMinor, formatDurationMinutes } from "@/lib/validation/idea";
 
-// מאגר `/ideas` — spec סעיף 6, 8.
+// מאגר `/ideas` — spec סעיף 6, 8. `?status=archived` מציג את הארכיון
+// (ראו lib/dal/ideas.ts) — כפתור/מסנן פעילים/ארכיון, לא מסך נפרד, כדי
+// שהניווט התחתון יישאר 4 טאבים כמו שהוחלט.
 // TODO (המשך F3): חיפוש, פילטר קטגוריה/מאצ'ים/תגובה שלי, מיון, pagination.
-export default async function IdeasPage() {
-  const ideas = await listIdeas();
+export default async function IdeasPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
+  const { status } = await searchParams;
+  const showArchived = status === "archived";
+  const ideas = await listIdeas(showArchived ? "archived" : "active");
 
   return (
     <div className="page">
@@ -15,21 +23,37 @@ export default async function IdeasPage() {
         <h1 className="page-title" style={{ marginBottom: 0 }}>
           רעיונות
         </h1>
-        <Link href="/ideas/new" className="btn btn-primary" style={{ padding: "0 18px", minHeight: 40 }}>
-          + רעיון
+        {!showArchived && (
+          <Link href="/ideas/new" className="btn btn-primary" style={{ padding: "0 18px", minHeight: 40 }}>
+            + רעיון
+          </Link>
+        )}
+      </div>
+
+      <div className="chip-group" role="group" aria-label="פעילים או בארכיון" style={{ marginBottom: 12 }}>
+        <Link href="/ideas" className="chip" aria-current={!showArchived ? "page" : undefined}>
+          פעילים
+        </Link>
+        <Link href="/ideas?status=archived" className="chip" aria-current={showArchived ? "page" : undefined}>
+          בארכיון
         </Link>
       </div>
-      <p className="page-subtitle">{ideas.length} רעיונות פתוחים</p>
+
+      {!showArchived && <p className="page-subtitle">{ideas.length} רעיונות פתוחים</p>}
 
       {ideas.length === 0 ? (
-        <EmptyState
-          title="מה הדבר הראשון שבא לכם לעשות?"
-          action={
-            <Link href="/ideas/new" className="btn btn-primary">
-              הוספת רעיון
-            </Link>
-          }
-        />
+        showArchived ? (
+          <EmptyState title="עוד אין רעיונות בארכיון." />
+        ) : (
+          <EmptyState
+            title="מה הדבר הראשון שבא לכם לעשות?"
+            action={
+              <Link href="/ideas/new" className="btn btn-primary">
+                הוספת רעיון
+              </Link>
+            }
+          />
+        )
       ) : (
         ideas.map((idea) => {
           const cost = formatCostMinor(idea.costMinor);
@@ -47,7 +71,7 @@ export default async function IdeasPage() {
                   </p>
                 )}
               </Link>
-              <ReactionControl ideaId={idea.id} initialReaction={idea.myReaction} />
+              {!showArchived && <ReactionControl ideaId={idea.id} initialReaction={idea.myReaction} />}
             </div>
           );
         })
