@@ -212,7 +212,7 @@ function CandidateCard({
         </ul>
       )}
       <div style={{ display: "flex", gap: 10 }}>
-        <Link href={`/ideas/${candidate.id}`} className="btn btn-primary" style={{ flex: 1 }}>
+        <Link href={`/plans/new?ideaId=${candidate.id}`} className="btn btn-primary" style={{ flex: 1 }}>
           בואו נתכנן את זה
         </Link>
         <button

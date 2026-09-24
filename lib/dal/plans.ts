@@ -1,0 +1,287 @@
+import "server-only";
+
+import { createSupabaseServerClient, getVerifiedUserId } from "@/lib/supabase/server";
+import { createSupabaseServiceClient } from "@/lib/supabase/service";
+import { ok, fail, type Result } from "@/lib/errors/result";
+import type {
+  CreatePlanInput,
+  UpdatePlanInput,
+  CompletePlanInput,
+} from "@/lib/validation/plan";
+
+export type PlanStatus = "proposed" | "completed" | "cancelled";
+
+export type PlanConfirmationDto = {
+  userId: string;
+  displayName: string;
+  confirmedAt: string;
+};
+
+export type PlanDto = {
+  id: string;
+  ideaId: string;
+  title: string;
+  status: PlanStatus;
+  startsAt: string | null;
+  endsAt: string | null;
+  timezone: string;
+  meetingPlace: string | null;
+  notes: string;
+  budgetMinor: number | null;
+  version: number;
+  createdAt: string;
+  confirmations: PlanConfirmationDto[];
+  isConfirmedByBoth: boolean;
+  myConfirmation: boolean;
+};
+
+type PlanRow = {
+  id: string;
+  idea_id: string;
+  title: string;
+  status: PlanStatus;
+  starts_at: string | null;
+  ends_at: string | null;
+  timezone: string;
+  meeting_place: string | null;
+  notes: string;
+  budget_minor: number | null;
+  version: number;
+  created_at: string;
+};
+
+type ConfirmationRow = { plan_id: string; user_id: string; plan_version: number; confirmed_at: string };
+
+// listPlans/getPlan — קריאה בלבד, דרך client עם JWT המשתמש; member_read
+// policy מכסה plans/plan_confirmations, profiles_read מכסה display_name של
+// בן/בת הזוג (0002_rls.sql). "מאושר לשנינו" נגזר כאן, לא נשמר בעמודה
+// (ראו spec סעיף 7 ו-0009_plan_rpcs.sql).
+async function attachConfirmations(
+  plans: PlanRow[],
+  userId: string,
+): Promise<PlanDto[]> {
+  if (plans.length === 0) return [];
+  const supabase = await createSupabaseServerClient();
+
+  const planIds = plans.map((p) => p.id);
+  const { data: confirmations } = await supabase
+    .from("plan_confirmations")
+    .select("plan_id, user_id, plan_version, confirmed_at")
+    .in("plan_id", planIds)
+    .returns<ConfirmationRow[]>();
+
+  const userIds = Array.from(new Set((confirmations ?? []).map((c) => c.user_id)));
+  const { data: profiles } = userIds.length
+    ? await supabase
+        .from("profiles")
+        .select("id, display_name")
+        .in("id", userIds)
+        .returns<{ id: string; display_name: string }[]>()
+    : { data: [] as { id: string; display_name: string }[] };
+  const nameByUser = new Map((profiles ?? []).map((p) => [p.id, p.display_name]));
+
+  const confirmationsByPlan = new Map<string, ConfirmationRow[]>();
+  for (const c of confirmations ?? []) {
+    const list = confirmationsByPlan.get(c.plan_id) ?? [];
+    list.push(c);
+    confirmationsByPlan.set(c.plan_id, list);
+  }
+
+  return plans.map((p) => {
+    const rows = (confirmationsByPlan.get(p.id) ?? []).filter((c) => c.plan_version === p.version);
+    return {
+      id: p.id,
+      ideaId: p.idea_id,
+      title: p.title,
+      status: p.status,
+      startsAt: p.starts_at,
+      endsAt: p.ends_at,
+      timezone: p.timezone,
+      meetingPlace: p.meeting_place,
+      notes: p.notes,
+      budgetMinor: p.budget_minor,
+      version: p.version,
+      createdAt: p.created_at,
+      confirmations: rows.map((r) => ({
+        userId: r.user_id,
+        displayName: nameByUser.get(r.user_id) ?? "",
+        confirmedAt: r.confirmed_at,
+      })),
+      isConfirmedByBoth: rows.length >= 2,
+      myConfirmation: rows.some((r) => r.user_id === userId),
+    };
+  });
+}
+
+// listPlans — כל התוכניות של המרחב. סדר וקיבוץ (מוצעות/מאושרות/עבר,
+// מועד לא נקבע בסוף) נעשים ברכיב התצוגה על סמך status/isConfirmedByBoth.
+export async function listPlans(): Promise<PlanDto[]> {
+  const userId = await getVerifiedUserId();
+  if (!userId) return [];
+
+  const supabase = await createSupabaseServerClient();
+  const { data: plans } = await supabase
+    .from("plans")
+    .select("id, idea_id, title, status, starts_at, ends_at, timezone, meeting_place, notes, budget_minor, version, created_at")
+    .order("starts_at", { ascending: true, nullsFirst: false })
+    .returns<PlanRow[]>();
+
+  return attachConfirmations(plans ?? [], userId);
+}
+
+export async function getPlan(planId: string): Promise<PlanDto | null> {
+  const userId = await getVerifiedUserId();
+  if (!userId) return null;
+
+  const supabase = await createSupabaseServerClient();
+  const { data: plan } = await supabase
+    .from("plans")
+    .select("id, idea_id, title, status, starts_at, ends_at, timezone, meeting_place, notes, budget_minor, version, created_at")
+    .eq("id", planId)
+    .maybeSingle<PlanRow>();
+  if (!plan) return null;
+
+  const [dto] = await attachConfirmations([plan], userId);
+  return dto ?? null;
+}
+
+function mapPlanRpcError(errorMessage: string | undefined, fallback: string, traceId: string): Result<never> {
+  if (errorMessage?.includes("NOT_FOUND")) {
+    return fail("NOT_FOUND", "התוכנית הזו כבר לא זמינה", traceId);
+  }
+  if (errorMessage?.includes("ACTIVE_PLAN_EXISTS")) {
+    return fail("VERSION_CONFLICT", "כבר יש תוכנית פעילה לרעיון הזה", traceId);
+  }
+  if (errorMessage?.includes("VERSION_CONFLICT")) {
+    return fail("VERSION_CONFLICT", "התוכנית השתנתה בינתיים — רעננו ונסו שוב", traceId);
+  }
+  if (errorMessage?.includes("NOT_ENOUGH_MEMBERS")) {
+    return fail("INVALID_INPUT", "אי אפשר לאשר בלי בן/בת זוג פעיל/ה במרחב", traceId);
+  }
+  if (errorMessage?.includes("INVALID_INPUT")) {
+    return fail("INVALID_INPUT", "יש שגיאה בנתוני התוכנית", traceId);
+  }
+  return fail("UNEXPECTED", fallback, traceId);
+}
+
+export async function createPlan(input: CreatePlanInput): Promise<Result<{ id: string }>> {
+  const traceId = crypto.randomUUID();
+  const userId = await getVerifiedUserId();
+  if (!userId) return fail("UNAUTHENTICATED", "צריך להתחבר קודם", traceId);
+
+  const service = createSupabaseServiceClient();
+  const { data, error } = await service.rpc("create_plan", {
+    p_actor: userId,
+    p_request_id: input.requestId,
+    p_idea_id: input.ideaId,
+    p_starts_at: input.startsAt ?? null,
+    p_ends_at: input.endsAt ?? null,
+    p_timezone: input.timezone,
+    p_meeting_place: input.meetingPlace ?? null,
+    p_notes: input.notes,
+    p_budget_minor: input.budgetMinor ?? null,
+  });
+
+  if (error || !data) {
+    return mapPlanRpcError(error?.message, "יצירת התוכנית נכשלה, נסו שוב", traceId);
+  }
+  return ok({ id: (data as { id: string }).id }, traceId);
+}
+
+export async function updatePlan(input: UpdatePlanInput): Promise<Result<{ version: number }>> {
+  const traceId = crypto.randomUUID();
+  const userId = await getVerifiedUserId();
+  if (!userId) return fail("UNAUTHENTICATED", "צריך להתחבר קודם", traceId);
+
+  const service = createSupabaseServiceClient();
+  const { data, error } = await service.rpc("update_plan", {
+    p_actor: userId,
+    p_id: input.id,
+    p_expected_version: input.expectedVersion,
+    p_starts_at: input.startsAt ?? null,
+    p_ends_at: input.endsAt ?? null,
+    p_timezone: input.timezone,
+    p_meeting_place: input.meetingPlace ?? null,
+    p_notes: input.notes,
+    p_budget_minor: input.budgetMinor ?? null,
+  });
+
+  if (error || !data) {
+    return mapPlanRpcError(error?.message, "עדכון התוכנית נכשל, נסו שוב", traceId);
+  }
+  return ok({ version: (data as { version: number }).version }, traceId);
+}
+
+async function callPlanTransitionRpc(
+  fnName: "confirm_plan" | "unconfirm_plan",
+  planId: string,
+  expectedVersion: number,
+): Promise<Result<{ isConfirmedByBoth: boolean; version: number }>> {
+  const traceId = crypto.randomUUID();
+  const userId = await getVerifiedUserId();
+  if (!userId) return fail("UNAUTHENTICATED", "צריך להתחבר קודם", traceId);
+
+  const service = createSupabaseServiceClient();
+  const { data, error } = await service.rpc(fnName, {
+    p_actor: userId,
+    p_id: planId,
+    p_expected_version: expectedVersion,
+  });
+
+  if (error || !data || !Array.isArray(data) || data.length === 0) {
+    return mapPlanRpcError(
+      error?.message,
+      fnName === "confirm_plan" ? "האישור נכשל, נסו שוב" : "ביטול האישור נכשל, נסו שוב",
+      traceId,
+    );
+  }
+  const row = data[0] as { version: number; is_confirmed_by_both: boolean };
+  return ok({ version: row.version, isConfirmedByBoth: row.is_confirmed_by_both }, traceId);
+}
+
+export function confirmPlan(planId: string, expectedVersion: number) {
+  return callPlanTransitionRpc("confirm_plan", planId, expectedVersion);
+}
+
+export function unconfirmPlan(planId: string, expectedVersion: number) {
+  return callPlanTransitionRpc("unconfirm_plan", planId, expectedVersion);
+}
+
+export async function cancelPlan(planId: string, expectedVersion: number): Promise<Result<{ version: number }>> {
+  const traceId = crypto.randomUUID();
+  const userId = await getVerifiedUserId();
+  if (!userId) return fail("UNAUTHENTICATED", "צריך להתחבר קודם", traceId);
+
+  const service = createSupabaseServiceClient();
+  const { data, error } = await service.rpc("cancel_plan", {
+    p_actor: userId,
+    p_id: planId,
+    p_expected_version: expectedVersion,
+  });
+
+  if (error || !data) {
+    return mapPlanRpcError(error?.message, "ביטול התוכנית נכשל, נסו שוב", traceId);
+  }
+  return ok({ version: (data as { version: number }).version }, traceId);
+}
+
+export async function completePlan(input: CompletePlanInput): Promise<Result<{ memoryId: string }>> {
+  const traceId = crypto.randomUUID();
+  const userId = await getVerifiedUserId();
+  if (!userId) return fail("UNAUTHENTICATED", "צריך להתחבר קודם", traceId);
+
+  const service = createSupabaseServiceClient();
+  const { data, error } = await service.rpc("complete_plan", {
+    p_actor: userId,
+    p_request_id: input.requestId,
+    p_id: input.id,
+    p_expected_version: input.expectedVersion,
+    p_happened_on: input.happenedOn,
+    p_story: input.story,
+  });
+
+  if (error || !data) {
+    return mapPlanRpcError(error?.message, "סימון ההשלמה נכשל, נסו שוב", traceId);
+  }
+  return ok({ memoryId: data as string }, traceId);
+}

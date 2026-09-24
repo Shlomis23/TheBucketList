@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ReactionControl } from "@/components/ReactionControl";
 import { getIdea } from "@/lib/dal/ideas";
@@ -48,12 +49,22 @@ export default async function IdeaDetailPage({
         </a>
       )}
 
-      <div className="card">
+      <div className="card" style={{ marginBottom: 16 }}>
         <p className="page-eyebrow" style={{ marginBottom: 8 }}>
           התגובה שלי
         </p>
         <ReactionControl ideaId={idea.id} initialReaction={idea.myReaction} />
       </div>
+
+      {idea.activePlanId ? (
+        <Link href={`/plans/${idea.activePlanId}`} className="btn btn-block" style={{ background: "var(--color-primary-soft)", color: "var(--color-primary)" }}>
+          כבר יש תוכנית לרעיון הזה &larr;
+        </Link>
+      ) : (
+        <Link href={`/plans/new?ideaId=${idea.id}`} className="btn btn-primary btn-block">
+          תכננו את זה
+        </Link>
+      )}
 
       {/* TODO: תגובות טקסט (1-1000 תווים, גלוי לשניהם, רק המחבר עורך/מוחק) */}
     </div>

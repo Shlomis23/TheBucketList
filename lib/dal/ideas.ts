@@ -69,12 +69,14 @@ export async function listIdeas(): Promise<IdeaDto[]> {
   }));
 }
 
-export type IdeaDetailDto = IdeaDto & { isMatch: boolean };
+export type IdeaDetailDto = IdeaDto & { isMatch: boolean; activePlanId: string | null };
 
 // getIdea — קריאה בלבד. isMatch מחושב דרך list_my_matches (RPC שכבר גרנטד
 // ל-authenticated ב-0002_rls.sql) כי own_reaction_read חוסם קריאת תגובת
 // בן/בת הזוג ישירות — זו בדיוק הסיבה ש-list_my_matches קיימת כ-RPC נפרדת.
 // ראו spec סעיף 13.3: תוכן, תגובתי האישית, isMatch (ללא תגובת האחר).
+// activePlanId — תוכנית proposed קיימת לרעיון הזה, אם יש (one_active_plan_per_idea);
+// ה-UI מציג "תכננו את זה" רק כשאין כזו, ומקשר לקיימת אחרת (F6).
 export async function getIdea(ideaId: string): Promise<IdeaDetailDto | null> {
   const supabase = await createSupabaseServerClient();
 
@@ -87,13 +89,19 @@ export async function getIdea(ideaId: string): Promise<IdeaDetailDto | null> {
     .maybeSingle<IdeaRow & { space_id: string }>();
   if (!idea) return null;
 
-  const [{ data: reaction }, { data: matchIds }] = await Promise.all([
+  const [{ data: reaction }, { data: matchIds }, { data: activePlan }] = await Promise.all([
     supabase
       .from("idea_reactions")
       .select("preference")
       .eq("idea_id", ideaId)
       .maybeSingle<{ preference: "yes" | "maybe" | "no" }>(),
     supabase.rpc("list_my_matches", { p_space: idea.space_id }),
+    supabase
+      .from("plans")
+      .select("id")
+      .eq("idea_id", ideaId)
+      .eq("status", "proposed")
+      .maybeSingle<{ id: string }>(),
   ]);
 
   const isMatch = Array.isArray(matchIds)
@@ -112,6 +120,7 @@ export async function getIdea(ideaId: string): Promise<IdeaDetailDto | null> {
     createdAt: idea.created_at,
     myReaction: reaction?.preference ?? null,
     isMatch,
+    activePlanId: activePlan?.id ?? null,
   };
 }
 

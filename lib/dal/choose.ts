@@ -13,8 +13,8 @@ import type { IdeaCategory } from "@/lib/validation/idea";
 // גרנטד ל-authenticated) בדיוק כמו ב-getIdea, כי own_reaction_read חוסם
 // קריאת תגובת האחר ישירות.
 //
-// אין יצירת תוכנית כאן (read-only, כמו שהאפיון דורש) — "בחרו את זה"
-// ב-UI מוביל כרגע לפרטי הרעיון; יצירת תוכנית אמיתית היא F6, עדיין TODO.
+// אין יצירת תוכנית כאן (read-only, כמו שהאפיון דורש) — "בואו נתכנן את זה"
+// ב-UI מוביל ל-/plans/new עם ideaId (F6, ראו app/(app)/plans/).
 
 export type ChooseCandidate = {
   id: string;
