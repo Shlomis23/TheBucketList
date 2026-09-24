@@ -63,6 +63,7 @@ export default async function IdeasPage({
               <Link href={`/ideas/${idea.id}`} style={{ textDecoration: "none", color: "inherit" }}>
                 <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}>
                   <span className="badge badge-neutral">{categoryLabels[idea.category]}</span>
+                  {idea.isMatch && <span className="badge badge-green">מאצ&apos;!</span>}
                 </div>
                 <p style={{ margin: "0 0 4px", fontWeight: 800, fontSize: 16 }}>{idea.title}</p>
                 {(cost || duration || idea.locationText) && (

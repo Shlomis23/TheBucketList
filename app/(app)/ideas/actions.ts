@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createIdea, setReaction, archiveIdea, restoreIdea } from "@/lib/dal/ideas";
-import { createIdeaSchema } from "@/lib/validation/idea";
+import { createIdea, setReaction, archiveIdea, restoreIdea, updateIdea } from "@/lib/dal/ideas";
+import { createIdeaSchema, updateIdeaSchema } from "@/lib/validation/idea";
 import type { Result } from "@/lib/errors/result";
 import { fail } from "@/lib/errors/result";
 
@@ -59,4 +59,26 @@ export async function restoreIdeaAction(ideaId: string, expectedVersion: number)
     revalidatePath("/");
   }
   return result;
+}
+
+export async function updateIdeaAction(
+  input: unknown,
+): Promise<Result<{ id: string; version: number }> | undefined> {
+  const parsed = updateIdeaSchema.safeParse(input);
+  if (!parsed.success) {
+    return fail(
+      "INVALID_INPUT",
+      "יש שגיאות בטופס",
+      crypto.randomUUID(),
+      parsed.error.flatten().fieldErrors as Record<string, string[]>,
+    );
+  }
+
+  const result = await updateIdea(parsed.data);
+  if (!result.ok) return result;
+
+  revalidatePath("/ideas");
+  revalidatePath(`/ideas/${parsed.data.ideaId}`);
+  revalidatePath("/");
+  redirect(`/ideas/${parsed.data.ideaId}`);
 }

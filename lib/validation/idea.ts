@@ -36,6 +36,44 @@ export type CreateIdeaInput = z.infer<typeof createIdeaSchema>;
 
 export type IdeaCategory = (typeof ideaCategories)[number];
 
+export type ReactionPreference = "yes" | "maybe" | "no";
+
+export const reactionLabels: Record<ReactionPreference, string> = {
+  yes: "כן",
+  maybe: "אולי",
+  no: "לא",
+};
+
+export const reactionBadgeClass: Record<ReactionPreference, string> = {
+  yes: "badge-green",
+  maybe: "badge-yellow",
+  no: "badge-pink",
+};
+
+// עריכת רעיון קיים — אותם גבולות שדה כמו createIdeaSchema, בתוספת
+// ideaId + expectedVersion (concurrency, ראו update_idea ב-0015).
+export const updateIdeaSchema = z.object({
+  ideaId: z.string().uuid(),
+  expectedVersion: z.number().int().positive(),
+  title: z
+    .string()
+    .trim()
+    .min(1, "כותרת היא שדה חובה")
+    .max(120, "כותרת עד 120 תווים"),
+  description: z.string().max(3000).default(""),
+  category: z.enum(ideaCategories).default("other"),
+  locationText: z.string().max(200).optional(),
+  sourceUrl: z
+    .string()
+    .max(2048)
+    .regex(/^https:\/\//, "קישור חייב להתחיל ב-https")
+    .optional(),
+  costMinor: z.number().int().min(0).max(100_000_000).optional(),
+  durationMinutes: z.number().int().min(1).max(525_600).optional(),
+});
+
+export type UpdateIdeaInput = z.infer<typeof updateIdeaSchema>;
+
 export const categoryLabels: Record<IdeaCategory, string> = {
   food: "אוכל",
   outdoors: "טבע וחוץ",

@@ -2,8 +2,9 @@ import "server-only";
 
 import { createSupabaseServerClient, getVerifiedUserId } from "@/lib/supabase/server";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
+import { getMySpaceId } from "@/lib/dal/space";
 import { ok, fail, type Result } from "@/lib/errors/result";
-import type { CreateIdeaInput, IdeaCategory } from "@/lib/validation/idea";
+import type { CreateIdeaInput, UpdateIdeaInput, IdeaCategory } from "@/lib/validation/idea";
 
 export type IdeaStatus = "active" | "archived";
 
@@ -18,6 +19,7 @@ export type IdeaDto = {
   durationMinutes: number | null;
   createdAt: string;
   myReaction: "yes" | "maybe" | "no" | null;
+  isMatch: boolean;
   status: IdeaStatus;
   version: number;
 };
@@ -38,6 +40,9 @@ type IdeaRow = {
 
 // listIdeas — קריאה בלבד, דרך client עם JWT המשתמש ו-RLS (member_read /
 // own_reaction_read). ראו spec סעיף 13.3.
+// isMatch מחושב כאן (לא רק ב-getIdea) כדי להציג "מאצ'!" על כרטיס ברשימה
+// בלי להיכנס לפרטי הרעיון — קריאה אחת ל-list_my_matches (הבטוחה, לא חושפת
+// את תגובת האחר) ומיפוי ל-Set, בדיוק כמו ב-getIdea.
 // TODO (המשך F3): חיפוש, פילטר קטגוריה/מאצ'ים/תגובה שלי, מיון, pagination —
 // כרגע כל הרעיונות של המרחב בסטטוס מבוקש, מהחדש לישן, בלי הגבלה.
 // status ברירת מחדל 'active' (המאגר הרגיל); 'archived' למסך הארכיון
@@ -57,13 +62,24 @@ export async function listIdeas(status: IdeaStatus = "active"): Promise<IdeaDto[
   if (!ideas || ideas.length === 0) return [];
 
   const ideaIds = ideas.map((i) => i.id);
-  const { data: reactions } = await supabase
-    .from("idea_reactions")
-    .select("idea_id, preference")
-    .in("idea_id", ideaIds)
-    .returns<{ idea_id: string; preference: "yes" | "maybe" | "no" }[]>();
+  const [{ data: reactions }, spaceId] = await Promise.all([
+    supabase
+      .from("idea_reactions")
+      .select("idea_id, preference")
+      .in("idea_id", ideaIds)
+      .returns<{ idea_id: string; preference: "yes" | "maybe" | "no" }[]>(),
+    getMySpaceId(),
+  ]);
 
   const myReactionByIdea = new Map((reactions ?? []).map((r) => [r.idea_id, r.preference]));
+
+  let matchedIds = new Set<string>();
+  if (spaceId) {
+    const { data: matches } = await supabase.rpc("list_my_matches", { p_space: spaceId });
+    if (Array.isArray(matches)) {
+      matchedIds = new Set((matches as { idea_id: string }[]).map((m) => m.idea_id));
+    }
+  }
 
   return ideas.map((i) => ({
     id: i.id,
@@ -76,17 +92,29 @@ export async function listIdeas(status: IdeaStatus = "active"): Promise<IdeaDto[
     durationMinutes: i.duration_minutes,
     createdAt: i.created_at,
     myReaction: myReactionByIdea.get(i.id) ?? null,
+    isMatch: matchedIds.has(i.id),
     status: i.status as IdeaStatus,
     version: i.version,
   }));
 }
 
-export type IdeaDetailDto = IdeaDto & { isMatch: boolean; activePlanId: string | null };
+export type ReactionWithNameDto = {
+  userId: string;
+  displayName: string;
+  preference: "yes" | "maybe" | "no" | null;
+};
+
+export type IdeaDetailDto = IdeaDto & {
+  isMatch: boolean;
+  activePlanId: string | null;
+  reactions: ReactionWithNameDto[];
+};
 
 // getIdea — קריאה בלבד. isMatch מחושב דרך list_my_matches (RPC שכבר גרנטד
 // ל-authenticated ב-0002_rls.sql) כי own_reaction_read חוסם קריאת תגובת
 // בן/בת הזוג ישירות — זו בדיוק הסיבה ש-list_my_matches קיימת כ-RPC נפרדת.
-// ראו spec סעיף 13.3: תוכן, תגובתי האישית, isMatch (ללא תגובת האחר).
+// reactions (24.9, שינוי מאושר לעיצוב הפרטיות המקורי) — שתי התגובות
+// (עם שם) דרך get_idea_reactions (0014), RPC יעודית מאותה סיבה בדיוק.
 // activePlanId — תוכנית proposed קיימת לרעיון הזה, אם יש (one_active_plan_per_idea);
 // ה-UI מציג "תכננו את זה" רק כשאין כזו, ומקשר לקיימת אחרת (F6).
 export async function getIdea(ideaId: string): Promise<IdeaDetailDto | null> {
@@ -101,24 +129,32 @@ export async function getIdea(ideaId: string): Promise<IdeaDetailDto | null> {
     .maybeSingle<IdeaRow & { space_id: string }>();
   if (!idea) return null;
 
-  const [{ data: reaction }, { data: matchIds }, { data: activePlan }] = await Promise.all([
-    supabase
-      .from("idea_reactions")
-      .select("preference")
-      .eq("idea_id", ideaId)
-      .maybeSingle<{ preference: "yes" | "maybe" | "no" }>(),
-    supabase.rpc("list_my_matches", { p_space: idea.space_id }),
-    supabase
-      .from("plans")
-      .select("id")
-      .eq("idea_id", ideaId)
-      .eq("status", "proposed")
-      .maybeSingle<{ id: string }>(),
-  ]);
+  const [{ data: reaction }, { data: matchIds }, { data: activePlan }, { data: reactionsWithNames }] =
+    await Promise.all([
+      supabase
+        .from("idea_reactions")
+        .select("preference")
+        .eq("idea_id", ideaId)
+        .maybeSingle<{ preference: "yes" | "maybe" | "no" }>(),
+      supabase.rpc("list_my_matches", { p_space: idea.space_id }),
+      supabase
+        .from("plans")
+        .select("id")
+        .eq("idea_id", ideaId)
+        .eq("status", "proposed")
+        .maybeSingle<{ id: string }>(),
+      supabase.rpc("get_idea_reactions", { p_idea_id: ideaId }),
+    ]);
 
   const isMatch = Array.isArray(matchIds)
     ? matchIds.some((m: { idea_id: string }) => m.idea_id === ideaId)
     : false;
+
+  const reactions: ReactionWithNameDto[] = Array.isArray(reactionsWithNames)
+    ? (reactionsWithNames as { user_id: string; display_name: string; preference: "yes" | "maybe" | "no" | null }[]).map(
+        (r) => ({ userId: r.user_id, displayName: r.display_name, preference: r.preference }),
+      )
+    : [];
 
   return {
     id: idea.id,
@@ -133,6 +169,7 @@ export async function getIdea(ideaId: string): Promise<IdeaDetailDto | null> {
     myReaction: reaction?.preference ?? null,
     isMatch,
     activePlanId: activePlan?.id ?? null,
+    reactions,
     status: idea.status as IdeaStatus,
     version: idea.version,
   };
@@ -204,6 +241,41 @@ export async function setReaction(
 
   const row = data[0] as { preference: "yes" | "maybe" | "no" | null; is_match: boolean };
   return ok({ preference: row.preference, isMatch: row.is_match }, traceId);
+}
+
+// updateIdea — RPC שירות (update_idea, 0015_update_idea_rpc.sql).
+// expectedVersion (concurrency, אותו דפוס כמו archive/restore) — לא
+// idempotency key: זו עדכון-במקום, וניסיון חוזר עם גרסה ישנה נכשל
+// ב-VERSION_CONFLICT (ראו הערת המיגרציה).
+export async function updateIdea(input: UpdateIdeaInput): Promise<Result<{ id: string; version: number }>> {
+  const traceId = crypto.randomUUID();
+
+  const userId = await getVerifiedUserId();
+  if (!userId) return fail("UNAUTHENTICATED", "צריך להתחבר קודם", traceId);
+
+  const service = createSupabaseServiceClient();
+  const { data, error } = await service.rpc("update_idea", {
+    p_actor: userId,
+    p_id: input.ideaId,
+    p_expected_version: input.expectedVersion,
+    p_title: input.title,
+    p_description: input.description ?? "",
+    p_category: input.category ?? "other",
+    p_location_text: input.locationText ?? null,
+    p_source_url: input.sourceUrl ?? null,
+    p_cost_minor: input.costMinor ?? null,
+    p_duration_minutes: input.durationMinutes ?? null,
+  });
+
+  if (error || !data) {
+    if (error?.message?.includes("INVALID_INPUT")) {
+      return fail("INVALID_INPUT", "כותרת חסרה או לא תקינה", traceId);
+    }
+    return mapIdeaRpcError(error?.message, "שמירת השינויים נכשלה, נסו שוב", traceId);
+  }
+
+  const idea = data as { id: string; version: number };
+  return ok({ id: idea.id, version: idea.version }, traceId);
 }
 
 function mapIdeaRpcError(errorMessage: string | undefined, fallback: string, traceId: string): Result<never> {

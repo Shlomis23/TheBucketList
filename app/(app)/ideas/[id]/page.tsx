@@ -3,13 +3,13 @@ import { notFound } from "next/navigation";
 import { ReactionControl } from "@/components/ReactionControl";
 import { ArchiveIdeaButton } from "@/components/ArchiveIdeaButton";
 import { getIdea } from "@/lib/dal/ideas";
-import { categoryLabels, formatCostMinor, formatDurationMinutes } from "@/lib/validation/idea";
+import { categoryLabels, formatCostMinor, formatDurationMinutes, reactionLabels, reactionBadgeClass } from "@/lib/validation/idea";
 
 // פרטי רעיון `/ideas/[id]` — F4, spec סעיף 6.
-// TODO: תגובות טקסט (addComment/editComment/deleteComment), עריכה.
+// TODO: תגובות טקסט (addComment/editComment/deleteComment).
 // פריט זר/חסר מקבל את אותו 404 (notFound()) — אין הבחנה בין "לא קיים"
 // ל"שייך למרחב אחר". רעיון בארכיון עדיין נטען כאן (getIdea לא מסנן status) —
-// כדי לאפשר שחזור — אבל בלי תגובה/תכנון פעילים.
+// כדי לאפשר שחזור — אבל בלי תגובה/תכנון/עריכה פעילים.
 export default async function IdeaDetailPage({
   params,
 }: {
@@ -68,6 +68,39 @@ export default async function IdeaDetailPage({
             </p>
             <ReactionControl ideaId={idea.id} initialReaction={idea.myReaction} />
           </div>
+
+          {idea.reactions.length > 0 && (
+            <div className="card" style={{ marginBottom: 16 }}>
+              <p className="page-eyebrow" style={{ marginBottom: 8 }}>
+                התגובות של שנינו
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {idea.reactions.map((r) => (
+                  <div
+                    key={r.userId}
+                    style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
+                  >
+                    <span style={{ fontWeight: 700 }}>{r.displayName}</span>
+                    {r.preference ? (
+                      <span className={`badge ${reactionBadgeClass[r.preference]}`}>
+                        {reactionLabels[r.preference]}
+                      </span>
+                    ) : (
+                      <span className="badge badge-neutral">עדיין לא הגיב/ה</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <Link
+            href={`/ideas/${idea.id}/edit`}
+            className="link-plain"
+            style={{ display: "inline-block", marginBottom: 16 }}
+          >
+            עריכת הרעיון
+          </Link>
 
           {idea.activePlanId ? (
             <Link href={`/plans/${idea.activePlanId}`} className="btn btn-block" style={{ background: "var(--color-primary-soft)", color: "var(--color-primary)", marginBottom: 16 }}>
