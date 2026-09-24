@@ -16,10 +16,9 @@ import { OnboardingForm } from "./OnboardingForm";
 // ברורה במקום טופס "יצירת מרחב" (create_space עצמה חוסמת את זה בכל מקרה,
 // זו רק הודעה נעימה יותר במקום ליפול אחרי מילוי השם).
 export default async function OnboardingPage() {
-  const userId = await getVerifiedUserId();
+  // userId ו-spaceId לא תלויים זה בזה — במקביל במקום ברצף (ראו app/(app)/page.tsx).
+  const [userId, spaceId] = await Promise.all([getVerifiedUserId(), getMySpaceId()]);
   if (!userId) redirect("/login");
-
-  const spaceId = await getMySpaceId();
   if (spaceId) redirect("/");
 
   const invite = await peekInviteCookie();

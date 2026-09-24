@@ -45,10 +45,9 @@ export async function chooseExperience(
 ): Promise<Result<{ candidate: ChooseCandidate | null }>> {
   const traceId = crypto.randomUUID();
 
-  const userId = await getVerifiedUserId();
+  // userId ו-spaceId לא תלויים זה בזה — במקביל במקום ברצף (ראו app/(app)/page.tsx).
+  const [userId, spaceId] = await Promise.all([getVerifiedUserId(), getMySpaceId()]);
   if (!userId) return fail("UNAUTHENTICATED", "צריך להתחבר קודם", traceId);
-
-  const spaceId = await getMySpaceId();
   if (!spaceId) return fail("UNAUTHENTICATED", "אין עדיין מרחב פעיל", traceId);
 
   const supabase = await createSupabaseServerClient();

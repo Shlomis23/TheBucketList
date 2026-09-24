@@ -8,10 +8,9 @@ import { ChooseForm } from "./ChooseForm";
 // read-only: לא שומר תוכנית בעצמו. "בואו נתכנן את זה" מוביל ל-/plans/new
 // עם ה-idea שנבחר (F6, ראו app/(app)/plans/).
 export default async function ChoosePage() {
-  const userId = await getVerifiedUserId();
+  // userId ו-spaceId לא תלויים זה בזה — במקביל במקום ברצף (ראו app/(app)/page.tsx).
+  const [userId, spaceId] = await Promise.all([getVerifiedUserId(), getMySpaceId()]);
   if (!userId) redirect("/login");
-
-  const spaceId = await getMySpaceId();
   if (!spaceId) redirect("/onboarding");
 
   const home = await getHome(spaceId, userId);

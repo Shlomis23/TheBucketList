@@ -9,10 +9,9 @@ import { InvitationPanel } from "./InvitationPanel";
 // בן זוג"). שם שלי/בן זוג, פרטיות, יציאה וסגירת מרחב נשארים TODO להמשך —
 // לא נבנים "אגב" בלי בקשה מפורשת.
 export default async function SettingsPage() {
-  const userId = await getVerifiedUserId();
+  // userId ו-spaceId לא תלויים זה בזה — במקביל במקום ברצף (ראו app/(app)/page.tsx).
+  const [userId, spaceId] = await Promise.all([getVerifiedUserId(), getMySpaceId()]);
   if (!userId) redirect("/login");
-
-  const spaceId = await getMySpaceId();
   if (!spaceId) redirect("/onboarding");
 
   const partnerPresent = await hasPartner(spaceId);

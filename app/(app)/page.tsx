@@ -11,10 +11,11 @@ import type { IdeaCategory } from "@/lib/validation/idea";
 // אמיתי (F3). "מה עושים?" ו-"+" כאן פשוט מקשרים ל-/choose ו-/ideas/new
 // שכרגע placeholder — לא מעמידים פנים שהפיצ'רים האלה כבר עובדים.
 export default async function HomePage() {
-  const userId = await getVerifiedUserId();
+  // userId ו-spaceId לא תלויים זה בזה (spaceId נשען על עוגיית ה-session,
+  // לא על הערך של userId) — מריצים במקביל כדי לחסוך קפיצת רשת שלמה
+  // בכל טעינת מסך (תוכנית שיפור מהירות, פריט 3).
+  const [userId, spaceId] = await Promise.all([getVerifiedUserId(), getMySpaceId()]);
   if (!userId) redirect("/login");
-
-  const spaceId = await getMySpaceId();
   if (!spaceId) redirect("/onboarding");
 
   const home = await getHome(spaceId, userId);
