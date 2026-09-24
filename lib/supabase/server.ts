@@ -29,8 +29,9 @@ export async function createSupabaseServerClient() {
               cookieStore.set(name, value, options);
             }
           } catch {
-            // נקרא מתוך Server Component ללא הרשאת כתיבה על cookies;
-            // תקין כאשר יש middleware שמרענן session. אין לבלוע שגיאות אחרות בשקט.
+            // נקרא מתוך Server Component ללא הרשאת כתיבה על cookies.
+            // תקין רק כי proxy.ts מרענן את ה-session לפני כל בקשה וכותב את
+            // הטוקנים החדשים לדפדפן — בלעדיו הרענון כאן היה הולך לאיבוד.
           }
         },
       },
