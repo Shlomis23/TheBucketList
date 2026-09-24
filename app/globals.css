@@ -1,0 +1,78 @@
+/* בסיס עיצוב — RTL, נגישות, מובייל תחילה.
+   ראו docs/The-Bucket-List-Technical-Spec-HE.md סעיף 4.
+   שימוש ב-CSS logical properties (inset-inline, padding-inline וכו')
+   כדי שהעיצוב יעבוד נכון גם אם יתווסף אי-פעם מסך LTR. */
+
+:root {
+  --color-bg: #fffaf5;
+  --color-text: #201a15;
+  --color-primary: #b5573c;
+  --color-primary-contrast: #ffffff;
+  --color-border: #e7ddd2;
+  --color-muted: #8a7c6d;
+  --touch-target-min: 44px;
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #17130f;
+    --color-text: #f2ece3;
+    --color-primary: #e08a6c;
+    --color-primary-contrast: #17130f;
+    --color-border: #352c23;
+    --color-muted: #b0a292;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-width: 320px;
+  overflow-x: hidden; /* אין גלילה אופקית ב-320px (AC12) */
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.5;
+}
+
+a,
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+[dir="ltr"] {
+  unicode-bidi: isolate;
+}
