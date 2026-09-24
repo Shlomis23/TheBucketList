@@ -173,6 +173,7 @@ button {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
   padding: 18px;
+  min-width: 0;
 }
 
 .btn {
@@ -213,6 +214,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0;
 }
 
 .field label {
@@ -228,6 +230,9 @@ button {
   border: 1.5px solid var(--color-border);
   background: var(--color-surface);
   font-size: 15px;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 .input:focus-visible {
@@ -357,6 +362,9 @@ button {
   background: var(--color-surface);
   font-size: 15px;
   resize: vertical;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 .textarea:focus-visible {
