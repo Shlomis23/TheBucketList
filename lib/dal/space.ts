@@ -16,6 +16,17 @@ export async function getMySpaceId(): Promise<string | null> {
   return (data?.space_id as string | undefined) ?? null;
 }
 
+// hasPartner — קריאה בלבד. משמש ב-/settings כדי להחליט אם להציג הזמנה
+// (רק חבר יחיד) או "שם בן/בת הזוג" (כבר שני חברים) — spec סעיף 11.1.
+export async function hasPartner(spaceId: string): Promise<boolean> {
+  const supabase = await createSupabaseServerClient();
+  const { count } = await supabase
+    .from("space_members")
+    .select("user_id", { count: "exact", head: true })
+    .eq("space_id", spaceId);
+  return (count ?? 0) >= 2;
+}
+
 // createSpace — spec סעיף 5 (F1), 13.2. requestId מגיע מהלקוח (נשמר לאורך
 // כל ניסיונות ה-retry של אותה שליחה) כדי ש-create_space תהיה idempotent.
 export async function createSpace(params: {

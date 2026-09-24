@@ -1,8 +1,26 @@
 import "server-only";
 
-import { getVerifiedUserId } from "@/lib/supabase/server";
+import { createSupabaseServerClient, getVerifiedUserId } from "@/lib/supabase/server";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { ok, fail, type Result } from "@/lib/errors/result";
+
+// getMyProfile — קריאה בלבד, דרך client עם JWT המשתמש (profiles_read/
+// can_read_profile מרשה קריאת הפרופיל של עצמך תמיד). משמש כדי להחליט אם
+// צריך לבקש שם תצוגה לפני accept_invitation_internal (הפרופיל חייב
+// להתקיים לפני קבלת הזמנה — spec סעיף 10.3).
+export async function getMyProfile(): Promise<{ id: string; displayName: string } | null> {
+  const userId = await getVerifiedUserId();
+  if (!userId) return null;
+
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from("profiles")
+    .select("id, display_name")
+    .eq("id", userId)
+    .maybeSingle<{ id: string; display_name: string }>();
+
+  return data ? { id: data.id, displayName: data.display_name } : null;
+}
 
 // updateMyProfile — spec סעיף 13.2. actor בלבד; profile נוצרת/מתעדכנת
 // אחרי Auth, לעולם לא ממשתמש שרירותי מהטופס.

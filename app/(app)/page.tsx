@@ -66,7 +66,7 @@ export default async function HomePage() {
 
       {home.waitingForPartner && (
         <Link
-          href="/settings"
+          href="/settings#invite"
           className="card"
           style={{ display: "block", textDecoration: "none", background: "var(--color-primary-soft)" }}
         >
@@ -74,7 +74,7 @@ export default async function HomePage() {
             מחכים לבן/בת הזוג שלך
           </p>
           <p className="status-msg" style={{ margin: "4px 0 0" }}>
-            הזמנה לצירוף תהיה זמינה כאן בקרוב &larr;
+            הזמנת בן/בת הזוג &larr;
           </p>
         </Link>
       )}

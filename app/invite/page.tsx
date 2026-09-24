@@ -1,12 +1,15 @@
+import { InviteConsent } from "./InviteConsent";
+
 // הזמנה `/invite` — F2, spec סעיף 5, 6, 11.2.
-// TODO (קריטי לאבטחה): קריאת #token מה-fragment בצד לקוח בלבד, ניקוי מיידי
-// עם history.replaceState, ואז POST same-origin ל-/api/invitations/exchange
-// כדי להחליף אותו ב-cookie זמני. GET אף פעם לא מקבל הזמנה.
+// GET לא מקבל שום דבר — כל הלוגיקה (קריאת fragment, exchange) קורית בצד
+// לקוח אחרי לחיצה מפורשת (InviteConsent), כך שגם link preview/bot שעושה
+// רק GET לא יכול לגרום לתופעת לוואי.
 export default function InvitePage() {
   return (
     <div className="page" style={{ paddingTop: "calc(48px + var(--safe-area-top))" }}>
+      <p className="page-eyebrow">The Bucket List</p>
       <h1 className="page-title">הזמנה</h1>
-      <p className="page-subtitle">מסך ההסכמה להצטרפות למרחב הזוגי יגיע כאן (שלב 1).</p>
+      <InviteConsent />
     </div>
   );
 }
