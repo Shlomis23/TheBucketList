@@ -5,6 +5,8 @@ import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { ok, fail, type Result } from "@/lib/errors/result";
 import type { CreateIdeaInput, IdeaCategory } from "@/lib/validation/idea";
 
+export type IdeaStatus = "active" | "archived";
+
 export type IdeaDto = {
   id: string;
   title: string;
@@ -16,6 +18,8 @@ export type IdeaDto = {
   durationMinutes: number | null;
   createdAt: string;
   myReaction: "yes" | "maybe" | "no" | null;
+  status: IdeaStatus;
+  version: number;
 };
 
 type IdeaRow = {
@@ -28,6 +32,8 @@ type IdeaRow = {
   cost_minor: number | null;
   duration_minutes: number | null;
   created_at: string;
+  status: string;
+  version: number;
 };
 
 // listIdeas — קריאה בלבד, דרך client עם JWT המשתמש ו-RLS (member_read /
@@ -39,7 +45,9 @@ export async function listIdeas(): Promise<IdeaDto[]> {
 
   const { data: ideas } = await supabase
     .from("ideas")
-    .select("id, title, description, category, location_text, source_url, cost_minor, duration_minutes, created_at")
+    .select(
+      "id, title, description, category, location_text, source_url, cost_minor, duration_minutes, created_at, status, version",
+    )
     .eq("status", "active")
     .order("created_at", { ascending: false })
     .returns<IdeaRow[]>();
@@ -66,6 +74,8 @@ export async function listIdeas(): Promise<IdeaDto[]> {
     durationMinutes: i.duration_minutes,
     createdAt: i.created_at,
     myReaction: myReactionByIdea.get(i.id) ?? null,
+    status: i.status as IdeaStatus,
+    version: i.version,
   }));
 }
 
@@ -83,7 +93,7 @@ export async function getIdea(ideaId: string): Promise<IdeaDetailDto | null> {
   const { data: idea } = await supabase
     .from("ideas")
     .select(
-      "id, space_id, title, description, category, location_text, source_url, cost_minor, duration_minutes, created_at",
+      "id, space_id, title, description, category, location_text, source_url, cost_minor, duration_minutes, created_at, status, version",
     )
     .eq("id", ideaId)
     .maybeSingle<IdeaRow & { space_id: string }>();
@@ -121,6 +131,8 @@ export async function getIdea(ideaId: string): Promise<IdeaDetailDto | null> {
     myReaction: reaction?.preference ?? null,
     isMatch,
     activePlanId: activePlan?.id ?? null,
+    status: idea.status as IdeaStatus,
+    version: idea.version,
   };
 }
 
@@ -190,4 +202,60 @@ export async function setReaction(
 
   const row = data[0] as { preference: "yes" | "maybe" | "no" | null; is_match: boolean };
   return ok({ preference: row.preference, isMatch: row.is_match }, traceId);
+}
+
+function mapIdeaRpcError(errorMessage: string | undefined, fallback: string, traceId: string): Result<never> {
+  if (errorMessage?.includes("NOT_FOUND")) {
+    return fail("NOT_FOUND", "הרעיון הזה כבר לא זמין", traceId);
+  }
+  if (errorMessage?.includes("ACTIVE_PLAN_EXISTS")) {
+    return fail(
+      "VERSION_CONFLICT",
+      "אי אפשר להעביר לארכיון רעיון עם תוכנית פעילה — בטלו או השלימו אותה קודם",
+      traceId,
+    );
+  }
+  if (errorMessage?.includes("VERSION_CONFLICT")) {
+    return fail("VERSION_CONFLICT", "הרעיון השתנה בינתיים — רעננו ונסו שוב", traceId);
+  }
+  return fail("UNEXPECTED", fallback, traceId);
+}
+
+// archiveIdea/restoreIdea — RPC שירות (0010_idea_archive_rpcs.sql). ארכוב
+// חסום כל עוד יש תוכנית proposed לרעיון (ACTIVE_PLAN_EXISTS). בלי מחיקה
+// פיזית — status בלבד (spec סעיף 6.1, 13.2).
+export async function archiveIdea(ideaId: string, expectedVersion: number): Promise<Result<{ version: number }>> {
+  const traceId = crypto.randomUUID();
+  const userId = await getVerifiedUserId();
+  if (!userId) return fail("UNAUTHENTICATED", "צריך להתחבר קודם", traceId);
+
+  const service = createSupabaseServiceClient();
+  const { data, error } = await service.rpc("archive_idea", {
+    p_actor: userId,
+    p_id: ideaId,
+    p_expected_version: expectedVersion,
+  });
+
+  if (error || !data) {
+    return mapIdeaRpcError(error?.message, "העברה לארכיון נכשלה, נסו שוב", traceId);
+  }
+  return ok({ version: (data as { version: number }).version }, traceId);
+}
+
+export async function restoreIdea(ideaId: string, expectedVersion: number): Promise<Result<{ version: number }>> {
+  const traceId = crypto.randomUUID();
+  const userId = await getVerifiedUserId();
+  if (!userId) return fail("UNAUTHENTICATED", "צריך להתחבר קודם", traceId);
+
+  const service = createSupabaseServiceClient();
+  const { data, error } = await service.rpc("restore_idea", {
+    p_actor: userId,
+    p_id: ideaId,
+    p_expected_version: expectedVersion,
+  });
+
+  if (error || !data) {
+    return mapIdeaRpcError(error?.message, "שחזור מהארכיון נכשל, נסו שוב", traceId);
+  }
+  return ok({ version: (data as { version: number }).version }, traceId);
 }

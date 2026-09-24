@@ -44,6 +44,10 @@ export const completePlanSchema = z.object({
   expectedVersion: z.number().int().min(1),
   happenedOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "תאריך לא תקין"),
   story: z.string().max(5000).default(""),
+  // "להעביר את הרעיון לארכיון?" בסיום תוכנית — best-effort, לא חלק
+  // מהטרנזקציה של complete_plan עצמה (ראו completePlanAction). ה-ideaId
+  // וגרסתו הנוכחית נשלפים בשרת מתוך ה-plan עצמו, לא מהלקוח.
+  archiveIdea: z.boolean().default(false),
 });
 export type CompletePlanInput = z.infer<typeof completePlanSchema>;
 

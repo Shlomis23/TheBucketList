@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createIdea, setReaction } from "@/lib/dal/ideas";
+import { createIdea, setReaction, archiveIdea, restoreIdea } from "@/lib/dal/ideas";
 import { createIdeaSchema } from "@/lib/validation/idea";
 import type { Result } from "@/lib/errors/result";
 import { fail } from "@/lib/errors/result";
@@ -33,6 +33,26 @@ export async function setReactionAction(
   preference: "yes" | "maybe" | "no" | null,
 ) {
   const result = await setReaction(ideaId, preference);
+  if (result.ok) {
+    revalidatePath("/ideas");
+    revalidatePath(`/ideas/${ideaId}`);
+    revalidatePath("/");
+  }
+  return result;
+}
+
+export async function archiveIdeaAction(ideaId: string, expectedVersion: number) {
+  const result = await archiveIdea(ideaId, expectedVersion);
+  if (result.ok) {
+    revalidatePath("/ideas");
+    revalidatePath(`/ideas/${ideaId}`);
+    revalidatePath("/");
+  }
+  return result;
+}
+
+export async function restoreIdeaAction(ideaId: string, expectedVersion: number) {
+  const result = await restoreIdea(ideaId, expectedVersion);
   if (result.ok) {
     revalidatePath("/ideas");
     revalidatePath(`/ideas/${ideaId}`);

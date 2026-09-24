@@ -9,7 +9,9 @@ import {
   unconfirmPlan,
   cancelPlan,
   completePlan,
+  getPlan,
 } from "@/lib/dal/plans";
+import { getIdea, archiveIdea } from "@/lib/dal/ideas";
 import {
   createPlanSchema,
   updatePlanSchema,
@@ -96,6 +98,26 @@ export async function completePlanAction(input: unknown) {
     );
   }
   const result = await completePlan(parsed.data);
-  if (result.ok) revalidatePlanPaths(parsed.data.id);
+  if (!result.ok) return result;
+
+  revalidatePlanPaths(parsed.data.id);
+
+  // "להעביר את הרעיון לארכיון?" — best-effort, לא חלק מהטרנזקציה של
+  // complete_plan (שכבר הצליחה, זה מה שחשוב). ideaId וגרסתו הנוכחית
+  // נשלפים כאן בשרת, לא מהלקוח (אין אמון ב-spaceId/id של הלקוח, spec 9.1).
+  // אם הארכוב נכשל (למשל תוכנית proposed אחרת נוצרה בינתיים) — מתעלמים,
+  // כי השלמת התוכנית עצמה כבר הצליחה ולא רוצים להציג את זה ככישלון.
+  if (parsed.data.archiveIdea) {
+    const plan = await getPlan(parsed.data.id);
+    if (plan) {
+      const idea = await getIdea(plan.ideaId);
+      if (idea && idea.status === "active") {
+        await archiveIdea(idea.id, idea.version);
+        revalidatePath("/ideas");
+        revalidatePath(`/ideas/${idea.id}`);
+      }
+    }
+  }
+
   return result;
 }

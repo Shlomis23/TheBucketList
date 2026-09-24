@@ -1,13 +1,15 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ReactionControl } from "@/components/ReactionControl";
+import { ArchiveIdeaButton } from "@/components/ArchiveIdeaButton";
 import { getIdea } from "@/lib/dal/ideas";
 import { categoryLabels, formatCostMinor, formatDurationMinutes } from "@/lib/validation/idea";
 
 // פרטי רעיון `/ideas/[id]` — F4, spec סעיף 6.
-// TODO: תגובות טקסט (addComment/editComment/deleteComment), עריכה/ארכוב.
+// TODO: תגובות טקסט (addComment/editComment/deleteComment), עריכה.
 // פריט זר/חסר מקבל את אותו 404 (notFound()) — אין הבחנה בין "לא קיים"
-// ל"שייך למרחב אחר".
+// ל"שייך למרחב אחר". רעיון בארכיון עדיין נטען כאן (getIdea לא מסנן status) —
+// כדי לאפשר שחזור — אבל בלי תגובה/תכנון פעילים.
 export default async function IdeaDetailPage({
   params,
 }: {
@@ -19,12 +21,14 @@ export default async function IdeaDetailPage({
 
   const cost = formatCostMinor(idea.costMinor);
   const duration = formatDurationMinutes(idea.durationMinutes);
+  const isArchived = idea.status === "archived";
 
   return (
     <div className="page">
       <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
         <span className="badge badge-neutral">{categoryLabels[idea.category]}</span>
         {idea.isMatch && <span className="badge badge-green">מאצ&apos;!</span>}
+        {isArchived && <span className="badge badge-neutral">בארכיון</span>}
       </div>
       <h1 className="page-title">{idea.title}</h1>
       {(cost || duration || idea.locationText) && (
@@ -49,21 +53,39 @@ export default async function IdeaDetailPage({
         </a>
       )}
 
-      <div className="card" style={{ marginBottom: 16 }}>
-        <p className="page-eyebrow" style={{ marginBottom: 8 }}>
-          התגובה שלי
-        </p>
-        <ReactionControl ideaId={idea.id} initialReaction={idea.myReaction} />
-      </div>
-
-      {idea.activePlanId ? (
-        <Link href={`/plans/${idea.activePlanId}`} className="btn btn-block" style={{ background: "var(--color-primary-soft)", color: "var(--color-primary)" }}>
-          כבר יש תוכנית לרעיון הזה &larr;
-        </Link>
+      {isArchived ? (
+        <div className="card" style={{ marginBottom: 16 }}>
+          <p className="status-msg" style={{ marginBottom: 12 }}>
+            הרעיון הזה בארכיון — אי אפשר להגיב עליו או לתכנן אותו כל עוד הוא שם.
+          </p>
+          <ArchiveIdeaButton ideaId={idea.id} version={idea.version} mode="restore" />
+        </div>
       ) : (
-        <Link href={`/plans/new?ideaId=${idea.id}`} className="btn btn-primary btn-block">
-          תכננו את זה
-        </Link>
+        <>
+          <div className="card" style={{ marginBottom: 16 }}>
+            <p className="page-eyebrow" style={{ marginBottom: 8 }}>
+              התגובה שלי
+            </p>
+            <ReactionControl ideaId={idea.id} initialReaction={idea.myReaction} />
+          </div>
+
+          {idea.activePlanId ? (
+            <Link href={`/plans/${idea.activePlanId}`} className="btn btn-block" style={{ background: "var(--color-primary-soft)", color: "var(--color-primary)", marginBottom: 16 }}>
+              כבר יש תוכנית לרעיון הזה &larr;
+            </Link>
+          ) : (
+            <Link href={`/plans/new?ideaId=${idea.id}`} className="btn btn-primary btn-block" style={{ marginBottom: 16 }}>
+              תכננו את זה
+            </Link>
+          )}
+
+          <ArchiveIdeaButton
+            ideaId={idea.id}
+            version={idea.version}
+            mode="archive"
+            blockedByActivePlan={Boolean(idea.activePlanId)}
+          />
+        </>
       )}
 
       {/* TODO: תגובות טקסט (1-1000 תווים, גלוי לשניהם, רק המחבר עורך/מוחק) */}

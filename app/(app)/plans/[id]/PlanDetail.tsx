@@ -367,6 +367,7 @@ function CompletePlanForm({
   const [requestId] = useState(() => crypto.randomUUID());
   const [happenedOn, setHappenedOn] = useState(todayDateInput());
   const [story, setStory] = useState("");
+  const [archiveIdea, setArchiveIdea] = useState(false);
   const [status, setStatus] = useState<"idle" | "busy" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -382,6 +383,7 @@ function CompletePlanForm({
       expectedVersion: plan.version,
       happenedOn,
       story,
+      archiveIdea,
     });
 
     if (!result.ok) {
@@ -416,6 +418,14 @@ function CompletePlanForm({
           className="textarea"
         />
       </div>
+      <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14 }}>
+        <input
+          type="checkbox"
+          checked={archiveIdea}
+          onChange={(e) => setArchiveIdea(e.target.checked)}
+        />
+        האם להעביר את הרעיון לארכיון?
+      </label>
       <div style={{ display: "flex", gap: 10 }}>
         <button type="submit" className="btn btn-primary btn-block" disabled={status === "busy"}>
           {status === "busy" ? "שומר..." : "שמירה לארכיון הזיכרונות"}
