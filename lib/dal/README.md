@@ -7,5 +7,7 @@
 - reads: דרך client עם ה-JWT של המשתמש, נשענים על RLS (ראו migrations, סעיף 10.2).
 - writes: אך ורק דרך RPC שירות צרות (סעיף 13.4) — אסור DML גנרי.
 
-עדיין ריק בכוונה בשלב 0 — הפונקציות הראשונות (`getHome`, `createIdea` וכו')
-נכנסות בשלב 1–2, יחד עם ה-RPC המתאימות ב-`supabase/migrations`.
+קיים כרגע: `profile.ts` (updateMyProfile), `space.ts` (createSpace,
+getMySpaceId) — הזרימה האנכית הראשונה (login -> יצירת מרחב). שאר
+הפונקציות (`getHome`, `createIdea`, `setReaction` וכו') נכנסות בהמשך
+שלב 1–2, יחד עם ה-RPC המתאימות ב-`supabase/migrations`.

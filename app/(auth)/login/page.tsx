@@ -1,11 +1,20 @@
-// כניסה `/login` — spec סעיף 5 (F1/F2), 6, 9.1.
-// TODO: טופס אימייל -> שליחת magic link דרך Supabase Auth.
-// למנוע שליחה חוזרת בזמן בקשה; הודעת שגיאה כללית בלי לחשוף קיום חשבון.
-export default function LoginPage() {
+import { LoginForm } from "./LoginForm";
+
+// כניסה `/login` — F1/F2, spec סעיף 5, 6, 9.1.
+// error=link_expired מגיע מ-/auth/callback דרך searchParams (Next.js),
+// לא מ-window.location בצד לקוח — נמנע מ-setState בתוך useEffect.
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
+
   return (
     <div style={{ padding: 16 }}>
       <h1>כניסה</h1>
-      <p>רשימת החוויות שלכם, שנייך. נכניס כאן טופס אימייל + קישור מאובטח.</p>
+      <p>רשימת החוויות שלכם, שנייך.</p>
+      <LoginForm initialError={error} />
     </div>
   );
 }
