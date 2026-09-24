@@ -8,6 +8,7 @@
 - writes: אך ורק דרך RPC שירות צרות (סעיף 13.4) — אסור DML גנרי.
 
 קיים כרגע: `profile.ts` (updateMyProfile), `space.ts` (createSpace,
-getMySpaceId), `home.ts` (getHome — קריאה בלבד, ראו spec סעיף 13.3).
-שאר הפונקציות (`listIdeas`, `createIdea`, `setReaction`, `createInvitation`
-וכו') נכנסות בהמשך, יחד עם ה-RPC המתאימות ב-`supabase/migrations`.
+getMySpaceId), `home.ts` (getHome — קריאה בלבד), `ideas.ts` (listIdeas,
+getIdea — קריאה בלבד; createIdea, setReaction — RPC שירות ב-
+`0007_idea_rpcs.sql`). שאר הפונקציות (חיפוש/פילטר מלא ב-listIdeas,
+addComment, createInvitation וכו') נכנסות בהמשך.

@@ -33,3 +33,34 @@ export const createIdeaSchema = z.object({
 });
 
 export type CreateIdeaInput = z.infer<typeof createIdeaSchema>;
+
+export type IdeaCategory = (typeof ideaCategories)[number];
+
+export const categoryLabels: Record<IdeaCategory, string> = {
+  food: "אוכל",
+  outdoors: "טבע וחוץ",
+  culture: "תרבות",
+  trip: "טיול",
+  home: "בית",
+  learning: "למידה",
+  other: "אחר",
+};
+
+// עלות באגורות -> תצוגת ₪. null = לא ידוע (שונה מ-0 = חינם).
+export function formatCostMinor(costMinor: number | null): string | null {
+  if (costMinor === null) return null;
+  if (costMinor === 0) return "חינם";
+  const shekels = costMinor / 100;
+  const hasFraction = costMinor % 100 !== 0;
+  return `₪${shekels.toLocaleString("he-IL", {
+    maximumFractionDigits: hasFraction ? 2 : 0,
+  })}`;
+}
+
+export function formatDurationMinutes(minutes: number | null): string | null {
+  if (minutes === null) return null;
+  if (minutes < 60) return `${minutes} דק׳`;
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return rest === 0 ? `${hours} שע׳` : `${hours} שע׳ ${rest} דק׳`;
+}

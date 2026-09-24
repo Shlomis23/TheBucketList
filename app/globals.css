@@ -274,3 +274,103 @@ button {
   font-size: 14px;
   line-height: 1.6;
 }
+
+.badge-neutral {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding-inline: 14px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.chip[aria-pressed="true"] {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
+.reaction-group {
+  display: flex;
+  gap: 8px;
+}
+
+.reaction-btn {
+  flex: 1;
+  min-height: 40px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  font-weight: 700;
+  font-size: 13.5px;
+  cursor: pointer;
+  color: var(--color-text);
+}
+
+.reaction-btn.yes[aria-pressed="true"] {
+  background: var(--badge-green-bg);
+  border-color: var(--badge-green-text);
+  color: var(--badge-green-text);
+}
+
+.reaction-btn.maybe[aria-pressed="true"] {
+  background: var(--badge-yellow-bg);
+  border-color: var(--badge-yellow-text);
+  color: var(--badge-yellow-text);
+}
+
+.reaction-btn.no[aria-pressed="true"] {
+  background: var(--badge-pink-bg);
+  border-color: var(--badge-pink-text);
+  color: var(--badge-pink-text);
+}
+
+.idea-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 10px;
+}
+
+.textarea {
+  min-height: 88px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 15px;
+  resize: vertical;
+}
+
+.textarea:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+  border-color: var(--color-primary);
+}
+
+.link-plain {
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 14px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
