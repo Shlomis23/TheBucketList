@@ -10,6 +10,7 @@ import "server-only";
 
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { cache } from "react";
 
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies();
@@ -42,9 +43,13 @@ export async function createSupabaseServerClient() {
  * זהו המקור היחיד ל-userId בכל Server Action / RPC — אסור לקבל
  * userId/createdBy מהטופס של הלקוח (סעיף 10.1, 13.4).
  */
-export async function getVerifiedUserId(): Promise<string | null> {
+//
+// עטוף ב-cache() של React: תוצאה אחת לכל בקשת שרת. כמה DAL-ים באותו רינדור
+// (למשל settings: הדף + getMyProfile) לא יבצעו כל אחד קריאת רשת נפרדת
+// ל-Auth. ה-cache לא חוצה בקשות/משתמשים — הוא מתאפס בכל בקשה.
+export const getVerifiedUserId = cache(async (): Promise<string | null> => {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) return null;
   return data.user.id;
-}
+});

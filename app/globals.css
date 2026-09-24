@@ -557,6 +557,23 @@ button {
   border-color: var(--color-primary);
 }
 
+/* כפתור אייקון עגול (למשל הגדרות בבית) — יעד מגע 44px. */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-target-min);
+  height: var(--touch-target-min);
+  border-radius: var(--radius-pill);
+  color: var(--color-muted);
+  text-decoration: none;
+}
+.icon-btn:hover,
+.icon-btn:active {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
 .link-plain {
   color: var(--color-primary);
   font-weight: 700;

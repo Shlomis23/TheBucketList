@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1024" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6a49b3"/>
+      <stop offset="1" stop-color="#3f2a72"/>
+    </linearGradient>
+    <linearGradient id="body" x1="0" y1="430" x2="0" y2="800" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e9e0fb"/>
+    </linearGradient>
+    <clipPath id="clip"><rect width="1024" height="1024" rx="230"/></clipPath>
+  </defs>
+  <g clip-path="url(#clip)">
+    <rect width="1024" height="1024" fill="url(#bg)"/>
+    <circle cx="170" cy="170" r="260" fill="#ffffff" opacity="0.07"/>
+    <circle cx="900" cy="930" r="300" fill="#ffe1e9" opacity="0.08"/>
+    <!-- ידית -->
+    <path d="M318 440 C 318 250, 706 250, 706 440" fill="none" stroke="#f3edff" stroke-width="34" stroke-linecap="round"/>
+    <!-- גוף הדלי -->
+    <path d="M276 432 H748 Q770 432 767 454 L716 790 Q712 818 684 818 H340 Q312 818 308 790 L257 454 Q254 432 276 432 Z" fill="url(#body)"/>
+    <!-- שפה -->
+    <rect x="240" y="410" width="544" height="64" rx="32" fill="#ffffff"/>
+    <!-- לב -->
+    <path d="M512 742 C 452 700, 408 664, 408 614 C 408 580, 434 556, 466 556 C 488 556, 504 568, 512 584 C 520 568, 536 556, 558 556 C 590 556, 616 580, 616 614 C 616 664, 572 700, 512 742 Z" fill="#d6426f"/>
+  </g>
+</svg>

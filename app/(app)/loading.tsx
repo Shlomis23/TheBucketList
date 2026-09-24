@@ -4,7 +4,10 @@
 export default function Loading() {
   return (
     <div className="page" style={{ paddingTop: "calc(28px + var(--safe-area-top))" }}>
-      <div className="skeleton skeleton-line" style={{ width: 96, height: 12, marginBottom: 10 }} />
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div className="skeleton skeleton-line" style={{ width: 96, height: 12 }} />
+        <div className="skeleton" style={{ width: 32, height: 32, borderRadius: "var(--radius-pill)" }} />
+      </div>
       <div className="skeleton skeleton-title" style={{ width: "70%", height: 26 }} />
       <div className="skeleton skeleton-line" style={{ width: "85%", marginBottom: 20 }} />
 
