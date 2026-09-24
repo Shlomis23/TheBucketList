@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getVerifiedUserId } from "@/lib/supabase/server";
 import { getPlan } from "@/lib/dal/plans";
+import { getMemoryIdForPlan } from "@/lib/dal/memories";
 import { PlanDetail } from "./PlanDetail";
 
 // תוכנית `/plans/[id]` — F6, spec סעיף 6, 7.
@@ -12,12 +13,14 @@ export default async function PlanDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [plan, userId] = await Promise.all([getPlan(id), getVerifiedUserId()]);
+  // getMemoryIdForPlan במקביל (בלי קפיצת רשת נוספת) — null אם התוכנית עוד
+  // לא הושלמה; אחרת כפתור "לזיכרון".
+  const [plan, userId, memoryId] = await Promise.all([getPlan(id), getVerifiedUserId(), getMemoryIdForPlan(id)]);
   if (!plan || !userId) notFound();
 
   return (
     <div className="page">
-      <PlanDetail plan={plan} />
+      <PlanDetail plan={plan} memoryId={plan.status === "completed" ? memoryId : null} />
     </div>
   );
 }

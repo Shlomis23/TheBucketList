@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   updatePlanAction,
@@ -32,7 +33,8 @@ function todayDateInput(): string {
 // אחרי כל פעולה מצליחה: router.refresh() כדי לקבל מהשרת את הגרסה העדכנית
 // (במקום לתחזק state אופטימי משלנו) — כך "גרסה השתנתה" תמיד מוצג נכון,
 // כי אנחנו תמיד רואים את מה ששרת ה-RSC מחזיר, לא ניחוש מקומי (spec סעיף 7).
-export function PlanDetail({ plan }: { plan: PlanDto }) {
+// memoryId — רק לתוכנית שהושלמה (ראו getMemoryIdForPlan), לכפתור "לזיכרון".
+export function PlanDetail({ plan, memoryId }: { plan: PlanDto; memoryId: string | null }) {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("view");
   const [isPending, startTransition] = useTransition();
@@ -81,7 +83,7 @@ export function PlanDetail({ plan }: { plan: PlanDto }) {
         <CompletePlanForm
           plan={plan}
           onCancel={() => setMode("view")}
-          onCompleted={() => router.push("/plans")}
+          onCompleted={(newMemoryId) => router.push(`/memories/${newMemoryId}`)}
         />
       ) : (
         <>
@@ -123,6 +125,12 @@ export function PlanDetail({ plan }: { plan: PlanDto }) {
             <p role="alert" className="alert-error" style={{ marginBottom: 12 }}>
               {errorMsg}
             </p>
+          )}
+
+          {memoryId && (
+            <Link href={`/memories/${memoryId}`} className="btn btn-primary btn-block" style={{ marginBottom: 12 }}>
+              לזיכרון &larr;
+            </Link>
           )}
 
           {isProposed && (
@@ -367,7 +375,7 @@ function CompletePlanForm({
 }: {
   plan: PlanDto;
   onCancel: () => void;
-  onCompleted: () => void;
+  onCompleted: (memoryId: string) => void;
 }) {
   const [requestId] = useState(() => crypto.randomUUID());
   const [happenedOn, setHappenedOn] = useState(todayDateInput());
@@ -396,7 +404,8 @@ function CompletePlanForm({
       setErrorMsg(result.error.message);
       return;
     }
-    onCompleted();
+    // ישר לזיכרון החדש — שם אפשר להשלים את הסיפור (F7, spec סעיף 5).
+    onCompleted(result.data.memoryId);
   }
 
   return (

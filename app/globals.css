@@ -519,6 +519,18 @@ button {
   cursor: pointer;
 }
 
+/* תקציר סיפור בכרטיס זיכרון — שתי שורות ואז "…". */
+.memory-excerpt {
+  margin: 6px 0 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
 .idea-card {
   display: block;
   text-decoration: none;

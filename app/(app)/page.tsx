@@ -6,6 +6,8 @@ import { getHome, type PartnerNewIdea } from "@/lib/dal/home";
 import { getIdeaCoverImage } from "@/lib/covers";
 import { categoryLabels, type IdeaCategory } from "@/lib/validation/idea";
 import { ReactionControl } from "@/components/ReactionControl";
+import { MemoryCard } from "@/components/MemoryCard";
+import { getLatestMemory } from "@/lib/dal/memories";
 
 // בית `/` — spec סעיף 6, 13.3 (getHome).
 // שלד "רעיונות אחרונים" בתור תצוגה מקדימה בפועל (לא רק מספר) ממתין ל-listIdeas
@@ -19,7 +21,8 @@ export default async function HomePage() {
   if (!userId) redirect("/login");
   if (!spaceId) redirect("/onboarding");
 
-  const home = await getHome(spaceId, userId);
+  // "הזיכרון האחרון" במקביל ל-getHome — בלי קפיצת רשת נוספת.
+  const [home, latestMemory] = await Promise.all([getHome(spaceId, userId), getLatestMemory()]);
   const greetingName = home.displayName || "שם";
 
   return (
@@ -62,6 +65,12 @@ export default async function HomePage() {
       <Link href="/choose" className="btn btn-primary btn-block" style={{ marginBottom: 12 }}>
         מה עושים היום?
       </Link>
+
+      {latestMemory && (
+        <div style={{ marginTop: 8 }}>
+          <MemoryCard memory={latestMemory} eyebrow="הזיכרון האחרון" />
+        </div>
+      )}
 
       {home.ideasCount === 0 && (
         <Link

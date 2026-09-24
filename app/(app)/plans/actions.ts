@@ -101,6 +101,7 @@ export async function completePlanAction(input: unknown) {
   if (!result.ok) return result;
 
   revalidatePlanPaths(parsed.data.id);
+  revalidatePath("/memories");
 
   // "להעביר את הרעיון לארכיון?" — best-effort, לא חלק מהטרנזקציה של
   // complete_plan (שכבר הצליחה, זה מה שחשוב). ideaId וגרסתו הנוכחית
