@@ -3,6 +3,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { ReactionControl } from "@/components/ReactionControl";
 import { listIdeas } from "@/lib/dal/ideas";
 import { categoryLabels, formatCostMinor, formatDurationMinutes } from "@/lib/validation/idea";
+import { getIdeaCoverImage } from "@/lib/covers";
 
 // מאגר `/ideas` — spec סעיף 6, 8. `?status=archived` מציג את הארכיון
 // (ראו lib/dal/ideas.ts) — כפתור/מסנן פעילים/ארכיון, לא מסך נפרד, כדי
@@ -61,6 +62,8 @@ export default async function IdeasPage({
           return (
             <div key={idea.id} className="card idea-card">
               <Link href={`/ideas/${idea.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element -- SVG עיצוב סטטי לפי קטגוריה, לא תוכן דינמי */}
+                <img src={getIdeaCoverImage(idea.category)} alt="" className="card-cover-img cover-sm" />
                 <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}>
                   <span className="badge badge-neutral">{categoryLabels[idea.category]}</span>
                   {idea.isMatch && <span className="badge badge-green">מאצ&apos;!</span>}

@@ -4,6 +4,7 @@ import { ReactionControl } from "@/components/ReactionControl";
 import { ArchiveIdeaButton } from "@/components/ArchiveIdeaButton";
 import { getIdea } from "@/lib/dal/ideas";
 import { categoryLabels, formatCostMinor, formatDurationMinutes, reactionLabels, reactionBadgeClass } from "@/lib/validation/idea";
+import { getIdeaCoverImage } from "@/lib/covers";
 
 // פרטי רעיון `/ideas/[id]` — F4, spec סעיף 6.
 // TODO: תגובות טקסט (addComment/editComment/deleteComment).
@@ -25,6 +26,8 @@ export default async function IdeaDetailPage({
 
   return (
     <div className="page">
+      {/* eslint-disable-next-line @next/next/no-img-element -- SVG עיצוב סטטי לפי קטגוריה, לא תוכן דינמי */}
+      <img src={getIdeaCoverImage(idea.category)} alt="" className="hero-banner" />
       <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
         <span className="badge badge-neutral">{categoryLabels[idea.category]}</span>
         {idea.isMatch && <span className="badge badge-green">מאצ&apos;!</span>}

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-label="תרבות">
+  <defs>
+    <linearGradient id="gCultureBg" x1="0" y1="0" x2="480" y2="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#46307d"/>
+      <stop offset="1" stop-color="#5b3e9e"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="300" fill="url(#gCultureBg)"/>
+  <circle cx="60" cy="240" r="70" fill="#fef1cf" opacity="0.12"/>
+  <circle cx="420" cy="60" r="60" fill="#ddf3e4" opacity="0.1"/>
+  <g transform="translate(240,150)">
+    <g transform="translate(-58,0)">
+      <circle r="52" fill="none" stroke="#f3edff" stroke-width="4.5" opacity="0.92"/>
+      <circle cx="-16" cy="-10" r="5.5" fill="#f3edff" opacity="0.92"/>
+      <circle cx="16" cy="-10" r="5.5" fill="#f3edff" opacity="0.92"/>
+      <path d="M-20 18 C -8 30, 8 30, 20 18" fill="none" stroke="#f3edff" stroke-width="4.5" stroke-linecap="round" opacity="0.92"/>
+    </g>
+    <g transform="translate(58,10)">
+      <circle r="52" fill="none" stroke="#fef1cf" stroke-width="4.5" opacity="0.85"/>
+      <circle cx="-16" cy="-8" r="5.5" fill="#fef1cf" opacity="0.85"/>
+      <circle cx="16" cy="-8" r="5.5" fill="#fef1cf" opacity="0.85"/>
+      <path d="M-20 26 C -8 14, 8 14, 20 26" fill="none" stroke="#fef1cf" stroke-width="4.5" stroke-linecap="round" opacity="0.85"/>
+    </g>
+  </g>
+</svg>

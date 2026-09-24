@@ -2,6 +2,7 @@ import Link from "next/link";
 import { EmptyState } from "@/components/EmptyState";
 import { listPlans, type PlanDto } from "@/lib/dal/plans";
 import { formatPlanWhen } from "@/lib/validation/plan";
+import { getIdeaCoverImage } from "@/lib/covers";
 
 // תוכניות `/plans` — spec סעיף 6: מוצעות/מאושרות/עבר; סדר כרונולוגי;
 // מועד לא נקבע בסוף. "מאושר" הוא ערך נגזר (isConfirmedByBoth), לא status —
@@ -78,6 +79,10 @@ function PlanCard({ plan, muted }: { plan: PlanDto; muted?: boolean }) {
       className="card"
       style={{ display: "block", textDecoration: "none", opacity: muted ? 0.8 : 1 }}
     >
+      {plan.ideaCategory && (
+        // eslint-disable-next-line @next/next/no-img-element -- SVG עיצוב סטטי לפי קטגוריה, לא תוכן דינמי
+        <img src={getIdeaCoverImage(plan.ideaCategory)} alt="" className="card-cover-img cover-sm" />
+      )}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
         <p style={{ margin: "0 0 4px", fontWeight: 800, fontSize: 16 }}>{plan.title}</p>
         {statusBadge}

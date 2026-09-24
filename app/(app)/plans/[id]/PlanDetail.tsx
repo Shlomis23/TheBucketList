@@ -10,6 +10,7 @@ import {
   completePlanAction,
 } from "../actions";
 import { DEFAULT_PLAN_TIMEZONE, formatBudgetMinor, formatPlanWhen } from "@/lib/validation/plan";
+import { getIdeaCoverImage } from "@/lib/covers";
 import type { PlanDto } from "@/lib/dal/plans";
 
 type Mode = "view" | "edit" | "complete";
@@ -54,6 +55,10 @@ export function PlanDetail({ plan }: { plan: PlanDto }) {
 
   return (
     <>
+      {plan.ideaCategory && (
+        // eslint-disable-next-line @next/next/no-img-element -- SVG עיצוב סטטי לפי קטגוריה, לא תוכן דינמי
+        <img src={getIdeaCoverImage(plan.ideaCategory)} alt="" className="hero-banner" />
+      )}
       <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
         <StatusBadge plan={plan} />
       </div>

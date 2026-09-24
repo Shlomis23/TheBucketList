@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getIdea } from "@/lib/dal/ideas";
+import { getIdeaCoverImage } from "@/lib/covers";
 import { NewPlanForm } from "./NewPlanForm";
 
 // תכנון חדש `/plans/new?ideaId=...` — F6, spec סעיף 5-6.
@@ -26,6 +27,8 @@ export default async function NewPlanPage({
 
   return (
     <div className="page">
+      {/* eslint-disable-next-line @next/next/no-img-element -- SVG עיצוב סטטי לפי קטגוריה, לא תוכן דינמי */}
+      <img src={getIdeaCoverImage(idea.category)} alt="" className="hero-banner" />
       <p className="page-eyebrow">תכנון</p>
       <h1 className="page-title">{idea.title}</h1>
       <p className="page-subtitle">כל השדות כאן אופציונליים — אפשר לשמור בלי לקבוע כלום ולמלא אחר כך.</p>

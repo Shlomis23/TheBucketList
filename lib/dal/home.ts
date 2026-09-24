@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { IdeaCategory } from "@/lib/validation/idea";
 
 // getHome — קריאה בלבד, דרך client עם JWT המשתמש ו-RLS (member_read /
 // own_reaction_read / list_my_matches). ראו spec סעיף 13.3:
@@ -21,6 +22,7 @@ export type HomeSummary = {
     title: string;
     startsAt: string | null;
     meetingPlace: string | null;
+    ideaCategory: IdeaCategory | null;
   } | null;
 };
 
@@ -41,7 +43,7 @@ export async function getHome(spaceId: string, userId: string): Promise<HomeSumm
     supabase.rpc("list_my_matches", { p_space: spaceId }),
     supabase
       .from("plans")
-      .select("id, title, starts_at, meeting_place")
+      .select("id, idea_id, title, starts_at, meeting_place")
       .eq("space_id", spaceId)
       .eq("status", "proposed")
       .order("starts_at", { ascending: true, nullsFirst: false })
@@ -50,8 +52,20 @@ export async function getHome(spaceId: string, userId: string): Promise<HomeSumm
   ]);
 
   const plan = planRes.data as
-    | { id: string; title: string; starts_at: string | null; meeting_place: string | null }
+    | { id: string; idea_id: string; title: string; starts_at: string | null; meeting_place: string | null }
     | null;
+
+  // תמונת עטיפה לכרטיס "התוכנית הקרובה" — לפי קטגוריית הרעיון המקושר
+  // (lib/covers.ts). שאילתה נוספת קטנה, רק כשיש תוכנית קרובה בכלל.
+  let ideaCategory: IdeaCategory | null = null;
+  if (plan) {
+    const { data: idea } = await supabase
+      .from("ideas")
+      .select("category")
+      .eq("id", plan.idea_id)
+      .maybeSingle<{ category: IdeaCategory }>();
+    ideaCategory = idea?.category ?? null;
+  }
 
   return {
     displayName: (profileRes.data?.display_name as string | undefined) ?? "",
@@ -64,6 +78,7 @@ export async function getHome(spaceId: string, userId: string): Promise<HomeSumm
           title: plan.title,
           startsAt: plan.starts_at,
           meetingPlace: plan.meeting_place,
+          ideaCategory,
         }
       : null,
   };

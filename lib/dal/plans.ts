@@ -8,6 +8,7 @@ import type {
   UpdatePlanInput,
   CompletePlanInput,
 } from "@/lib/validation/plan";
+import type { IdeaCategory } from "@/lib/validation/idea";
 
 export type PlanStatus = "proposed" | "completed" | "cancelled";
 
@@ -20,6 +21,7 @@ export type PlanConfirmationDto = {
 export type PlanDto = {
   id: string;
   ideaId: string;
+  ideaCategory: IdeaCategory | null;
   title: string;
   status: PlanStatus;
   startsAt: string | null;
@@ -64,11 +66,21 @@ async function attachConfirmations(
   const supabase = await createSupabaseServerClient();
 
   const planIds = plans.map((p) => p.id);
-  const { data: confirmations } = await supabase
-    .from("plan_confirmations")
-    .select("plan_id, user_id, plan_version, confirmed_at")
-    .in("plan_id", planIds)
-    .returns<ConfirmationRow[]>();
+  const ideaIds = Array.from(new Set(plans.map((p) => p.idea_id)));
+  const [{ data: confirmations }, { data: ideas }] = await Promise.all([
+    supabase
+      .from("plan_confirmations")
+      .select("plan_id, user_id, plan_version, confirmed_at")
+      .in("plan_id", planIds)
+      .returns<ConfirmationRow[]>(),
+    // רק לתמונת עטיפה לפי קטגוריה (lib/covers.ts) — לא נתון עסקי של התוכנית.
+    supabase
+      .from("ideas")
+      .select("id, category")
+      .in("id", ideaIds)
+      .returns<{ id: string; category: IdeaCategory }[]>(),
+  ]);
+  const categoryByIdea = new Map((ideas ?? []).map((i) => [i.id, i.category]));
 
   const userIds = Array.from(new Set((confirmations ?? []).map((c) => c.user_id)));
   const { data: profiles } = userIds.length
@@ -92,6 +104,7 @@ async function attachConfirmations(
     return {
       id: p.id,
       ideaId: p.idea_id,
+      ideaCategory: categoryByIdea.get(p.idea_id) ?? null,
       title: p.title,
       status: p.status,
       startsAt: p.starts_at,

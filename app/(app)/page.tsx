@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { getVerifiedUserId } from "@/lib/supabase/server";
 import { getMySpaceId } from "@/lib/dal/space";
 import { getHome } from "@/lib/dal/home";
+import { getIdeaCoverImage } from "@/lib/covers";
+import type { IdeaCategory } from "@/lib/validation/idea";
 
 // בית `/` — spec סעיף 6, 13.3 (getHome).
 // שלד "רעיונות אחרונים" בתור תצוגה מקדימה בפועל (לא רק מספר) ממתין ל-listIdeas
@@ -85,7 +87,13 @@ export default async function HomePage() {
 function UpcomingPlanCard({
   plan,
 }: {
-  plan: { id: string; title: string; startsAt: string | null; meetingPlace: string | null } | null;
+  plan: {
+    id: string;
+    title: string;
+    startsAt: string | null;
+    meetingPlace: string | null;
+    ideaCategory: IdeaCategory | null;
+  } | null;
 }) {
   if (!plan) {
     return (
@@ -110,6 +118,10 @@ function UpcomingPlanCard({
       className="card"
       style={{ display: "block", textDecoration: "none", marginBottom: 16 }}
     >
+      {plan.ideaCategory && (
+        // eslint-disable-next-line @next/next/no-img-element -- SVG עיצוב סטטי לפי קטגוריה, לא תוכן דינמי
+        <img src={getIdeaCoverImage(plan.ideaCategory)} alt="" className="card-cover-img cover-sm" />
+      )}
       <p className="page-eyebrow" style={{ marginBottom: 4 }}>
         התוכנית הקרובה
       </p>
