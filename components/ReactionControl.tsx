@@ -8,12 +8,16 @@ type Preference = "yes" | "maybe" | "no";
 // שליטת תגובה משותפת ל-/ideas ו-/ideas/[id]. אופטימית: מעדכנת מקומית מיד,
 // חוזרת אחורה אם ה-Server Action נכשל. אף פעם לא חושפת את תגובת בן/בת הזוג —
 // setReaction בשרת מחזיר רק isMatch, לא את הערך של הצד השני.
+// size="sm" — גרסה קומפקטית לשורות ברשימת /ideas (גלולות 36px, כמו .chip),
+// כדי שייכנסו כמה שיותר רעיונות למסך בלי לוותר על תגובה מהירה.
 export function ReactionControl({
   ideaId,
   initialReaction,
+  size = "md",
 }: {
   ideaId: string;
   initialReaction: Preference | null;
+  size?: "md" | "sm";
 }) {
   const [reaction, setReactionState] = useState(initialReaction);
   const [isPending, startTransition] = useTransition();
@@ -35,7 +39,7 @@ export function ReactionControl({
 
   return (
     <div>
-      <div className="reaction-group" role="group" aria-label="התגובה שלי">
+      <div className={size === "sm" ? "reaction-group sm" : "reaction-group"} role="group" aria-label="התגובה שלי">
         <button
           type="button"
           className="reaction-btn yes"

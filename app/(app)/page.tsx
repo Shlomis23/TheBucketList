@@ -51,7 +51,11 @@ export default async function HomePage() {
         </div>
       </div>
 
-      <PartnerNewIdeasSection ideas={home.partnerNewIdeas} total={home.partnerNewIdeasTotal} />
+      <PartnerNewIdeasSection
+        ideas={home.partnerNewIdeas}
+        total={home.partnerNewIdeasTotal}
+        partnerName={home.partnerName}
+      />
 
       <UpcomingPlanCard plan={home.upcomingPlan} />
 
@@ -91,7 +95,15 @@ export default async function HomePage() {
 // "חדש מבן/בת הזוג" — רעיונות שבן/בת הזוג הוסיפו ואני עוד לא הגבתי עליהם.
 // אפשר להגיב ישר מכאן; setReactionAction עושה revalidatePath("/"), כך
 // שאחרי תגובה הכרטיס יוצא מהרשימה. כשאין כאלה — הסקשן לא מוצג בכלל.
-function PartnerNewIdeasSection({ ideas, total }: { ideas: PartnerNewIdea[]; total: number }) {
+function PartnerNewIdeasSection({
+  ideas,
+  total,
+  partnerName,
+}: {
+  ideas: PartnerNewIdea[];
+  total: number;
+  partnerName: string | null;
+}) {
   if (ideas.length === 0) return null;
   const more = total - ideas.length;
 
@@ -101,7 +113,7 @@ function PartnerNewIdeasSection({ ideas, total }: { ideas: PartnerNewIdea[]; tot
         style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 8 }}
       >
         <p id="partner-new-ideas" className="page-eyebrow" style={{ margin: 0 }}>
-          חדש מבן/בת הזוג
+          {partnerName ? `חדש מ${partnerName}` : "חדש מבן/בת הזוג"}
         </p>
         <span className="badge badge-pink">{total === 1 ? "רעיון אחד מחכה לך" : `${total} מחכים לך`}</span>
       </div>
@@ -121,7 +133,7 @@ function PartnerNewIdeasSection({ ideas, total }: { ideas: PartnerNewIdea[]; tot
       ))}
 
       {more > 0 && (
-        <Link href="/ideas" className="link-plain" style={{ display: "inline-block", marginTop: 2 }}>
+        <Link href="/ideas?view=unreacted" className="link-plain" style={{ display: "inline-block", marginTop: 2 }}>
           ועוד {more} ברשימת הרעיונות &larr;
         </Link>
       )}

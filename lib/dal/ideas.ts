@@ -2,9 +2,9 @@ import "server-only";
 
 import { createSupabaseServerClient, getVerifiedUserId } from "@/lib/supabase/server";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
-import { getMySpaceId } from "@/lib/dal/space";
 import { ok, fail, type Result } from "@/lib/errors/result";
 import type { CreateIdeaInput, UpdateIdeaInput, IdeaCategory } from "@/lib/validation/idea";
+import type { IdeaListFilters, IdeaListSort } from "@/lib/validation/ideaList";
 
 export type IdeaStatus = "active" | "archived";
 
@@ -39,49 +39,54 @@ type IdeaRow = {
 };
 
 // listIdeas — קריאה בלבד, דרך client עם JWT המשתמש ו-RLS (member_read /
-// own_reaction_read). ראו spec סעיף 13.3.
-// isMatch מחושב כאן (לא רק ב-getIdea) כדי להציג "מאצ'!" על כרטיס ברשימה
-// בלי להיכנס לפרטי הרעיון — קריאה אחת ל-list_my_matches (הבטוחה, לא חושפת
-// את תגובת האחר) ומיפוי ל-Set, בדיוק כמו ב-getIdea.
-// TODO (המשך F3): חיפוש, פילטר קטגוריה/מאצ'ים/תגובה שלי, מיון, pagination —
-// כרגע כל הרעיונות של המרחב בסטטוס מבוקש, מהחדש לישן, בלי הגבלה.
-// status ברירת מחדל 'active' (המאגר הרגיל); 'archived' למסך הארכיון
-// (ראו app/(app)/ideas/page.tsx?status=archived).
-export async function listIdeas(status: IdeaStatus = "active"): Promise<IdeaDto[]> {
+// own_reaction_read). ראו spec סעיף 6 ו-13.3, lib/validation/ideaList.ts.
+//
+// שתי קפיצות רשת בלבד (קודם היו שלוש ברצף):
+//   1. במקביל: הרעיונות בסטטוס המבוקש + כל התגובות *שלי* (RLS מחזיר רק
+//      אותן — own_reaction_read; תגובות בן/בת הזוג לא נקראות אף פעם).
+//   2. list_my_matches (הבטוחה, לא חושפת את תגובת האחר) — רק לרשימה הפעילה
+//      (ה-RPC מחזיר ממילא רק פעילים), עם space_id מהשורות עצמן במקום
+//      שאילתת getMySpaceId נפרדת (RLS כבר מבטיח שכולן מהמרחב שלי).
+//
+// חיפוש/קטגוריה/תצוגה/מיון נעשים כאן בזיכרון: בקנה המידה של זוג אחד זה
+// עשרות רעיונות, וכך גם המונים על הצ'יפים ("עוד לא הגבתי · 3") מחושבים
+// מאותה שליפה בלי שאילתות count נוספות. cursor pagination (spec: 20 בעמוד)
+// נדחה בכוונה עד שיהיה בו צורך אמיתי.
+export type IdeaListCounts = { all: number; unreacted: number; matches: number };
+
+export async function listIdeas(
+  filters: IdeaListFilters,
+): Promise<{ ideas: IdeaDto[]; counts: IdeaListCounts }> {
   const supabase = await createSupabaseServerClient();
 
-  const { data: ideas } = await supabase
-    .from("ideas")
-    .select(
-      "id, title, description, category, location_text, source_url, cost_minor, duration_minutes, created_at, status, version",
-    )
-    .eq("status", status)
-    .order("created_at", { ascending: false })
-    .returns<IdeaRow[]>();
-
-  if (!ideas || ideas.length === 0) return [];
-
-  const ideaIds = ideas.map((i) => i.id);
-  const [{ data: reactions }, spaceId] = await Promise.all([
+  const [{ data: rows }, { data: reactions }] = await Promise.all([
+    supabase
+      .from("ideas")
+      .select(
+        "id, space_id, title, description, category, location_text, source_url, cost_minor, duration_minutes, created_at, status, version",
+      )
+      .eq("status", filters.status)
+      .order("created_at", { ascending: false })
+      .returns<(IdeaRow & { space_id: string })[]>(),
     supabase
       .from("idea_reactions")
       .select("idea_id, preference")
-      .in("idea_id", ideaIds)
       .returns<{ idea_id: string; preference: "yes" | "maybe" | "no" }[]>(),
-    getMySpaceId(),
   ]);
 
-  const myReactionByIdea = new Map((reactions ?? []).map((r) => [r.idea_id, r.preference]));
+  if (!rows || rows.length === 0) return { ideas: [], counts: { all: 0, unreacted: 0, matches: 0 } };
 
   let matchedIds = new Set<string>();
-  if (spaceId) {
-    const { data: matches } = await supabase.rpc("list_my_matches", { p_space: spaceId });
+  if (filters.status === "active") {
+    const { data: matches } = await supabase.rpc("list_my_matches", { p_space: rows[0].space_id });
     if (Array.isArray(matches)) {
       matchedIds = new Set((matches as { idea_id: string }[]).map((m) => m.idea_id));
     }
   }
 
-  return ideas.map((i) => ({
+  const myReactionByIdea = new Map((reactions ?? []).map((r) => [r.idea_id, r.preference]));
+
+  const all: IdeaDto[] = rows.map((i) => ({
     id: i.id,
     title: i.title,
     description: i.description,
@@ -96,6 +101,50 @@ export async function listIdeas(status: IdeaStatus = "active"): Promise<IdeaDto[
     status: i.status as IdeaStatus,
     version: i.version,
   }));
+
+  // חיפוש + קטגוריה קודם, ורק אז המונים לפי תצוגה — כך "עוד לא הגבתי · 3"
+  // תמיד מתאר את מה שיופיע בפועל בלחיצה, בתוך החיפוש/הקטגוריה הנוכחיים.
+  const needle = filters.q.toLocaleLowerCase("he");
+  const narrowed = all.filter(
+    (i) =>
+      (!filters.category || i.category === filters.category) &&
+      (!needle ||
+        [i.title, i.locationText ?? "", i.description].some((t) =>
+          t.toLocaleLowerCase("he").includes(needle),
+        )),
+  );
+
+  const counts: IdeaListCounts = {
+    all: narrowed.length,
+    unreacted: narrowed.filter((i) => i.myReaction === null).length,
+    matches: narrowed.filter((i) => i.isMatch).length,
+  };
+
+  const visible = narrowed.filter((i) =>
+    filters.view === "unreacted" ? i.myReaction === null : filters.view === "matches" ? i.isMatch : true,
+  );
+
+  return { ideas: sortIdeas(visible, filters.sort), counts };
+}
+
+// "הכי זולים"/"הכי קצרים": ערך לא ידוע (NULL) תמיד בסוף, לא כאילו הוא 0
+// (0 = חינם, NULL = לא ידוע — ראו formatCostMinor). שובר שוויון: החדש קודם.
+function sortIdeas(ideas: IdeaDto[], sort: IdeaListSort): IdeaDto[] {
+  const byNewest = (a: IdeaDto, b: IdeaDto) => b.createdAt.localeCompare(a.createdAt);
+  const nullsLast = (a: number | null, b: number | null) =>
+    a === null ? (b === null ? 0 : 1) : b === null ? -1 : a - b;
+
+  const sorted = [...ideas];
+  switch (sort) {
+    case "old":
+      return sorted.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    case "cheap":
+      return sorted.sort((a, b) => nullsLast(a.costMinor, b.costMinor) || byNewest(a, b));
+    case "short":
+      return sorted.sort((a, b) => nullsLast(a.durationMinutes, b.durationMinutes) || byNewest(a, b));
+    default:
+      return sorted.sort(byNewest);
+  }
 }
 
 export type ReactionWithNameDto = {

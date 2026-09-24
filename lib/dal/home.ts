@@ -14,6 +14,8 @@ import type { IdeaCategory } from "@/lib/validation/idea";
 
 export type HomeSummary = {
   displayName: string;
+  // שם התצוגה של בן/בת הזוג (null אם עוד לא הצטרפו או שאין שם) — ל"חדש מ[שם]".
+  partnerName: string | null;
   ideasCount: number;
   matchesCount: number;
   waitingForPartner: boolean;
@@ -44,11 +46,11 @@ export async function getHome(spaceId: string, userId: string): Promise<HomeSumm
   const supabase = await createSupabaseServerClient();
 
   const [profileRes, membersRes, ideasRes, matchesRes, planRes, partnerIdeasRes, myReactionsRes] = await Promise.all([
-    supabase.from("profiles").select("display_name").eq("id", userId).maybeSingle(),
-    supabase
-      .from("space_members")
-      .select("user_id", { count: "exact", head: true })
-      .eq("space_id", spaceId),
+    // בלי eq על id: RLS (profiles_read -> private.can_read_profile) מחזיר רק
+    // את הפרופיל שלי ושל בן/בת הזוג במרחב פתוח — כך השם של שנינו מגיע באותה
+    // שאילתה, בלי קפיצת רשת נוספת בשביל "חדש מ[שם]".
+    supabase.from("profiles").select("id, display_name").returns<{ id: string; display_name: string }[]>(),
+    supabase.from("space_members").select("user_id").eq("space_id", spaceId).returns<{ user_id: string }[]>(),
     supabase
       .from("ideas")
       .select("id", { count: "exact", head: true })
@@ -83,6 +85,10 @@ export async function getHome(spaceId: string, userId: string): Promise<HomeSumm
       .returns<{ idea_id: string }[]>(),
   ]);
 
+  const profiles = profileRes.data ?? [];
+  const members = membersRes.data ?? [];
+  const partnerId = members.find((m) => m.user_id !== userId)?.user_id ?? null;
+
   const reactedIds = new Set((myReactionsRes.data ?? []).map((r) => r.idea_id));
   const partnerUnanswered = (partnerIdeasRes.data ?? []).filter((i) => !reactedIds.has(i.id));
 
@@ -103,10 +109,11 @@ export async function getHome(spaceId: string, userId: string): Promise<HomeSumm
   }
 
   return {
-    displayName: (profileRes.data?.display_name as string | undefined) ?? "",
+    displayName: profiles.find((p) => p.id === userId)?.display_name ?? "",
+    partnerName: partnerId ? (profiles.find((p) => p.id === partnerId)?.display_name?.trim() || null) : null,
     ideasCount: ideasRes.count ?? 0,
     matchesCount: Array.isArray(matchesRes.data) ? matchesRes.data.length : 0,
-    waitingForPartner: (membersRes.count ?? 1) < 2,
+    waitingForPartner: members.length < 2,
     upcomingPlan: plan
       ? {
           id: plan.id,
