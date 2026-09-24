@@ -215,6 +215,10 @@ button {
   flex-direction: column;
   gap: 6px;
   min-width: 0;
+  /* רשת ביטחון: גם אם פקד ילידי (כמו date/datetime-local, ראו .input[type=...]
+     למטה) מתעקש לצייר את עצמו רחב יותר מהאב מסיבה כלשהי ב-Safari, זה לא
+     ישבור את רוחב העמוד (AC12). רק ציר X נחסם כדי לא לחתוך outline אנכי. */
+  overflow-x: hidden;
 }
 
 .field label {
@@ -235,16 +239,20 @@ button {
   min-width: 0;
 }
 
-/* input[type=date/datetime-local/time] ב-Mobile Safari: הפקד הילידי מתעלם
-   מ-width רגיל ומצייר את עצמו ברוחב הפורמט המקומי המלא (בעברית — עם שם
-   יום/חודש מלא) גם כשהאב צר בהרבה. -webkit-min-logical-width מבטל את
-   מינימום הרוחב הפנימי שה-WebKit engine כופה על פקדים ילידיים כאלה (אותה
-   בעיה קיימת גם ב-<select>); בלי זה, גם width:100%+min-width:0 לא עוזרים
-   כי החריגה קורית בתוך ה-shadow root של הפקד, לא ברמת ה-box model הרגיל. */
+/* input[type=date/datetime-local/time] בתוך עמוד dir="rtl": ה-shadow root
+   הילידי של WebKit (גם iOS וגם macOS Safari) מניח פנימית LTR ומחשב את
+   הפריסה שלו ביחס לכיוון העמוד — בעמוד RTL זה מתנגש ומוציא את תיבת
+   הפקד רוחבה מחוץ לגבולות ההורה (לא רק את הטקסט; ה-border-box עצמו).
+   -webkit-min-logical-width:0 (סעיף קודם) לא היה מספיק כי הבעיה היא
+   כיוונית, לא מינימום רוחב. הפתרון המקובל: לאלץ direction:ltr על הפקד
+   עצמו בלבד (התווית מסביב נשארת RTL) — כך שהוא מחושב ומצויר כמו בעמוד
+   LTR רגיל, בלי ההתנגשות. max-width מוסיף רשת ביטחון מספרית.
+   ראו למשל https://bugs.webkit.org/show_bug.cgi?id=149857 ודיווחים דומים. */
 .input[type="date"],
 .input[type="datetime-local"],
 .input[type="time"] {
-  -webkit-min-logical-width: 0px;
+  direction: ltr;
+  max-width: 100%;
 }
 
 .input:focus-visible {
