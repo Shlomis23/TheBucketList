@@ -19,11 +19,17 @@ export function BottomNav() {
   return (
     <nav
       aria-label="ניווט ראשי"
+      // fixed ולא sticky: overflow-x: hidden על html/body (AC12, globals.css)
+      // הופך את body לקונטיינר גלילה, ובמצב הזה sticky לא נצמד ל-viewport
+      // (בעיקר ב-iOS Safari) — הבר נגלל עם התוכן. ה-main ב-(app)/layout.tsx
+      // שומר ריווח תחתון בגובה --bottom-nav-height כדי שלא יסתיר תוכן.
       style={{
-        position: "sticky",
+        position: "fixed",
         bottom: 0,
         insetInlineStart: 0,
         insetInlineEnd: 0,
+        zIndex: 50,
+        minHeight: "var(--bottom-nav-height)",
         display: "flex",
         gap: 4,
         borderTop: "1px solid var(--color-border)",

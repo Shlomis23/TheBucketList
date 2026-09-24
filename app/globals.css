@@ -33,6 +33,9 @@
   --shadow-card: 0 10px 28px -18px rgba(70, 40, 130, 0.45);
 
   --touch-target-min: 44px;
+  /* גובה הניווט התחתון (בלי safe-area) — BottomNav הוא position: fixed,
+     אז ה-main צריך ריווח תחתון בגובה הזה כדי שהפריט האחרון לא יוסתר. */
+  --bottom-nav-height: 68px;
   --safe-area-top: env(safe-area-inset-top, 0px);
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }

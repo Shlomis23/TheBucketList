@@ -24,12 +24,26 @@ export type HomeSummary = {
     meetingPlace: string | null;
     ideaCategory: IdeaCategory | null;
   } | null;
+  // רעיונות פעילים שבן/בת הזוג הוסיפו ואני עוד לא הגבתי עליהם בכלל (כן/אולי/לא
+  // כולם נחשבים תשובה). partnerNewIdeas = עד PARTNER_NEW_IDEAS_LIMIT החדשים
+  // ביותר; partnerNewIdeasTotal = כמה יש סך הכל (לקישור "ועוד X").
+  partnerNewIdeas: PartnerNewIdea[];
+  partnerNewIdeasTotal: number;
 };
+
+export type PartnerNewIdea = {
+  id: string;
+  title: string;
+  category: IdeaCategory;
+  createdAt: string;
+};
+
+const PARTNER_NEW_IDEAS_LIMIT = 3;
 
 export async function getHome(spaceId: string, userId: string): Promise<HomeSummary> {
   const supabase = await createSupabaseServerClient();
 
-  const [profileRes, membersRes, ideasRes, matchesRes, planRes] = await Promise.all([
+  const [profileRes, membersRes, ideasRes, matchesRes, planRes, partnerIdeasRes, myReactionsRes] = await Promise.all([
     supabase.from("profiles").select("display_name").eq("id", userId).maybeSingle(),
     supabase
       .from("space_members")
@@ -49,7 +63,28 @@ export async function getHome(spaceId: string, userId: string): Promise<HomeSumm
       .order("starts_at", { ascending: true, nullsFirst: false })
       .limit(1)
       .maybeSingle(),
+    // "חדש מבן/בת הזוג": כל הרעיונות הפעילים שלא אני יצרתי + התגובות שלי
+    // בלבד (own_reaction_read — לא נוגעים בתגובות של בן/בת הזוג), והסינון
+    // נעשה כאן. בקנה המידה של זוג אחד זה קטן, ושתי השאילתות רצות במקביל
+    // לשאר ה-Promise.all, אז אין קפיצת רשת נוספת.
+    supabase
+      .from("ideas")
+      .select("id, title, category, created_at")
+      .eq("space_id", spaceId)
+      .eq("status", "active")
+      .neq("created_by", userId)
+      .order("created_at", { ascending: false })
+      .returns<{ id: string; title: string; category: IdeaCategory; created_at: string }[]>(),
+    supabase
+      .from("idea_reactions")
+      .select("idea_id")
+      .eq("space_id", spaceId)
+      .eq("user_id", userId)
+      .returns<{ idea_id: string }[]>(),
   ]);
+
+  const reactedIds = new Set((myReactionsRes.data ?? []).map((r) => r.idea_id));
+  const partnerUnanswered = (partnerIdeasRes.data ?? []).filter((i) => !reactedIds.has(i.id));
 
   const plan = planRes.data as
     | { id: string; idea_id: string; title: string; starts_at: string | null; meeting_place: string | null }
@@ -81,5 +116,12 @@ export async function getHome(spaceId: string, userId: string): Promise<HomeSumm
           ideaCategory,
         }
       : null,
+    partnerNewIdeas: partnerUnanswered.slice(0, PARTNER_NEW_IDEAS_LIMIT).map((i) => ({
+      id: i.id,
+      title: i.title,
+      category: i.category,
+      createdAt: i.created_at,
+    })),
+    partnerNewIdeasTotal: partnerUnanswered.length,
   };
 }

@@ -10,7 +10,15 @@ export default function AppLayout({
 }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100dvh" }}>
-      <main style={{ flex: 1, paddingBottom: 8 }}>{children}</main>
+      {/* ריווח תחתון בגובה הניווט הקבוע (BottomNav הוא position: fixed). */}
+      <main
+        style={{
+          flex: 1,
+          paddingBottom: "calc(var(--bottom-nav-height) + var(--safe-area-bottom) + 8px)",
+        }}
+      >
+        {children}
+      </main>
       <BottomNav />
     </div>
   );

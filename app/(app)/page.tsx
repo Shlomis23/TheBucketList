@@ -2,9 +2,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getVerifiedUserId } from "@/lib/supabase/server";
 import { getMySpaceId } from "@/lib/dal/space";
-import { getHome } from "@/lib/dal/home";
+import { getHome, type PartnerNewIdea } from "@/lib/dal/home";
 import { getIdeaCoverImage } from "@/lib/covers";
-import type { IdeaCategory } from "@/lib/validation/idea";
+import { categoryLabels, type IdeaCategory } from "@/lib/validation/idea";
+import { ReactionControl } from "@/components/ReactionControl";
 
 // בית `/` — spec סעיף 6, 13.3 (getHome).
 // שלד "רעיונות אחרונים" בתור תצוגה מקדימה בפועל (לא רק מספר) ממתין ל-listIdeas
@@ -50,6 +51,8 @@ export default async function HomePage() {
         </div>
       </div>
 
+      <PartnerNewIdeasSection ideas={home.partnerNewIdeas} total={home.partnerNewIdeasTotal} />
+
       <UpcomingPlanCard plan={home.upcomingPlan} />
 
       <Link href="/choose" className="btn btn-primary btn-block" style={{ marginBottom: 12 }}>
@@ -82,6 +85,47 @@ export default async function HomePage() {
         </Link>
       )}
     </div>
+  );
+}
+
+// "חדש מבן/בת הזוג" — רעיונות שבן/בת הזוג הוסיפו ואני עוד לא הגבתי עליהם.
+// אפשר להגיב ישר מכאן; setReactionAction עושה revalidatePath("/"), כך
+// שאחרי תגובה הכרטיס יוצא מהרשימה. כשאין כאלה — הסקשן לא מוצג בכלל.
+function PartnerNewIdeasSection({ ideas, total }: { ideas: PartnerNewIdea[]; total: number }) {
+  if (ideas.length === 0) return null;
+  const more = total - ideas.length;
+
+  return (
+    <section aria-labelledby="partner-new-ideas" style={{ marginBottom: 16 }}>
+      <div
+        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 8 }}
+      >
+        <p id="partner-new-ideas" className="page-eyebrow" style={{ margin: 0 }}>
+          חדש מבן/בת הזוג
+        </p>
+        <span className="badge badge-pink">{total === 1 ? "רעיון אחד מחכה לך" : `${total} מחכים לך`}</span>
+      </div>
+
+      {ideas.map((idea) => (
+        <div key={idea.id} className="card idea-card">
+          <Link href={`/ideas/${idea.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element -- SVG עיצוב סטטי לפי קטגוריה, לא תוכן דינמי */}
+            <img src={getIdeaCoverImage(idea.category)} alt="" className="card-cover-img cover-sm" />
+            <span className="badge badge-neutral" style={{ marginBottom: 6 }}>
+              {categoryLabels[idea.category]}
+            </span>
+            <p style={{ margin: "6px 0 10px", fontWeight: 800, fontSize: 16 }}>{idea.title}</p>
+          </Link>
+          <ReactionControl ideaId={idea.id} initialReaction={null} />
+        </div>
+      ))}
+
+      {more > 0 && (
+        <Link href="/ideas" className="link-plain" style={{ display: "inline-block", marginTop: 2 }}>
+          ועוד {more} ברשימת הרעיונות &larr;
+        </Link>
+      )}
+    </section>
   );
 }
 
