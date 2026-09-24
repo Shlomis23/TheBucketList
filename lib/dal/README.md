@@ -20,6 +20,12 @@ completePlan כותב גם שורת memories בטרנזקציה אחת, לקרא
 (app/(app)/plans/actions.ts) יכולה גם לארכב את הרעיון best-effort אחרי
 השלמה מוצלחת, אם המשתמש סימן זאת בטופס.
 
+`space.ts` כולל גם `hasPendingInvitationForMe` (RPC `has_pending_invitation_for_me`,
+0013) — משמש ב-`/onboarding` כדי להראות הודעה ברורה כשיש הזמנה ממתינה, במקום
+טופס "יצירת מרחב". זו רק UX: ההגנה האמיתית היא ב-`create_space` עצמה, שחוסמת
+`PENDING_INVITATION_EXISTS` בכל מקרה — תוקן ב-0013 בעקבות תקרית אמיתית שבו
+cookie ההזמנה הזמני נעלם בין שני ניסיונות כניסה ויצר מרחב כפול.
+
 `invitations.ts` (F1/F2, spec סעיף 10.3, 11.1, 11.2, 13.2, 13.3):
 createInvitation (מייצר טוקן גולמי ב-Node/CSPRNG, שולח רק את ה-hash ל-RPC,
 מחזיר את הקישור המלא פעם אחת בלבד — לעולם לא נשמר), revokeInvitation,

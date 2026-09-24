@@ -27,6 +27,16 @@ export async function hasPartner(spaceId: string): Promise<boolean> {
   return (count ?? 0) >= 2;
 }
 
+// hasPendingInvitationForMe — קריאה בלבד, RPC בטוחה (has_pending_invitation_for_me,
+// 0013, גרנטד ל-authenticated, auth.uid()/email פנימי). משמש ב-/onboarding כדי
+// להראות הודעה ברורה *לפני* מילוי הטופס, במקום ליפול על PENDING_INVITATION_EXISTS
+// מ-create_space אחרי שהמשתמש כבר הקליד שם (ראו 0013 לרקע המלא על הבאג).
+export async function hasPendingInvitationForMe(): Promise<boolean> {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase.rpc("has_pending_invitation_for_me");
+  return data === true;
+}
+
 // createSpace — spec סעיף 5 (F1), 13.2. requestId מגיע מהלקוח (נשמר לאורך
 // כל ניסיונות ה-retry של אותה שליחה) כדי ש-create_space תהיה idempotent.
 export async function createSpace(params: {
@@ -52,6 +62,13 @@ export async function createSpace(params: {
     }
     if (error.message?.includes("VERSION_CONFLICT")) {
       return fail("VERSION_CONFLICT", "הבקשה הזו כבר נשלחה עם נתונים אחרים", traceId);
+    }
+    if (error.message?.includes("PENDING_INVITATION_EXISTS")) {
+      return fail(
+        "INVALID_INPUT",
+        "יש לכם הזמנה ממתינה מבן/בת הזוג — במקום ליצור מרחב חדש, אפשר לפתוח שוב את קישור ההזמנה שקיבלתם ולהצטרף למרחב הקיים.",
+        traceId,
+      );
     }
     return fail("UNEXPECTED", "יצירת המרחב נכשלה, נסו שוב", traceId);
   }
