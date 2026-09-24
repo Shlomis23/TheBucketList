@@ -7,9 +7,9 @@ export default async function IdeaDetailPage({
 }) {
   const { id } = await params;
   return (
-    <div style={{ padding: 16 }}>
-      <h1>רעיון</h1>
-      <p>מזהה: {id}</p>
+    <div className="page">
+      <h1 className="page-title">רעיון</h1>
+      <p className="status-msg">מזהה: {id}</p>
     </div>
   );
 }

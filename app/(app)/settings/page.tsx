@@ -2,8 +2,8 @@
 // TODO: שם שלי/בן זוג, ניהול הזמנה, יציאה, סגירת מרחב, בקשת מחיקת חשבון.
 export default function SettingsPage() {
   return (
-    <div style={{ padding: 16 }}>
-      <h1>הגדרות</h1>
+    <div className="page">
+      <h1 className="page-title">הגדרות</h1>
     </div>
   );
 }

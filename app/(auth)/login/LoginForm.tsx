@@ -35,31 +35,34 @@ export function LoginForm({ initialError }: { initialError?: string }) {
   }
 
   if (status === "sent") {
-    return <p role="status">שלחנו קישור כניסה ל-{email}. לוחצים על הקישור כדי להיכנס.</p>;
+    return (
+      <p role="status" className="status-msg">
+        שלחנו קישור כניסה ל-{email}. לוחצים על הקישור כדי להיכנס.
+      </p>
+    );
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 16, maxWidth: 360 }}
-    >
-      <label htmlFor="email">אימייל</label>
-      <input
-        id="email"
-        name="email"
-        type="email"
-        dir="ltr"
-        required
-        autoComplete="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        style={{ minHeight: 44, padding: "0 12px", border: "1px solid var(--color-border)" }}
-      />
-      <button type="submit" disabled={status === "sending"}>
+    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <div className="field">
+        <label htmlFor="email">אימייל</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          dir="ltr"
+          required
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="input"
+        />
+      </div>
+      <button type="submit" className="btn btn-primary btn-block" disabled={status === "sending"}>
         {status === "sending" ? "שולח..." : "שליחת קישור כניסה"}
       </button>
       {status === "error" && (
-        <p role="alert" style={{ color: "var(--color-primary)" }}>
+        <p role="alert" className="alert-error">
           {errorMsg}
         </p>
       )}

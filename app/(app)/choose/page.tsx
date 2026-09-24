@@ -4,8 +4,8 @@ import { EmptyState } from "@/components/EmptyState";
 // TODO: chooseExperience(filters, excludedIds) — read-only, אלגוריתם סעיף 8.2 בדיוק.
 export default function ChoosePage() {
   return (
-    <div style={{ padding: 16 }}>
-      <h1>מה עושים?</h1>
+    <div className="page">
+      <h1 className="page-title">מה עושים?</h1>
       <EmptyState title="אין עדיין מועמדים — הרחיבו תנאים או בחרו מכל הרעיונות." />
     </div>
   );

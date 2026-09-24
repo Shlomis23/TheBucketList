@@ -25,25 +25,24 @@ export function OnboardingForm() {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 16, maxWidth: 360 }}
-    >
-      <label htmlFor="displayName">השם שלי</label>
-      <input
-        id="displayName"
-        name="displayName"
-        required
-        maxLength={60}
-        value={displayName}
-        onChange={(e) => setDisplayName(e.target.value)}
-        style={{ minHeight: 44, padding: "0 12px", border: "1px solid var(--color-border)" }}
-      />
-      <button type="submit" disabled={status === "busy"}>
+    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <div className="field">
+        <label htmlFor="displayName">השם שלי</label>
+        <input
+          id="displayName"
+          name="displayName"
+          required
+          maxLength={60}
+          value={displayName}
+          onChange={(e) => setDisplayName(e.target.value)}
+          className="input"
+        />
+      </div>
+      <button type="submit" className="btn btn-primary btn-block" disabled={status === "busy"}>
         {status === "busy" ? "יוצר..." : "יצירת הרשימה שלנו"}
       </button>
       {status === "error" && (
-        <p role="alert" style={{ color: "var(--color-primary)" }}>
+        <p role="alert" className="alert-error">
           {errorMsg}
         </p>
       )}

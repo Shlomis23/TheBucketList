@@ -1,29 +1,88 @@
 /* בסיס עיצוב — RTL, נגישות, מובייל תחילה.
    ראו docs/The-Bucket-List-Technical-Spec-HE.md סעיף 4.
    שימוש ב-CSS logical properties (inset-inline, padding-inline וכו')
-   כדי שהעיצוב יעבוד נכון גם אם יתווסף אי-פעם מסך LTR. */
+   כדי שהעיצוב יעבוד נכון גם אם יתווסף אי-פעם מסך LTR.
+
+   מערכת עיצוב — "סגול דמדומים": כיוון ויזואלי חם, צבעוני ומזמין
+   לפי הפניה שהוצגה (אמטיסט עמוק + פינות מעוגלות + badges צבעוניים לפי משמעות).
+   רק על מה שכבר בנוי — אין הוספת פיצ'רים חדשים דרך ה-CSS הזה. */
 
 :root {
-  --color-bg: #fffaf5;
-  --color-text: #201a15;
-  --color-primary: #b5573c;
+  --color-bg: #faf8ff;
+  --color-surface: #ffffff;
+  --color-text: #241b3a;
+  --color-primary: #5b3e9e;
+  --color-primary-strong: #46307d;
   --color-primary-contrast: #ffffff;
-  --color-border: #e7ddd2;
-  --color-muted: #8a7c6d;
+  --color-primary-soft: #efe9fb;
+  --color-border: #e6e0f2;
+  --color-muted: #837a97;
+  --color-danger: #c23a63;
+  --color-danger-soft: #fce4ea;
+
+  --badge-pink-bg: #ffe1e9;
+  --badge-pink-text: #c23a63;
+  --badge-yellow-bg: #fef1cf;
+  --badge-yellow-text: #9a6b0a;
+  --badge-green-bg: #ddf3e4;
+  --badge-green-text: #1f7a45;
+
+  --radius-lg: 22px;
+  --radius-md: 14px;
+  --radius-pill: 999px;
+  --shadow-card: 0 10px 28px -18px rgba(70, 40, 130, 0.45);
+
   --touch-target-min: 44px;
   --safe-area-top: env(safe-area-inset-top, 0px);
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #17130f;
-    --color-text: #f2ece3;
-    --color-primary: #e08a6c;
-    --color-primary-contrast: #17130f;
-    --color-border: #352c23;
-    --color-muted: #b0a292;
+  :root:not([data-theme="light"]) {
+    --color-bg: #17122b;
+    --color-surface: #1f1a38;
+    --color-text: #f1ecff;
+    --color-primary: #a58af0;
+    --color-primary-strong: #c3b0f7;
+    --color-primary-contrast: #17122b;
+    --color-primary-soft: #2c2350;
+    --color-border: #342b57;
+    --color-muted: #b3a8cf;
+    --color-danger: #ff8fae;
+    --color-danger-soft: #3a2036;
+
+    --badge-pink-bg: #3a2036;
+    --badge-pink-text: #ff8fae;
+    --badge-yellow-bg: #3a2f14;
+    --badge-yellow-text: #e8c268;
+    --badge-green-bg: #16311f;
+    --badge-green-text: #7fd89b;
+
+    --shadow-card: 0 10px 28px -16px rgba(0, 0, 0, 0.6);
   }
+}
+
+:root[data-theme="dark"] {
+  --color-bg: #17122b;
+  --color-surface: #1f1a38;
+  --color-text: #f1ecff;
+  --color-primary: #a58af0;
+  --color-primary-strong: #c3b0f7;
+  --color-primary-contrast: #17122b;
+  --color-primary-soft: #2c2350;
+  --color-border: #342b57;
+  --color-muted: #b3a8cf;
+  --color-danger: #ff8fae;
+  --color-danger-soft: #3a2036;
+
+  --badge-pink-bg: #3a2036;
+  --badge-pink-text: #ff8fae;
+  --badge-yellow-bg: #3a2f14;
+  --badge-yellow-text: #e8c268;
+  --badge-green-bg: #16311f;
+  --badge-green-text: #7fd89b;
+
+  --shadow-card: 0 10px 28px -16px rgba(0, 0, 0, 0.6);
 }
 
 * {
@@ -40,7 +99,7 @@ body {
   margin: 0;
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: var(--font-rubik), system-ui, -apple-system, "Segoe UI", sans-serif;
   line-height: 1.5;
 }
 
@@ -75,4 +134,143 @@ button {
 
 [dir="ltr"] {
   unicode-bidi: isolate;
+}
+
+/* ---------- מחלקות עזר משותפות ---------- */
+
+.page {
+  padding-inline: 18px;
+  padding-block: 20px calc(32px + var(--safe-area-bottom));
+  max-width: 480px;
+  margin-inline: auto;
+  width: 100%;
+}
+
+.page-eyebrow {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0 0 6px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0 0 6px;
+  text-wrap: balance;
+}
+
+.page-subtitle {
+  font-size: 14.5px;
+  color: var(--color-muted);
+  margin: 0 0 20px;
+  line-height: 1.6;
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 18px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--touch-target-min);
+  padding-inline: 24px;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  font-size: 15px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
+.btn-primary:not(:disabled):hover,
+.btn-primary:not(:disabled):active {
+  background: var(--color-primary-strong);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-muted);
+}
+
+.input {
+  min-height: var(--touch-target-min);
+  padding-inline: 14px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 15px;
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+  border-color: var(--color-primary);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.badge-pink {
+  background: var(--badge-pink-bg);
+  color: var(--badge-pink-text);
+}
+
+.badge-yellow {
+  background: var(--badge-yellow-bg);
+  color: var(--badge-yellow-text);
+}
+
+.badge-green {
+  background: var(--badge-green-bg);
+  color: var(--badge-green-text);
+}
+
+.alert-error {
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 13.5px;
+  margin: 0;
+}
+
+.status-msg {
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 1.6;
 }

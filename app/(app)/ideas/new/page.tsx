@@ -3,9 +3,9 @@
 // שמירה דרך createIdea Server Action; אין yes אוטומטי בעת יצירה.
 export default function NewIdeaPage() {
   return (
-    <div style={{ padding: 16 }}>
-      <h1>רעיון חדש</h1>
-      <p>טופס ההוספה המהירה יגיע כאן (שלב 2).</p>
+    <div className="page">
+      <h1 className="page-title">רעיון חדש</h1>
+      <p className="status-msg">טופס ההוספה המהירה יגיע כאן (שלב 2).</p>
     </div>
   );
 }

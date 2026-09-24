@@ -7,9 +7,9 @@ export default async function MemoryDetailPage({
 }) {
   const { id } = await params;
   return (
-    <div style={{ padding: 16 }}>
-      <h1>זיכרון</h1>
-      <p>מזהה: {id}</p>
+    <div className="page">
+      <h1 className="page-title">זיכרון</h1>
+      <p className="status-msg">מזהה: {id}</p>
     </div>
   );
 }

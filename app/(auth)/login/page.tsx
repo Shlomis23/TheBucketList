@@ -11,10 +11,13 @@ export default async function LoginPage({
   const { error } = await searchParams;
 
   return (
-    <div style={{ padding: 16 }}>
-      <h1>כניסה</h1>
-      <p>רשימת החוויות שלכם, שנייך.</p>
-      <LoginForm initialError={error} />
+    <div className="page" style={{ paddingTop: "calc(48px + var(--safe-area-top))" }}>
+      <p className="page-eyebrow">The Bucket List</p>
+      <h1 className="page-title">כניסה</h1>
+      <p className="page-subtitle">רשימת החוויות שלכם, שנייכם.</p>
+      <div className="card">
+        <LoginForm initialError={error} />
+      </div>
     </div>
   );
 }

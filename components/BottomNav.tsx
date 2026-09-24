@@ -7,10 +7,10 @@ import { usePathname } from "next/navigation";
 // כפתור "מה עושים?" ו-"+" הגלובליים חיים במסך הבית עצמו, לא כאן.
 // ראו docs/The-Bucket-List-Technical-Spec-HE.md סעיף 4.
 const TABS = [
-  { href: "/", label: "בית" },
-  { href: "/ideas", label: "רעיונות" },
-  { href: "/plans", label: "תוכניות" },
-  { href: "/memories", label: "זיכרונות" },
+  { href: "/", label: "בית", icon: HomeIcon },
+  { href: "/ideas", label: "רעיונות", icon: IdeaIcon },
+  { href: "/plans", label: "תוכניות", icon: PlanIcon },
+  { href: "/memories", label: "זיכרונות", icon: MemoryIcon },
 ] as const;
 
 export function BottomNav() {
@@ -25,14 +25,17 @@ export function BottomNav() {
         insetInlineStart: 0,
         insetInlineEnd: 0,
         display: "flex",
+        gap: 4,
         borderTop: "1px solid var(--color-border)",
-        background: "var(--color-bg)",
-        paddingBottom: "var(--safe-area-bottom)",
+        background: "var(--color-surface)",
+        padding: "8px 8px",
+        paddingBottom: "calc(8px + var(--safe-area-bottom))",
       }}
     >
       {TABS.map((tab) => {
         const active =
           tab.href === "/" ? pathname === "/" : pathname.startsWith(tab.href);
+        const Icon = tab.icon;
         return (
           <Link
             key={tab.href}
@@ -42,18 +45,60 @@ export function BottomNav() {
               flex: 1,
               minHeight: "var(--touch-target-min)",
               display: "flex",
+              flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              padding: "12px 4px",
+              gap: 2,
+              padding: "6px 4px",
+              borderRadius: "var(--radius-pill)",
               textDecoration: "none",
-              fontWeight: active ? 700 : 400,
-              color: active ? "var(--color-primary)" : "var(--color-text)",
+              fontSize: 11,
+              fontWeight: active ? 700 : 500,
+              color: active ? "var(--color-primary)" : "var(--color-muted)",
+              background: active ? "var(--color-primary-soft)" : "transparent",
             }}
           >
+            <Icon />
             {tab.label}
           </Link>
         );
       })}
     </nav>
+  );
+}
+
+function HomeIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 11 12 4l8 7" />
+      <path d="M6 10v9h12v-9" />
+    </svg>
+  );
+}
+
+function IdeaIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="10" r="6" />
+      <path d="M9.5 21h5M10 18h4" />
+    </svg>
+  );
+}
+
+function PlanIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="4" y="5" width="16" height="15" rx="4" />
+      <path d="M4 10h16M9 3v4M15 3v4" />
+    </svg>
+  );
+}
+
+function MemoryIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="4" y="5" width="16" height="14" rx="4" />
+      <circle cx="12" cy="12" r="3.2" />
+    </svg>
   );
 }

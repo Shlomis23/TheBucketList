@@ -13,10 +13,13 @@ export default async function OnboardingPage() {
   if (spaceId) redirect("/");
 
   return (
-    <div style={{ padding: 16 }}>
-      <h1>ברוכים הבאים</h1>
-      <p>איך לקרוא לך?</p>
-      <OnboardingForm />
+    <div className="page" style={{ paddingTop: "calc(48px + var(--safe-area-top))" }}>
+      <p className="page-eyebrow">The Bucket List</p>
+      <h1 className="page-title">ברוכים הבאים</h1>
+      <p className="page-subtitle">איך לקרוא לך?</p>
+      <div className="card">
+        <OnboardingForm />
+      </div>
     </div>
   );
 }

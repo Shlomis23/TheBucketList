@@ -2,9 +2,9 @@
 // מעטפת ציבורית בלבד — אין להציג כאן שום תוכן זוגי פרטי.
 export default function OfflinePage() {
   return (
-    <div style={{ padding: 16, textAlign: "center" }}>
-      <h1>אין חיבור לרשת</h1>
-      <p>ברגע שהחיבור יחזור, אפשר להמשיך בדיוק מאיפה שעצרתם.</p>
+    <div className="page" style={{ textAlign: "center", paddingTop: "calc(64px + var(--safe-area-top))" }}>
+      <h1 className="page-title">אין חיבור לרשת</h1>
+      <p className="page-subtitle">ברגע שהחיבור יחזור, אפשר להמשיך בדיוק מאיפה שעצרתם.</p>
     </div>
   );
 }

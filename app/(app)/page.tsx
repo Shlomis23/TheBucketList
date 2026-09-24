@@ -13,9 +13,17 @@ export default async function HomePage() {
   if (!spaceId) redirect("/onboarding");
 
   return (
-    <div style={{ padding: 16 }}>
-      <h1>The Bucket List</h1>
-      <p>המרחב שלכם פעיל. מסך הבית האמיתי (מאצ&apos;ים, רעיונות אחרונים, &quot;מה עושים?&quot;) יגיע בשלב 2.</p>
+    <div className="page" style={{ paddingTop: "calc(28px + var(--safe-area-top))" }}>
+      <p className="page-eyebrow">The Bucket List</p>
+      <h1 className="page-title">המרחב שלכם פעיל</h1>
+      <p className="page-subtitle">
+        מסך הבית האמיתי (תוכנית קרובה, רעיונות אחרונים, &quot;מה עושים?&quot;) יגיע בשלב 2.
+      </p>
+      <div className="card">
+        <p className="status-msg">
+          בינתיים — ה-Auth וה-DB עובדים מקצה לקצה. אפשר להתחיל להוסיף רעיונות ברגע שהמסך יהיה מוכן.
+        </p>
+      </div>
       {/* TODO: הזמנת בן זוג (F1 המשך), getHome(), כפתור "+" -> /ideas/new */}
     </div>
   );

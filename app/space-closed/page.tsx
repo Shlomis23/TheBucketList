@@ -3,9 +3,9 @@
 // אין להציג עותק cached של המרחב.
 export default function SpaceClosedPage() {
   return (
-    <div style={{ padding: 16 }}>
-      <h1>המרחב נסגר</h1>
-      <p>פרטי הסגירה, המחיקה ואפשרויות התמיכה יופיעו כאן (שלב 1/4).</p>
+    <div className="page" style={{ paddingTop: "calc(48px + var(--safe-area-top))" }}>
+      <h1 className="page-title">המרחב נסגר</h1>
+      <p className="page-subtitle">פרטי הסגירה, המחיקה ואפשרויות התמיכה יופיעו כאן (שלב 1/4).</p>
     </div>
   );
 }
