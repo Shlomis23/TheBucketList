@@ -845,3 +845,191 @@ button {
   margin: 0 0 16px;
   border-radius: var(--radius-lg);
 }
+
+/* ---------- תמונות זיכרון (components/MemoryPhotos.tsx) ---------- */
+.photo-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.photo-tile {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--color-primary-soft);
+  cursor: pointer;
+}
+.photo-tile img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.photo-tile.is-pending img {
+  opacity: 0.55;
+}
+.photo-add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: var(--color-primary);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  border: 1.5px dashed var(--color-primary);
+  background: transparent;
+}
+.photo-add:disabled,
+.photo-empty:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.photo-empty {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 22px 12px;
+  border: 1.5px dashed var(--color-primary);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-primary);
+  font: inherit;
+  font-weight: 700;
+  font-size: 14.5px;
+  cursor: pointer;
+}
+.photo-spinner {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.6);
+  border-top-color: var(--color-primary);
+  animation: photo-spin 0.8s linear infinite;
+}
+@keyframes photo-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* שער בכרטיס זיכרון — אותה גיאומטריה כמו .card-cover-img.cover-sm, גבוה יותר */
+.card-cover-img.cover-photo {
+  height: 150px;
+}
+.photo-count-badge {
+  position: absolute;
+  top: 10px;
+  inset-inline-start: 10px;
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  background: rgba(20, 14, 40, 0.62);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* צפייה במסך מלא */
+.viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #0d0a18;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  touch-action: pan-y;
+}
+.viewer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--safe-area-top) + 8px) 10px 8px;
+}
+.viewer-count {
+  font-size: 14px;
+  font-weight: 700;
+  opacity: 0.85;
+}
+.viewer-btn {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.viewer-btn.danger {
+  background: #c23a63;
+}
+.viewer-stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0 calc(var(--safe-area-bottom) + 12px);
+}
+.viewer-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.viewer-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+.viewer-nav.prev {
+  right: 10px;
+}
+.viewer-nav.next {
+  left: 10px;
+}
+.viewer-error {
+  position: absolute;
+  bottom: calc(var(--safe-area-bottom) + 20px);
+  left: 16px;
+  right: 16px;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: #c23a63;
+  color: #fff;
+  font-size: 14px;
+  text-align: center;
+}

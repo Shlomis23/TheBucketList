@@ -1,21 +1,23 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getMemory } from "@/lib/dal/memories";
+import { listPhotos } from "@/lib/dal/photos";
+import { MemoryPhotos } from "@/components/MemoryPhotos";
 import { formatMemoryDate } from "@/lib/validation/memory";
 import { getIdeaCoverImage } from "@/lib/covers";
 
-// זיכרון `/memories/[id]` — spec סעיף 6. בשלב הזה: תאריך + סיפור משותף
-// + עריכה. גלריית תמונות תגיע בשלב נפרד (memory_photos/Storage לא נקראים
-// כאן) — בכוונה לא מציגים placeholder שמבטיח משהו שעוד לא קיים.
+// זיכרון `/memories/[id]` — spec סעיף 6: תאריך, תמונות (עד 10, שניהם
+// מוסיפים, כל אחד מוחק את שלו) וסיפור משותף. כשיש תמונות הן ה"באנר" —
+// איור הקטגוריה מוצג רק לזיכרון בלי תמונות.
 // זר/חסר: notFound() זהה, כמו /ideas/[id] ו-/plans/[id].
 export default async function MemoryDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const memory = await getMemory(id);
+  const [memory, photos] = await Promise.all([getMemory(id), listPhotos(id)]);
   if (!memory) notFound();
 
   return (
     <div className="page">
-      {memory.category && (
+      {photos.length === 0 && memory.category && (
         // eslint-disable-next-line @next/next/no-img-element -- SVG עיצוב סטטי לפי קטגוריה, לא תוכן דינמי
         <img src={getIdeaCoverImage(memory.category)} alt="" className="hero-banner" />
       )}
@@ -27,6 +29,8 @@ export default async function MemoryDetailPage({ params }: { params: Promise<{ i
           התוכנית המקורית &larr;
         </Link>
       </p>
+
+      <MemoryPhotos memoryId={memory.id} photos={photos} />
 
       <div className="card">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>

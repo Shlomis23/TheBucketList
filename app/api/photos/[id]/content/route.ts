@@ -1,16 +1,37 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { type NextRequest } from "next/server";
+import { z } from "zod";
+import { getPhotoContent } from "@/lib/dal/photos";
 
-// GET /api/photos/[id]/content — spec סעיף 11.3, 13.3.
-// TODO: אימות + בדיקת חברות + status='ready' בכל בקשה, הזרמת הקובץ עם
-// Cache-Control: private, no-store ו-X-Content-Type-Options: nosniff.
-// אין public URL לתמונה פרטית בשום מצב.
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+// GET /api/photos/[id]/content[?v=thumb] — spec 11.3/13.3. בכל בקשה: session
+// + RLS על השורה (חבר במרחב, status='ready'), ורק אז הקובץ מה-bucket הפרטי.
+// זר/חסר/נמחק -> 404 זהה.
+//
+// Cache: private (רק הדפדפן של המשתמש, אף פעם לא CDN משותף), לשעה. הקובץ
+// לעולם לא משתנה תחת אותו מזהה, והמטמון חוסך הורדה חוזרת בכל חזרה למסך
+// (ובמכסת התעבורה של Supabase). תמונה שנמחקה נעלמת מהמסכים מיד — היא פשוט
+// לא מופיעה יותר ברשימה.
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return NextResponse.json(
-    { ok: false, error: { code: "UNEXPECTED", message: `טרם מומש (${id})` } },
-    { status: 501, headers: { "Cache-Control": "private, no-store" } },
-  );
+  const notFound = () =>
+    new Response("Not found", {
+      status: 404,
+      headers: { "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff" },
+    });
+
+  if (!z.uuid().safeParse(id).success) return notFound();
+  const variant = request.nextUrl.searchParams.get("v") === "thumb" ? "thumb" : "full";
+
+  const blob = await getPhotoContent(id, variant);
+  if (!blob) return notFound();
+
+  return new Response(blob.stream(), {
+    headers: {
+      // כל מה שנשמר עבר קידוד מחדש ל-JPEG בשרת (lib/photos/process.ts).
+      "Content-Type": "image/jpeg",
+      "Content-Length": String(blob.size),
+      "Cache-Control": "private, max-age=3600",
+      "X-Content-Type-Options": "nosniff",
+      "Content-Disposition": "inline",
+    },
+  });
 }

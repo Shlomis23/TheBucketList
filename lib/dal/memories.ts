@@ -9,7 +9,8 @@ import type { UpdateMemoryInput } from "@/lib/validation/memory";
 // זיכרונות — F7, spec סעיף 6 ו-13.2/13.3 (listMemories/getMemory/updateMemory).
 // קריאה דרך client המשתמש + RLS (member_read על memories/plans/ideas,
 // profiles_read). כתיבה רק דרך update_memory (0016, service_role).
-// בשלב הזה בלי תמונות — memory_photos/Storage לא נקראים בכלל.
+// תמונות: כאן רק תמונת השער + מספר (memory_photos דרך RLS, ready בלבד);
+// הרשימה המלאה והקבצים עצמם ב-lib/dal/photos.ts.
 //
 // כותרת הזיכרון = כותרת התוכנית שהושלמה; תמונת העיצוב = קטגוריית הרעיון
 // של התוכנית (lib/covers.ts). את שניהם מצרפים כאן בזיכרון: שאילתות שטוחות
@@ -25,6 +26,8 @@ export type MemoryDto = {
   story: string;
   version: number;
   createdByName: string;
+  coverPhotoId: string | null; // הראשונה לפי הסדר — מוצגת במקום איור הקטגוריה
+  photoCount: number;
 };
 
 type MemoryRow = {
@@ -51,17 +54,29 @@ async function loadContext() {
       supabase.from("ideas").select("id, category").returns<{ id: string; category: IdeaCategory }[]>(),
       // RLS (can_read_profile) מחזיר רק אותי ואת בן/בת הזוג.
       supabase.from("profiles").select("id, display_name").returns<{ id: string; display_name: string }[]>(),
+      supabase
+        .from("memory_photos")
+        .select("id, memory_id")
+        .order("sort_order", { ascending: true })
+        .order("created_at", { ascending: true })
+        .returns<{ id: string; memory_id: string }[]>(),
     ]),
   };
 }
 
 function toDtos(
   rows: MemoryRow[],
-  [plansRes, ideasRes, profilesRes]: Awaited<Awaited<ReturnType<typeof loadContext>>["context"]>,
+  [plansRes, ideasRes, profilesRes, photosRes]: Awaited<Awaited<ReturnType<typeof loadContext>>["context"]>,
 ): MemoryDto[] {
   const planById = new Map((plansRes.data ?? []).map((p) => [p.id, p]));
   const categoryByIdea = new Map((ideasRes.data ?? []).map((i) => [i.id, i.category]));
   const nameById = new Map((profilesRes.data ?? []).map((p) => [p.id, p.display_name]));
+  const photosByMemory = new Map<string, { coverId: string; count: number }>();
+  for (const p of photosRes.data ?? []) {
+    const cur = photosByMemory.get(p.memory_id);
+    if (cur) cur.count += 1;
+    else photosByMemory.set(p.memory_id, { coverId: p.id, count: 1 });
+  }
 
   return rows.map((m) => {
     const plan = planById.get(m.plan_id);
@@ -74,6 +89,8 @@ function toDtos(
       story: m.story,
       version: m.version,
       createdByName: nameById.get(m.created_by)?.trim() ?? "",
+      coverPhotoId: photosByMemory.get(m.id)?.coverId ?? null,
+      photoCount: photosByMemory.get(m.id)?.count ?? 0,
     };
   });
 }

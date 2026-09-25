@@ -2,7 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { z } from "zod";
 import { updateMemory } from "@/lib/dal/memories";
+import { deletePhoto } from "@/lib/dal/photos";
 import { updateMemorySchema } from "@/lib/validation/memory";
 import { fail, type Result } from "@/lib/errors/result";
 
@@ -28,4 +30,21 @@ export async function updateMemoryAction(
   revalidatePath(`/memories/${parsed.data.memoryId}`);
   revalidatePath("/");
   redirect(`/memories/${parsed.data.memoryId}`);
+}
+
+// מחיקת תמונה — רק מי שהעלה (נאכף ב-begin_delete_photo). ההעלאה עצמה היא
+// Route Handler (app/api/memories/[id]/photos) בגלל גודל הגוף.
+const deletePhotoSchema = z.object({ memoryId: z.uuid(), photoId: z.uuid() });
+
+export async function deletePhotoAction(input: unknown): Promise<Result<{ id: string }>> {
+  const parsed = deletePhotoSchema.safeParse(input);
+  if (!parsed.success) return fail("INVALID_INPUT", "בקשה לא תקינה", crypto.randomUUID());
+
+  const result = await deletePhoto(parsed.data.photoId);
+  if (result.ok) {
+    revalidatePath(`/memories/${parsed.data.memoryId}`);
+    revalidatePath("/memories");
+    revalidatePath("/");
+  }
+  return result;
 }
