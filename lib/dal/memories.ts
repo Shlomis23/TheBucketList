@@ -4,7 +4,7 @@ import { createSupabaseServerClient, getVerifiedUserId } from "@/lib/supabase/se
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { ok, fail, type Result } from "@/lib/errors/result";
 import type { IdeaCategory } from "@/lib/validation/idea";
-import type { UpdateMemoryInput } from "@/lib/validation/memory";
+import { pickOnThisDay, type UpdateMemoryInput } from "@/lib/validation/memory";
 
 // זיכרונות — F7, spec סעיף 6 ו-13.2/13.3 (listMemories/getMemory/updateMemory).
 // קריאה דרך client המשתמש + RLS (member_read על memories/plans/ideas,
@@ -180,4 +180,23 @@ export async function updateMemory(input: UpdateMemoryInput): Promise<Result<{ i
 
   const memory = data as { id: string; version: number };
   return ok({ id: memory.id, version: memory.version }, traceId);
+}
+
+// "לפני שנה בדיוק" בבית (26.9) — lib/validation/memory.ts pickOnThisDay.
+// שורות קטנות (id + תאריך + האם יש תמונה); ה-DTO המלא רק לזיכרון שנבחר.
+export async function getOnThisDay(now = new Date()): Promise<{ memory: MemoryDto; label: string } | null> {
+  const supabase = await createSupabaseServerClient();
+  const [{ data: rows }, { data: photos }] = await Promise.all([
+    supabase.from("memories").select("id, happened_on").returns<{ id: string; happened_on: string }[]>(),
+    supabase.from("memory_photos").select("memory_id").returns<{ memory_id: string }[]>(),
+  ]);
+  const withPhoto = new Set((photos ?? []).map((p) => p.memory_id));
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem" }).format(now);
+  const pick = pickOnThisDay(
+    (rows ?? []).map((r) => ({ id: r.id, happenedOn: r.happened_on, hasPhoto: withPhoto.has(r.id) })),
+    today,
+  );
+  if (!pick) return null;
+  const memory = await getMemory(pick.id);
+  return memory ? { memory, label: pick.label } : null;
 }

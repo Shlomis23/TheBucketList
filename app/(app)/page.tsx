@@ -8,7 +8,8 @@ import { getIdeaCoverImage } from "@/lib/covers";
 import { categoryLabels, type IdeaCategory } from "@/lib/validation/idea";
 import { ReactionControl } from "@/components/ReactionControl";
 import { MemoryCard } from "@/components/MemoryCard";
-import { getLatestMemory } from "@/lib/dal/memories";
+import { getLatestMemory, getOnThisDay } from "@/lib/dal/memories";
+import { OnThisDayCard } from "@/components/OnThisDayCard";
 import { getUnreadConversations, type UnreadConversation } from "@/lib/dal/conversations";
 
 // בית `/` — spec סעיף 6, 13.3 (getHome).
@@ -24,10 +25,11 @@ export default async function HomePage() {
   if (!spaceId) redirect("/onboarding");
 
   // "הזיכרון האחרון" במקביל ל-getHome — בלי קפיצת רשת נוספת.
-  const [home, latestMemory, unread] = await Promise.all([
+  const [home, latestMemory, unread, onThisDay] = await Promise.all([
     getHome(spaceId, userId),
     getLatestMemory(),
     getUnreadConversations(),
+    getOnThisDay(),
   ]);
   const greetingName = home.displayName || "שם";
 
@@ -53,6 +55,8 @@ export default async function HomePage() {
           ? "עוד לא הצטרפו אליכם — בינתיים אפשר להתחיל לצבור רעיונות."
           : "איזו הרפתקה מחכה לכם היום?"}
       </p>
+
+      {onThisDay && <OnThisDayCard memory={onThisDay.memory} label={onThisDay.label} />}
 
       <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
         <div className="card" style={{ flex: 1, textAlign: "center", padding: "16px 10px" }}>
@@ -89,7 +93,7 @@ export default async function HomePage() {
         מה עושים היום?
       </Link>
 
-      {latestMemory && (
+      {latestMemory && latestMemory.id !== onThisDay?.memory.id && (
         <div style={{ marginTop: 8 }}>
           <MemoryCard memory={latestMemory} eyebrow="הזיכרון האחרון" />
         </div>

@@ -2,11 +2,11 @@
 
 import { useMemo, useState } from "react";
 import type { MemoryDto } from "@/lib/dal/memories";
-import { MemoryCard } from "@/components/MemoryCard";
+import { MemoryTile } from "@/components/MemoryTile";
 import { categoryLabels, ideaCategories, type IdeaCategory } from "@/lib/validation/idea";
 import { formatMemoryMonth, MEMORY_SEARCH_MAX, memoryMatches } from "@/lib/validation/memory";
 
-// ציר הזמן של /memories עם חיפוש וסינון לפי קטגוריה (26.9).
+// האלבום של /memories — גריד לפי חודש (26.9, אפשרות ב), עם חיפוש וסינון לפי קטגוריה.
 // הסינון בדפדפן (כל הזיכרונות כבר כאן) — מיידי, בלי רענון. החיפוש נשמר ב-URL
 // (replaceState, בלי רשומות היסטוריה) כדי שכניסה לזיכרון וחזרה אחורה
 // יחזירו לאותן תוצאות.
@@ -147,13 +147,15 @@ export function MemoriesBrowser({
         </div>
       ) : (
         groups.map((g) => (
-          <section key={g.month} aria-label={g.month} style={{ marginBottom: 8 }}>
+          <section key={g.month} aria-label={g.month} style={{ marginBottom: 14 }}>
             <p className="page-eyebrow" style={{ color: "var(--color-muted)", margin: "4px 0 8px" }}>
               {g.month}
             </p>
-            {g.items.map((m) => (
-              <MemoryCard key={m.id} memory={m} />
-            ))}
+            <div className="album-grid">
+              {g.items.map((m, i) => (
+                <MemoryTile key={m.id} memory={m} wide={i === 0 && g.items.length % 2 === 1} />
+              ))}
+            </div>
           </section>
         ))
       )}

@@ -2,6 +2,7 @@ import "server-only";
 
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { sendPayload, type PushTarget } from "@/lib/push";
+import { yearsAgoLabel } from "@/lib/validation/memory";
 
 // התראות מתוזמנות — רצות מהמשימה היומית (וגם תזכורת הגיבוי החודשית, למטה) (app/api/cron/daily), בבוקר:
 //   "מחר ב-19:30: פיקניק בטבע"        — יום לפני תוכנית
@@ -63,6 +64,45 @@ export async function sendBackupReminders(now = new Date()): Promise<number> {
       body: `${s.memories === 1 ? "זיכרון אחד" : `${s.memories} זיכרונות`} — שווה לשמור עותק. הגדרות ← גיבוי`,
       url: "/settings#export",
       tag: "backup",
+    });
+    sent++;
+  }
+  return sent;
+}
+
+// "לפני שנה בדיוק" (0031, 26.9): בבוקר של יום שיש בו זיכרון מאותו תאריך
+// בשנה קודמת — התראה לשני בני הזוג, זיכרון אחד למרחב (הכי קרוב בזמן, עם
+// תמונות אם יש). פעם אחת ליום (claim_push). רק תאריך מדויק — "השבוע לפני
+// שנה" מופיע בבית ולא שולח התראה.
+type OnThisDayRow = { space_id: string; memory_id: string; title: string; years_ago: number; has_photo: boolean; targets: PushTarget[] };
+
+export function pickPerSpace(rows: OnThisDayRow[]): OnThisDayRow[] {
+  const best = new Map<string, OnThisDayRow>();
+  for (const r of rows) {
+    const cur = best.get(r.space_id);
+    if (!cur || r.years_ago < cur.years_ago || (r.years_ago === cur.years_ago && r.has_photo && !cur.has_photo)) {
+      best.set(r.space_id, r);
+    }
+  }
+  return [...best.values()];
+}
+
+export async function sendOnThisDayReminders(now = new Date()): Promise<number> {
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem" }).format(now); // YYYY-MM-DD
+  const service = createSupabaseServiceClient();
+  const { data, error } = await service.rpc("on_this_day_targets", { p_today: today });
+  if (error) throw new Error("on_this_day_targets failed");
+
+  let sent = 0;
+  for (const r of pickPerSpace((data as OnThisDayRow[] | null) ?? [])) {
+    if (r.targets.length === 0) continue;
+    const { data: first } = await service.rpc("claim_push", { p_key: `otd:${r.space_id}:${today}` });
+    if (first !== true) continue;
+    await sendPayload(r.targets, {
+      title: `לפני ${yearsAgoLabel(r.years_ago)} בדיוק`,
+      body: r.title,
+      url: `/memories/${r.memory_id}`,
+      tag: `otd-${r.memory_id}`,
     });
     sent++;
   }

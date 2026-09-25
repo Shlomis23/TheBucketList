@@ -15,6 +15,8 @@ import type { PhotoDto } from "@/lib/dal/photos";
 // צפייה: לחיצה על תמונה פותחת מסך מלא; החלקה/חצים בין התמונות. מחיקה רק
 // לתמונות שהעליתי (נאכף גם בשרת) — מהצפייה, או ממצב "עריכה" בגריד.
 
+export const OPEN_PHOTO_EVENT = "bucket:open-photo";
+
 const MAX = 10;
 const CLIENT_EDGE = 2048;
 const UPLOAD_LIMIT = 4 * 1024 * 1024;
@@ -113,6 +115,15 @@ export function MemoryPhotos({ memoryId, photos }: { memoryId: string; photos: P
   const [queue, setQueue] = useState<QueueItem[]>([]);
   const [busy, setBusy] = useState(false);
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
+  // לחיצה על תמונה בבאנר העליון (MemoryHero) פותחת את אותה צפייה במסך מלא.
+  useEffect(() => {
+    const onOpen = (e: Event) => {
+      const i = (e as CustomEvent<number>).detail;
+      if (typeof i === "number") setViewerIndex(i);
+    };
+    window.addEventListener(OPEN_PHOTO_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_PHOTO_EVENT, onOpen);
+  }, []);
   const [, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
   // מצב "עריכה" (25.9): מחיקה ישירות מהגריד, בלי לפתוח כל תמונה. כל אחד

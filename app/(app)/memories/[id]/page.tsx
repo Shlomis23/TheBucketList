@@ -3,12 +3,13 @@ import { notFound } from "next/navigation";
 import { getMemory } from "@/lib/dal/memories";
 import { listPhotos } from "@/lib/dal/photos";
 import { MemoryPhotos } from "@/components/MemoryPhotos";
+import { MemoryHero } from "@/components/MemoryHero";
 import { formatMemoryDate } from "@/lib/validation/memory";
 import { getIdeaCoverImage } from "@/lib/covers";
 
 // זיכרון `/memories/[id]` — spec סעיף 6: תאריך, תמונות (עד 10, שניהם
-// מוסיפים ומוחקים — זיכרון משותף, 0029) וסיפור משותף. כשיש תמונות הן ה"באנר" —
-// איור הקטגוריה מוצג רק לזיכרון בלי תמונות.
+// מוסיפים ומוחקים — זיכרון משותף, 0029) וסיפור משותף. למעלה באנר מקצה לקצה
+// (MemoryHero, 26.9): התמונות בהחלקה, או איור הקטגוריה כשאין תמונות.
 // זר/חסר: notFound() זהה, כמו /ideas/[id] ו-/plans/[id].
 export default async function MemoryDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -17,13 +18,14 @@ export default async function MemoryDetailPage({ params }: { params: Promise<{ i
 
   return (
     <div className="page">
-      {photos.length === 0 && memory.category && (
-        // eslint-disable-next-line @next/next/no-img-element -- SVG עיצוב סטטי לפי קטגוריה, לא תוכן דינמי
-        <img src={getIdeaCoverImage(memory.category)} alt="" className="hero-banner" />
-      )}
-      <p className="page-eyebrow">{formatMemoryDate(memory.happenedOn)}</p>
-      <h1 className="page-title">{memory.title}</h1>
-      <p className="status-msg" style={{ margin: "0 0 16px", fontSize: 13 }}>
+      {/* 26.9: התמונה היא הגיבורה — באנר מקצה לקצה עם הכותרת והתאריך. */}
+      <MemoryHero
+        photoIds={photos.map((p) => p.id)}
+        fallbackSrc={memory.category ? getIdeaCoverImage(memory.category) : null}
+        title={memory.title}
+        dateLabel={formatMemoryDate(memory.happenedOn)}
+      />
+      <p className="status-msg" style={{ margin: "0 0 14px", fontSize: 13 }}>
         מתוך{" "}
         <Link href={`/plans/${memory.planId}`} className="link-plain" style={{ fontSize: 13 }}>
           התוכנית המקורית &larr;

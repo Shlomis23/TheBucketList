@@ -69,3 +69,59 @@ export function memoryMatches(m: SearchableMemory, query: string): boolean {
   );
   return words.every((w) => haystack.includes(w));
 }
+
+// ---------------------------------------------------------------------------
+// "לפני שנה בדיוק" (26.9). today = YYYY-MM-DD בשעון ישראל.
+//   - בדיוק: אותו יום ואותו חודש בשנה קודמת (29.2 נחגג ב-28.2 בשנה לא מעוברת).
+//   - אחרת: עד 3 ימים לפני/אחרי — "השבוע לפני שנה".
+// עדיפות: בדיוק > הכי קרוב בזמן (לפני שנה לפני לפני שנתיים) > עם תמונות.
+// ---------------------------------------------------------------------------
+export type OnThisDayCandidate = { id: string; happenedOn: string; hasPhoto: boolean };
+export type OnThisDay = { id: string; yearsAgo: number; exact: boolean; label: string };
+
+const DAY_MS = 86_400_000;
+const utc = (y: number, m: number, d: number) => Date.UTC(y, m - 1, d);
+const isLeap = (y: number) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+
+export function yearsAgoLabel(n: number): string {
+  return n === 1 ? "שנה" : n === 2 ? "שנתיים" : `${n} שנים`;
+}
+
+export function pickOnThisDay(memories: OnThisDayCandidate[], today: string): OnThisDay | null {
+  const [ty, tm, td] = today.split("-").map(Number);
+  const todayMs = utc(ty, tm, td);
+  let best: (OnThisDay & { distance: number; hasPhoto: boolean }) | null = null;
+
+  for (const m of memories) {
+    const [y, mo, d] = m.happenedOn.split("-").map(Number);
+    if (y >= ty) continue;
+    for (const k of [ty - y - 1, ty - y, ty - y + 1]) {
+      if (k < 1) continue;
+      const yy = y + k;
+      const day = mo === 2 && d === 29 && !isLeap(yy) ? 28 : d;
+      const distance = Math.round(Math.abs(utc(yy, mo, day) - todayMs) / DAY_MS);
+      if (distance > 3) continue;
+      const exact = distance === 0;
+      const cand = {
+        id: m.id,
+        yearsAgo: k,
+        exact,
+        label: exact ? `לפני ${yearsAgoLabel(k)} בדיוק` : `השבוע לפני ${yearsAgoLabel(k)}`,
+        distance,
+        hasPhoto: m.hasPhoto,
+      };
+      const better =
+        !best ||
+        (cand.exact !== best.exact
+          ? cand.exact
+          : cand.yearsAgo !== best.yearsAgo
+            ? cand.yearsAgo < best.yearsAgo
+            : cand.hasPhoto !== best.hasPhoto
+              ? cand.hasPhoto
+              : cand.distance < best.distance);
+      if (better) best = cand;
+    }
+  }
+  if (!best) return null;
+  return { id: best.id, yearsAgo: best.yearsAgo, exact: best.exact, label: best.label };
+}
