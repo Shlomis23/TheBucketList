@@ -1092,9 +1092,6 @@ button {
 }
 
 /* מצב עריכה בגריד התמונות */
-.photo-tile.is-locked img {
-  opacity: 0.45;
-}
 .photo-del {
   position: absolute;
   top: 6px;

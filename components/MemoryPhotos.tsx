@@ -108,29 +108,20 @@ function CameraIcon() {
   );
 }
 
-export function MemoryPhotos({
-  memoryId,
-  photos,
-  partnerName,
-}: {
-  memoryId: string;
-  photos: PhotoDto[];
-  partnerName: string | null;
-}) {
+export function MemoryPhotos({ memoryId, photos }: { memoryId: string; photos: PhotoDto[] }) {
   const router = useRouter();
   const [queue, setQueue] = useState<QueueItem[]>([]);
   const [busy, setBusy] = useState(false);
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
   const [, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
-  // מצב "עריכה" (25.9): מחיקה ישירות מהגריד, בלי לפתוח כל תמונה. רק תמונות
-  // שהעליתי מקבלות כפתור מחיקה — כך נאכף גם בשרת (begin_delete_photo).
+  // מצב "עריכה" (25.9): מחיקה ישירות מהגריד, בלי לפתוח כל תמונה. כל אחד
+  // מבני הזוג מוחק כל תמונה — זיכרון משותף (0029, begin_delete_photo).
   const [editing, setEditing] = useState(false);
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState("");
   const [deleting, startDelete] = useTransition();
-  const hasMine = photos.some((p) => p.isMine);
 
   function deleteFromGrid(photoId: string) {
     setDeleteError("");
@@ -156,8 +147,8 @@ export function MemoryPhotos({
     setSeenKey(photoKey);
     setQueue((q) => q.filter((i) => i.status !== "done"));
     setDeletingId(null);
-    // אין יותר תמונות שלי למחוק -> יוצאים ממצב עריכה.
-    if (!photos.some((p) => p.isMine)) setEditing(false);
+    // אין יותר תמונות למחוק -> יוצאים ממצב עריכה.
+    if (photos.length === 0) setEditing(false);
   }
 
   const active = queue.filter((i) => i.status !== "error").length;
@@ -218,7 +209,7 @@ export function MemoryPhotos({
           <span className="status-msg" style={{ fontSize: 12 }} aria-live="polite">
             {uploadingCount > 0 ? `מעלה… (${uploadingCount})` : total > 0 ? `${total} מתוך ${MAX}` : ""}
           </span>
-          {hasMine && uploadingCount === 0 && (
+          {total > 0 && uploadingCount === 0 && (
             <button
               type="button"
               className="link-plain"
@@ -237,7 +228,6 @@ export function MemoryPhotos({
       {editing && (
         <p className="status-msg" style={{ margin: "-4px 0 10px", fontSize: 12.5 }}>
           לוחצים על ה-X כדי למחוק תמונה.
-          {photos.some((p) => !p.isMine) && ` התמונות המעומעמות הן של ${partnerName ?? "בן/בת הזוג"} — אפשר למחוק רק תמונות שלך.`}
         </p>
       )}
 
@@ -254,12 +244,12 @@ export function MemoryPhotos({
           {photos.map((p, i) =>
             editing ? (
               <li key={p.id}>
-                <div className={p.isMine ? "photo-tile" : "photo-tile is-locked"}>
+                <div className="photo-tile">
                   {/* eslint-disable-next-line @next/next/no-img-element -- תמונה פרטית דרך route מאומת, לא next/image */}
                   <img src={thumbUrl(p.id)} alt="" loading="lazy" decoding="async" />
-                  {p.isMine && deletingId === p.id ? (
+                  {deletingId === p.id ? (
                     <span className="photo-spinner" />
-                  ) : p.isMine && confirmId === p.id ? (
+                  ) : confirmId === p.id ? (
                     <div className="photo-confirm">
                       <button type="button" className="photo-confirm-yes" disabled={deleting} onClick={() => deleteFromGrid(p.id)}>
                         למחוק
@@ -268,7 +258,7 @@ export function MemoryPhotos({
                         ביטול
                       </button>
                     </div>
-                  ) : p.isMine ? (
+                  ) : (
                     <button
                       type="button"
                       className="photo-del"
@@ -280,7 +270,7 @@ export function MemoryPhotos({
                         <path d="M6 6l12 12M18 6 6 18" />
                       </svg>
                     </button>
-                  ) : null}
+                  )}
                 </div>
               </li>
             ) : (
@@ -449,26 +439,22 @@ function PhotoViewer({
         <span className="viewer-count">
           {index + 1} מתוך {count}
         </span>
-        {photo.isMine ? (
-          confirming ? (
-            <span style={{ display: "flex", gap: 6, alignItems: "center" }}>
-              <button type="button" className="viewer-btn danger" onClick={remove} disabled={pending}>
-                {pending ? "מוחק…" : "למחוק"}
-              </button>
-              <button type="button" className="viewer-btn" onClick={() => setConfirming(false)} disabled={pending}>
-                ביטול
-              </button>
-            </span>
-          ) : (
-            <button type="button" className="viewer-btn" onClick={() => setConfirming(true)} aria-label="מחיקת התמונה" style={{ gap: 6 }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
-              </svg>
-              מחיקה
+        {confirming ? (
+          <span style={{ display: "flex", gap: 6, alignItems: "center" }}>
+            <button type="button" className="viewer-btn danger" onClick={remove} disabled={pending}>
+              {pending ? "מוחק…" : "למחוק"}
             </button>
-          )
+            <button type="button" className="viewer-btn" onClick={() => setConfirming(false)} disabled={pending}>
+              ביטול
+            </button>
+          </span>
         ) : (
-          <span style={{ width: 44 }} />
+          <button type="button" className="viewer-btn" onClick={() => setConfirming(true)} aria-label="מחיקת התמונה" style={{ gap: 6 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
+            </svg>
+            מחיקה
+          </button>
         )}
       </div>
 

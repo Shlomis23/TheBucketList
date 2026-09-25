@@ -9,7 +9,7 @@
 -- התרחיש: שני מרחבים מזויפים בתוך הטרנזקציה —
 --   מרחב 1: A (יוצר) + B (בן/בת זוג)      מרחב 2: C (זר)
 -- ובודקים ש-C לא יכול לגעת בשום דבר של מרחב 1, ש-B לא יכול לעשות את מה
--- שרק A רשאי (מחיקת תמונה של A, ביטול סגירה של A), ושאף פונקציית שירות
+-- שרק A רשאי (עריכת הודעה של A, ביטול סגירה של A), ושאף פונקציית שירות
 -- לא פתוחה ל-anon/authenticated.
 -- ==========================================================================
 do $$
@@ -76,14 +76,17 @@ begin
 
   -- ---------- B (בן/בת זוג) — רק מה שמותר ----------
   checks := checks + 1;
-  if not pg_temp.must_fail(format('select public.begin_delete_photo(%L, %L)', b, photo_id)) then failures := failures || 'B:delete A photo'::text; end if;
-  checks := checks + 1;
   if not pg_temp.must_fail(format('select public.edit_comment(%L, %L, 1, ''x'')', b, comment_id)) then failures := failures || 'B:edit A comment'::text; end if;
   -- ומה שכן מותר ל-B: לענות, לכתוב, לראות בייצוא
   checks := checks + 1;
   if pg_temp.must_fail(format('select public.set_reaction(%L, %L, ''yes'')', b, idea.id)) then failures := failures || 'B:set_reaction blocked'::text; end if;
   checks := checks + 1;
   if public.export_photo_path(b, photo_id) is null then failures := failures || 'B:export blocked'::text; end if;
+  -- תמונה = זיכרון משותף (0029): B מוחק גם תמונה ש-A העלה
+  checks := checks + 1;
+  if pg_temp.must_fail(format('select public.begin_delete_photo(%L, %L)', b, photo_id)) then failures := failures || 'B:delete A photo blocked'::text; end if;
+  checks := checks + 1;
+  if public.finish_delete_photo(c, photo_id) then failures := failures || 'C:finish_delete_photo'::text; end if;
 
   -- סגירה: A סוגר, B לא יכול לבטל, C לא מושפע
   perform public.close_space(a, false, 14);
@@ -95,6 +98,8 @@ begin
   if (select status from public.get_my_space_state(c)) <> 'open' then failures := failures || 'C:affected by closure'::text; end if;
   checks := checks + 1;
   if not pg_temp.must_fail('select public.close_space(null::uuid, false, 0)') then failures := failures || 'close_space null actor'::text; end if;
+  checks := checks + 1;
+  if not pg_temp.must_fail(format('select public.begin_delete_photo(%L, %L)', a, photo_id)) then failures := failures || 'A:delete photo in closed space'::text; end if;
 
   -- מחיקה סופית בסוף החרטה: לא נשאר כלום ממרחב 1, ומרחב 2 לא נפגע
   update public.spaces set purge_after = now() - interval '1 minute' where id = s1;

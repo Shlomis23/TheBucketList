@@ -33,7 +33,7 @@ export async function updateMemoryAction(
   redirect(`/memories/${parsed.data.memoryId}`);
 }
 
-// מחיקת תמונה — רק מי שהעלה (נאכף ב-begin_delete_photo). ההעלאה עצמה היא
+// מחיקת תמונה — כל אחד מבני הזוג, במרחב פתוח (נאכף ב-begin_delete_photo, 0029). ההעלאה עצמה היא
 // Route Handler (app/api/memories/[id]/photos) בגלל גודל הגוף.
 const deletePhotoSchema = z.object({ memoryId: z.uuid(), photoId: z.uuid() });
 

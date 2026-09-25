@@ -2,18 +2,17 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getMemory } from "@/lib/dal/memories";
 import { listPhotos } from "@/lib/dal/photos";
-import { getPartnerName } from "@/lib/dal/profile";
 import { MemoryPhotos } from "@/components/MemoryPhotos";
 import { formatMemoryDate } from "@/lib/validation/memory";
 import { getIdeaCoverImage } from "@/lib/covers";
 
 // זיכרון `/memories/[id]` — spec סעיף 6: תאריך, תמונות (עד 10, שניהם
-// מוסיפים, כל אחד מוחק את שלו) וסיפור משותף. כשיש תמונות הן ה"באנר" —
+// מוסיפים ומוחקים — זיכרון משותף, 0029) וסיפור משותף. כשיש תמונות הן ה"באנר" —
 // איור הקטגוריה מוצג רק לזיכרון בלי תמונות.
 // זר/חסר: notFound() זהה, כמו /ideas/[id] ו-/plans/[id].
 export default async function MemoryDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [memory, photos, partnerName] = await Promise.all([getMemory(id), listPhotos(id), getPartnerName()]);
+  const [memory, photos] = await Promise.all([getMemory(id), listPhotos(id)]);
   if (!memory) notFound();
 
   return (
@@ -60,7 +59,7 @@ export default async function MemoryDetailPage({ params }: { params: Promise<{ i
         )}
       </div>
 
-      <MemoryPhotos memoryId={memory.id} photos={photos} partnerName={partnerName} />
+      <MemoryPhotos memoryId={memory.id} photos={photos} />
     </div>
   );
 }

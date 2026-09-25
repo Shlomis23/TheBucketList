@@ -15,18 +15,18 @@ import { processPhoto, thumbPath } from "@/lib/photos/process";
 const BUCKET = "memories-private";
 export const PHOTOS_PER_MEMORY = 10;
 
-export type PhotoDto = { id: string; isMine: boolean };
+export type PhotoDto = { id: string };
 
 export async function listPhotos(memoryId: string): Promise<PhotoDto[]> {
-  const [supabase, userId] = await Promise.all([createSupabaseServerClient(), getVerifiedUserId()]);
+  const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("memory_photos")
-    .select("id, uploaded_by")
+    .select("id")
     .eq("memory_id", memoryId)
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: true })
-    .returns<{ id: string; uploaded_by: string }[]>();
-  return (data ?? []).map((p) => ({ id: p.id, isMine: p.uploaded_by === userId }));
+    .returns<{ id: string }[]>();
+  return (data ?? []).map((p) => ({ id: p.id }));
 }
 
 function rpcMessage(error: { message?: string } | null) {
@@ -112,7 +112,7 @@ export async function uploadPhoto(input: {
   return ok({ id }, traceId);
 }
 
-// מחיקה — רק מי שהעלה (spec). deleting מסתיר מיד; אם מחיקת האובייקט נכשלת
+// מחיקה — כל אחד מבני הזוג (0029, "זיכרון משותף"). deleting מסתיר מיד; אם מחיקת האובייקט נכשלת
 // השורה נשארת deleting (לא מוצגת לאף אחד) וניסיון חוזר ימשיך מאותה נקודה.
 export async function deletePhoto(photoId: string): Promise<Result<{ id: string }>> {
   const traceId = crypto.randomUUID();
@@ -123,7 +123,6 @@ export async function deletePhoto(photoId: string): Promise<Result<{ id: string 
   const { data: path, error } = await service.rpc("begin_delete_photo", { p_actor: userId, p_photo_id: photoId });
   if (error || !path) {
     const msg = rpcMessage(error);
-    if (msg.includes("NOT_AUTHOR")) return fail("NOT_FOUND", "אפשר למחוק רק תמונות שהעליתם", traceId);
     if (msg.includes("NOT_FOUND")) return fail("NOT_FOUND", "התמונה כבר נמחקה", traceId);
     return fail("UNEXPECTED", "המחיקה נכשלה, נסו שוב", traceId);
   }
