@@ -38,7 +38,7 @@ export function PlanDetail({ plan, memoryId }: { plan: PlanDetailDto; memoryId: 
   const isProposed = plan.status === "proposed";
   const budget = formatBudgetMinor(plan.budgetMinor);
 
-  function runAction(action: () => Promise<{ ok: boolean; error?: { message: string } }>) {
+  function runAction(action: () => Promise<{ ok: boolean; error?: { message: string } }>, onDone?: () => void) {
     setErrorMsg("");
     startTransition(async () => {
       const result = await action();
@@ -46,7 +46,8 @@ export function PlanDetail({ plan, memoryId }: { plan: PlanDetailDto; memoryId: 
         setErrorMsg(result.error?.message ?? "משהו השתבש, נסו שוב");
         return;
       }
-      router.refresh();
+      if (onDone) onDone();
+      else router.refresh();
     });
   }
 
@@ -184,7 +185,13 @@ export function PlanDetail({ plan, memoryId }: { plan: PlanDetailDto; memoryId: 
                 עשינו את זה!
               </button>
 
-              <CancelPlanButton plan={plan} disabled={isPending} onCancel={() => runAction(() => cancelPlanAction({ id: plan.id, expectedVersion: plan.version }))} />
+              <CancelPlanButton plan={plan} disabled={isPending} onCancel={() =>
+                  runAction(
+                    () => cancelPlanAction({ id: plan.id, expectedVersion: plan.version }),
+                    // תוכנית שבוטלה כבר לא מופיעה בלשונית — חוזרים אליה (25.9).
+                    () => router.replace("/plans"),
+                  )
+                } />
             </div>
           )}
         </>

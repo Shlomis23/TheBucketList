@@ -133,7 +133,9 @@ async function attachConfirmations(
   });
 }
 
-// listPlans — כל התוכניות של המרחב. סדר וקיבוץ (מוצעות/מאושרות/עבר,
+// listPlans — רק תוכניות פעילות (proposed). שבוצעו חיות בזיכרונות, שבוטלו
+// לא מוצגות בכלל (שלומי, 25.9: "כפל מיותר"). הדף שלהן עדיין נגיש בקישור ישיר.
+// (היסטוריה:) כל התוכניות של המרחב. סדר וקיבוץ (מוצעות/מאושרות/עבר,
 // מועד לא נקבע בסוף) נעשים ברכיב התצוגה על סמך status/isConfirmedByBoth.
 export async function listPlans(): Promise<PlanDto[]> {
   const userId = await getVerifiedUserId();
@@ -143,6 +145,7 @@ export async function listPlans(): Promise<PlanDto[]> {
   const { data: plans } = await supabase
     .from("plans")
     .select("id, idea_id, title, status, starts_at, ends_at, timezone, meeting_place, notes, budget_minor, version, created_at")
+    .eq("status", "proposed")
     .order("starts_at", { ascending: true, nullsFirst: false })
     .returns<PlanRow[]>();
 

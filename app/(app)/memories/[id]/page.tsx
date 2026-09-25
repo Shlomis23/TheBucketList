@@ -30,9 +30,8 @@ export default async function MemoryDetailPage({ params }: { params: Promise<{ i
         </Link>
       </p>
 
-      <MemoryPhotos memoryId={memory.id} photos={photos} />
-
-      <div className="card">
+      {/* "איך היה" לפני התמונות (25.9): עם הרבה תמונות הסיפור נדחף רחוק למטה. */}
+      <div className="card" style={{ marginBottom: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
           <p className="page-eyebrow" style={{ margin: 0 }}>
             איך היה
@@ -59,6 +58,8 @@ export default async function MemoryDetailPage({ params }: { params: Promise<{ i
           </p>
         )}
       </div>
+
+      <MemoryPhotos memoryId={memory.id} photos={photos} />
     </div>
   );
 }

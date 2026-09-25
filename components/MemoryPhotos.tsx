@@ -13,7 +13,7 @@ import type { PhotoDto } from "@/lib/dal/photos";
 // היא למהירות, לא לאבטחה. תמונות עולות אחת-אחת, עם מצב לכל אחת.
 //
 // צפייה: לחיצה על תמונה פותחת מסך מלא; החלקה/חצים בין התמונות. מחיקה רק
-// לתמונות שהעליתי (נאכף גם בשרת).
+// לתמונות שהעליתי (נאכף גם בשרת) — מהצפייה, או ממצב "עריכה" בגריד.
 
 const MAX = 10;
 const CLIENT_EDGE = 2048;
@@ -115,6 +115,29 @@ export function MemoryPhotos({ memoryId, photos }: { memoryId: string; photos: P
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
   const [, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
+  // מצב "עריכה" (25.9): מחיקה ישירות מהגריד, בלי לפתוח כל תמונה. רק תמונות
+  // שהעליתי מקבלות כפתור מחיקה — כך נאכף גם בשרת (begin_delete_photo).
+  const [editing, setEditing] = useState(false);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState("");
+  const [deleting, startDelete] = useTransition();
+  const hasMine = photos.some((p) => p.isMine);
+
+  function deleteFromGrid(photoId: string) {
+    setDeleteError("");
+    setDeletingId(photoId);
+    startDelete(async () => {
+      const result = await deletePhotoAction({ memoryId, photoId });
+      setConfirmId(null);
+      if (!result.ok) {
+        setDeletingId(null);
+        setDeleteError(result.error.message);
+        return;
+      }
+      router.refresh();
+    });
+  }
 
   // תמונות שהסתיימו נשארות כתצוגה מקדימה עד שהרשימה מהשרת מתעדכנת —
   // כך אין "הבהוב" בין סיום ההעלאה להופעת התמונה האמיתית.
@@ -124,6 +147,9 @@ export function MemoryPhotos({ memoryId, photos }: { memoryId: string; photos: P
   if (seenKey !== photoKey) {
     setSeenKey(photoKey);
     setQueue((q) => q.filter((i) => i.status !== "done"));
+    setDeletingId(null);
+    // אין יותר תמונות שלי למחוק -> יוצאים ממצב עריכה.
+    if (!photos.some((p) => p.isMine)) setEditing(false);
   }
 
   const active = queue.filter((i) => i.status !== "error").length;
@@ -177,10 +203,32 @@ export function MemoryPhotos({ memoryId, photos }: { memoryId: string; photos: P
         <p id="memory-photos" className="page-eyebrow" style={{ margin: 0 }}>
           תמונות
         </p>
-        <span className="status-msg" style={{ fontSize: 12 }} aria-live="polite">
-          {uploadingCount > 0 ? `מעלה… (${uploadingCount})` : total > 0 ? `${total} מתוך ${MAX}` : ""}
+        <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span className="status-msg" style={{ fontSize: 12 }} aria-live="polite">
+            {uploadingCount > 0 ? `מעלה… (${uploadingCount})` : total > 0 ? `${total} מתוך ${MAX}` : ""}
+          </span>
+          {hasMine && uploadingCount === 0 && (
+            <button
+              type="button"
+              className="link-plain"
+              style={{ fontSize: 13, minHeight: 32, minWidth: 0 }}
+              onClick={() => {
+                setEditing((v) => !v);
+                setConfirmId(null);
+                setDeleteError("");
+              }}
+            >
+              {editing ? "סיום" : "עריכה"}
+            </button>
+          )}
         </span>
       </div>
+      {editing && (
+        <p className="status-msg" style={{ margin: "-4px 0 10px", fontSize: 12.5 }}>
+          לוחצים על ה-X כדי למחוק תמונה.
+          {photos.some((p) => !p.isMine) && " תמונות שהעלה/תה בן/בת הזוג (המעומעמות) — רק הם יכולים למחוק."}
+        </p>
+      )}
 
       {total === 0 && pendingTiles.length === 0 ? (
         <button type="button" className="photo-empty" onClick={() => inputRef.current?.click()} disabled={busy}>
@@ -192,14 +240,47 @@ export function MemoryPhotos({ memoryId, photos }: { memoryId: string; photos: P
         </button>
       ) : (
         <ul className="photo-grid">
-          {photos.map((p, i) => (
-            <li key={p.id}>
-              <button type="button" className="photo-tile" onClick={() => setViewerIndex(i)} aria-label={`תמונה ${i + 1} מתוך ${total}`}>
-                {/* eslint-disable-next-line @next/next/no-img-element -- תמונה פרטית דרך route מאומת, לא next/image */}
-                <img src={thumbUrl(p.id)} alt="" loading="lazy" decoding="async" />
-              </button>
-            </li>
-          ))}
+          {photos.map((p, i) =>
+            editing ? (
+              <li key={p.id}>
+                <div className={p.isMine ? "photo-tile" : "photo-tile is-locked"}>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- תמונה פרטית דרך route מאומת, לא next/image */}
+                  <img src={thumbUrl(p.id)} alt="" loading="lazy" decoding="async" />
+                  {p.isMine && deletingId === p.id ? (
+                    <span className="photo-spinner" />
+                  ) : p.isMine && confirmId === p.id ? (
+                    <div className="photo-confirm">
+                      <button type="button" className="photo-confirm-yes" disabled={deleting} onClick={() => deleteFromGrid(p.id)}>
+                        למחוק
+                      </button>
+                      <button type="button" className="photo-confirm-no" disabled={deleting} onClick={() => setConfirmId(null)}>
+                        ביטול
+                      </button>
+                    </div>
+                  ) : p.isMine ? (
+                    <button
+                      type="button"
+                      className="photo-del"
+                      aria-label={`מחיקת תמונה ${i + 1}`}
+                      disabled={deleting}
+                      onClick={() => setConfirmId(p.id)}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" aria-hidden="true">
+                        <path d="M6 6l12 12M18 6 6 18" />
+                      </svg>
+                    </button>
+                  ) : null}
+                </div>
+              </li>
+            ) : (
+              <li key={p.id}>
+                <button type="button" className="photo-tile" onClick={() => setViewerIndex(i)} aria-label={`תמונה ${i + 1} מתוך ${total}`}>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- תמונה פרטית דרך route מאומת, לא next/image */}
+                  <img src={thumbUrl(p.id)} alt="" loading="lazy" decoding="async" />
+                </button>
+              </li>
+            ),
+          )}
           {pendingTiles.map((item) => (
             <li key={item.key}>
               <div className="photo-tile is-pending" aria-hidden="true">
@@ -209,7 +290,7 @@ export function MemoryPhotos({ memoryId, photos }: { memoryId: string; photos: P
               </div>
             </li>
           ))}
-          {remaining > 0 && (
+          {remaining > 0 && !editing && (
             <li>
               <button type="button" className="photo-tile photo-add" onClick={() => inputRef.current?.click()} disabled={busy} aria-label="הוספת תמונות">
                 <CameraIcon />
@@ -218,6 +299,12 @@ export function MemoryPhotos({ memoryId, photos }: { memoryId: string; photos: P
             </li>
           )}
         </ul>
+      )}
+
+      {deleteError && (
+        <p role="alert" className="alert-error" style={{ marginTop: 10 }}>
+          {deleteError}
+        </p>
       )}
 
       {errors.map((e) => (
@@ -362,10 +449,11 @@ function PhotoViewer({
               </button>
             </span>
           ) : (
-            <button type="button" className="viewer-btn" onClick={() => setConfirming(true)} aria-label="מחיקת התמונה">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <button type="button" className="viewer-btn" onClick={() => setConfirming(true)} aria-label="מחיקת התמונה" style={{ gap: 6 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
               </svg>
+              מחיקה
             </button>
           )
         ) : (
