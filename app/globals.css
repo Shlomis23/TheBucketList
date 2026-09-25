@@ -247,10 +247,9 @@ button {
   flex-direction: column;
   gap: 6px;
   min-width: 0;
-  /* רשת ביטחון: גם אם פקד ילידי (כמו date/datetime-local, ראו .input[type=...]
-     למטה) מתעקש לצייר את עצמו רחב יותר מהאב מסיבה כלשהי ב-Safari, זה לא
-     ישבור את רוחב העמוד (AC12). רק ציר X נחסם כדי לא לחתוך outline אנכי. */
-  overflow-x: hidden;
+  /* כאן היה overflow-x: hidden כ"רשת ביטחון" לשדות תאריך רחבים באייפון —
+     בפועל הוא רק גזם את הצד השמאלי של התיבה (צילום מסך 25.9). הוסר; שדות
+     התאריך/שעה מותאמים עכשיו לרוחב בעצמם (ראו למטה + DateTimeRangeFields). */
 }
 
 .field label {
@@ -265,7 +264,9 @@ button {
   border-radius: var(--radius-md);
   border: 1.5px solid var(--color-border);
   background: var(--color-surface);
-  font-size: 15px;
+  /* 16px ולא 15: Safari באייפון עושה זום אוטומטי על כל שדה שהכתב בו קטן
+     מ-16px, ולא יוצא ממנו — חלק מהמסך "בורח" הצידה (דיווח 25.9). */
+  font-size: 16px;
   width: 100%;
   box-sizing: border-box;
   min-width: 0;
@@ -285,6 +286,53 @@ button {
 .input[type="time"] {
   direction: ltr;
   max-width: 100%;
+  /* באייפון לפקד תאריך יש רוחב מינימלי טבעי שמתעלם מ-width:100%.
+     appearance:none מבטל אותו (הבורר הילידי נשאר), ו-display:block +
+     min-width:0 מאפשרים לו להתכווץ לרוחב העמודה. גובה קבוע כי פקד תאריך
+     ריק באייפון קורס לגובה 0 בלי appearance. */
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  min-width: 0;
+  height: var(--touch-target-min);
+  line-height: var(--touch-target-min);
+  text-align: right;
+}
+.input::-webkit-date-and-time-value {
+  text-align: right;
+  margin: 0;
+}
+
+/* מועד = תאריך + שעה זה לצד זה (DateTimeRangeFields). fieldset בלי מסגרת
+   ברירת המחדל; legend נראה כמו label של .field. */
+.datetime-field {
+  border: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.datetime-field legend {
+  padding: 0;
+  margin-bottom: 6px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-muted);
+}
+.datetime-row {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 8px;
+}
+
+/* רשימה נפתחת שנראית כמו .input (משך וכו') — חץ משמאל, כי זה RTL. */
+.select-input {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-inline: 14px 34px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23837a97' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 14px center;
+  color: var(--color-text);
 }
 
 .input:focus-visible {
@@ -606,7 +654,7 @@ button {
   border-radius: 22px;
   border: 1.5px solid var(--color-border);
   background: var(--color-surface);
-  font-size: 15px;
+  font-size: 16px; /* סף הזום האוטומטי באייפון, ראו .input */
   line-height: 1.45;
   resize: none;
 }
@@ -657,7 +705,7 @@ button {
   border-radius: var(--radius-md);
   border: 1.5px solid var(--color-border);
   background: var(--color-surface);
-  font-size: 15px;
+  font-size: 16px; /* 16px — סף הזום האוטומטי באייפון, ראו .input */
   resize: vertical;
   width: 100%;
   box-sizing: border-box;

@@ -12,16 +12,10 @@ import {
 } from "../actions";
 import { DEFAULT_PLAN_TIMEZONE, formatBudgetMinor, formatPlanWhen } from "@/lib/validation/plan";
 import { getIdeaCoverImage } from "@/lib/covers";
+import { DateTimeRangeFields, endPartsToIso, isoToParts, partsToIso, type DateTimeParts } from "@/components/DateTimeRangeFields";
 import type { PlanDto } from "@/lib/dal/plans";
 
 type Mode = "view" | "edit" | "complete";
-
-function isoToLocalInput(iso: string | null): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
 
 function todayDateInput(): string {
   const d = new Date();
@@ -249,8 +243,9 @@ function EditPlanForm({
   onCancel: () => void;
   onSaved: () => void;
 }) {
-  const [startsAtLocal, setStartsAtLocal] = useState(isoToLocalInput(plan.startsAt));
-  const [endsAtLocal, setEndsAtLocal] = useState(isoToLocalInput(plan.endsAt));
+  const [start, setStart] = useState<DateTimeParts>(() => isoToParts(plan.startsAt));
+  const [end, setEnd] = useState<DateTimeParts>(() => isoToParts(plan.endsAt));
+  const [dateErrors, setDateErrors] = useState<{ start?: string; end?: string }>({});
   const [meetingPlace, setMeetingPlace] = useState(plan.meetingPlace ?? "");
   const [notes, setNotes] = useState(plan.notes);
   const [budgetShekels, setBudgetShekels] = useState(
@@ -262,16 +257,21 @@ function EditPlanForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (status === "busy") return;
-    setStatus("busy");
     setErrorMsg("");
+
+    const startIso = partsToIso(start);
+    const endIso = endPartsToIso(start, end);
+    setDateErrors({ start: startIso.error, end: endIso.error });
+    if (startIso.error || endIso.error) return;
+    setStatus("busy");
 
     const budgetMinor = budgetShekels.trim() === "" ? undefined : Math.round(Number(budgetShekels) * 100);
 
     const result = await updatePlanAction({
       id: plan.id,
       expectedVersion: plan.version,
-      startsAt: startsAtLocal ? new Date(startsAtLocal).toISOString() : undefined,
-      endsAt: endsAtLocal ? new Date(endsAtLocal).toISOString() : undefined,
+      startsAt: startIso.iso,
+      endsAt: endIso.iso,
       timezone: DEFAULT_PLAN_TIMEZONE,
       meetingPlace: meetingPlace.trim() === "" ? undefined : meetingPlace,
       notes,
@@ -288,27 +288,15 @@ function EditPlanForm({
 
   return (
     <form onSubmit={handleSubmit} className="card" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      {/* עמודה אחת, לא שני טורים — ראו הערה מקבילה ב-NewPlanForm.tsx. */}
-      <div className="field">
-        <label htmlFor="editStartsAt">מתי</label>
-        <input
-          id="editStartsAt"
-          type="datetime-local"
-          value={startsAtLocal}
-          onChange={(e) => setStartsAtLocal(e.target.value)}
-          className="input"
-        />
-      </div>
-      <div className="field">
-        <label htmlFor="editEndsAt">עד</label>
-        <input
-          id="editEndsAt"
-          type="datetime-local"
-          value={endsAtLocal}
-          onChange={(e) => setEndsAtLocal(e.target.value)}
-          className="input"
-        />
-      </div>
+      <DateTimeRangeFields
+        idPrefix="edit-plan"
+        start={start}
+        end={end}
+        onStartChange={setStart}
+        onEndChange={setEnd}
+        startError={dateErrors.start}
+        endError={dateErrors.end}
+      />
 
       <div className="field">
         <label htmlFor="editMeetingPlace">מקום מפגש</label>

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createIdeaAction } from "../actions";
-import { ideaCategories, categoryLabels, type IdeaCategory } from "@/lib/validation/idea";
+import { ideaCategories, categoryLabels, durationPresets, type IdeaCategory } from "@/lib/validation/idea";
 
 // כותרת חובה + "הוסף פרטים" להרחבה — spec סעיף 6 (`/ideas/new`), 6.1.
 // טיוטה נשמרת בזיכרון הדף בלבד (state), לא ב-localStorage/שרת עד שמירה.
@@ -159,16 +159,20 @@ export function NewIdeaForm() {
               />
             </div>
             <div className="field" style={{ flex: 1 }}>
-              <label htmlFor="duration">משך (דקות)</label>
-              <input
+              <label htmlFor="duration">משך</label>
+              <select
                 id="duration"
-                type="number"
-                min={1}
-                inputMode="numeric"
                 value={durationMinutes}
                 onChange={(e) => setDurationMinutes(e.target.value)}
-                className="input"
-              />
+                className="input select-input"
+              >
+                <option value="">לא ידוע</option>
+                {durationPresets.map((o) => (
+                  <option key={o.minutes} value={String(o.minutes)}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         </>

@@ -4,15 +4,16 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createPlanAction } from "../actions";
 import { DEFAULT_PLAN_TIMEZONE } from "@/lib/validation/plan";
+import { DateTimeRangeFields, endPartsToIso, partsToIso, type DateTimeParts } from "@/components/DateTimeRangeFields";
 
 // טופס תכנון — spec סעיף 6.1: מועד/שעה אופציונליים לשלב הצעה, מקום מפגש
-// עד 200, הערות עד 3,000, תקציב אופציונלי. datetime-local מומר ל-ISO מלא
-// (UTC) לפני השליחה כדי לעבור את בדיקת isoDateTime ב-lib/validation/plan.ts.
+// עד 200, הערות עד 3,000, תקציב אופציונלי. תאריך+שעה (DateTimeRangeFields)
+// מומרים ל-ISO מלא (UTC) לפני השליחה — בדיקת isoDateTime ב-lib/validation/plan.ts.
 export function NewPlanForm({ ideaId }: { ideaId: string }) {
   const router = useRouter();
   const [requestId] = useState(() => crypto.randomUUID());
-  const [startsAtLocal, setStartsAtLocal] = useState("");
-  const [endsAtLocal, setEndsAtLocal] = useState("");
+  const [start, setStart] = useState<DateTimeParts>({ date: "", time: "" });
+  const [end, setEnd] = useState<DateTimeParts>({ date: "", time: "" });
   const [meetingPlace, setMeetingPlace] = useState("");
   const [notes, setNotes] = useState("");
   const [budgetShekels, setBudgetShekels] = useState("");
@@ -23,9 +24,19 @@ export function NewPlanForm({ ideaId }: { ideaId: string }) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (status === "busy") return;
-    setStatus("busy");
     setErrorMsg("");
     setFieldErrors({});
+
+    const startIso = partsToIso(start);
+    const endIso = endPartsToIso(start, end);
+    if (startIso.error || endIso.error) {
+      setFieldErrors({
+        ...(startIso.error ? { startsAt: [startIso.error] } : {}),
+        ...(endIso.error ? { endsAt: [endIso.error] } : {}),
+      });
+      return;
+    }
+    setStatus("busy");
 
     const budgetMinor =
       budgetShekels.trim() === "" ? undefined : Math.round(Number(budgetShekels) * 100);
@@ -33,8 +44,8 @@ export function NewPlanForm({ ideaId }: { ideaId: string }) {
     const result = await createPlanAction({
       requestId,
       ideaId,
-      startsAt: startsAtLocal ? new Date(startsAtLocal).toISOString() : undefined,
-      endsAt: endsAtLocal ? new Date(endsAtLocal).toISOString() : undefined,
+      startsAt: startIso.iso,
+      endsAt: endIso.iso,
       timezone: DEFAULT_PLAN_TIMEZONE,
       meetingPlace: meetingPlace.trim() === "" ? undefined : meetingPlace,
       notes,
@@ -51,33 +62,17 @@ export function NewPlanForm({ ideaId }: { ideaId: string }) {
 
   return (
     <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      {/* מועדים בעמודה אחת, לא זו לצד זו — datetime-local בעברית מציג פורמט
-          מלא (יום+חודש+שעה) שלא נכנס בשני טורים ברוחב מסך טלפון (ראו globals.css). */}
-      <div className="field">
-        <label htmlFor="startsAt">מתי (אופציונלי)</label>
-        <input
-          id="startsAt"
-          type="datetime-local"
-          value={startsAtLocal}
-          onChange={(e) => setStartsAtLocal(e.target.value)}
-          className="input"
-        />
-      </div>
-      <div className="field">
-        <label htmlFor="endsAt">עד (אופציונלי)</label>
-        <input
-          id="endsAt"
-          type="datetime-local"
-          value={endsAtLocal}
-          onChange={(e) => setEndsAtLocal(e.target.value)}
-          className="input"
-        />
-      </div>
-      {fieldErrors.endsAt && (
-        <p role="alert" className="alert-error">
-          {fieldErrors.endsAt[0]}
-        </p>
-      )}
+      <DateTimeRangeFields
+        idPrefix="plan"
+        start={start}
+        end={end}
+        onStartChange={setStart}
+        onEndChange={setEnd}
+        startLabel="מתי (אופציונלי)"
+        endLabel="עד (אופציונלי)"
+        startError={fieldErrors.startsAt?.[0]}
+        endError={fieldErrors.endsAt?.[0]}
+      />
 
       <div className="field">
         <label htmlFor="meetingPlace">מקום מפגש</label>

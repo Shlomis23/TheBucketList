@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { chooseExperienceAction } from "./actions";
-import { ideaCategories, categoryLabels, formatCostMinor, formatDurationMinutes, type IdeaCategory } from "@/lib/validation/idea";
+import { ideaCategories, categoryLabels, formatCostMinor, formatDurationMinutes, maxDurationPresets, type IdeaCategory } from "@/lib/validation/idea";
 import { getIdeaCoverImage } from "@/lib/covers";
 import type { ChooseCandidate } from "@/lib/dal/choose";
 
@@ -125,16 +125,20 @@ export function ChooseForm({ waitingForPartner }: { waitingForPartner: boolean }
             />
           </div>
           <div className="field" style={{ flex: 1 }}>
-            <label htmlFor="maxDuration">משך עד (דק&apos;)</label>
-            <input
+            <label htmlFor="maxDuration">משך</label>
+            <select
               id="maxDuration"
-              type="number"
-              min={1}
-              inputMode="numeric"
               value={maxDuration}
               onChange={(e) => setMaxDuration(e.target.value)}
-              className="input"
-            />
+              className="input select-input"
+            >
+              <option value="">לא משנה</option>
+              {maxDurationPresets.map((o) => (
+                <option key={o.minutes} value={String(o.minutes)}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
