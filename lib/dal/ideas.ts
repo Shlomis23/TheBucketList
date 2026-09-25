@@ -54,12 +54,15 @@ type IdeaRow = {
 // נדחה בכוונה עד שיהיה בו צורך אמיתי.
 export type IdeaListCounts = { all: number; unreacted: number; matches: number };
 
+// פריט ברשימה = IdeaDto + מספר הודעות בשיחה (אייקון בועה בשורה).
+export type IdeaListItemDto = IdeaDto & { commentCount: number };
+
 export async function listIdeas(
   filters: IdeaListFilters,
-): Promise<{ ideas: IdeaDto[]; counts: IdeaListCounts }> {
+): Promise<{ ideas: IdeaListItemDto[]; counts: IdeaListCounts }> {
   const supabase = await createSupabaseServerClient();
 
-  const [{ data: rows }, { data: reactions }] = await Promise.all([
+  const [{ data: rows }, { data: reactions }, { data: commentRows }] = await Promise.all([
     supabase
       .from("ideas")
       .select(
@@ -72,6 +75,8 @@ export async function listIdeas(
       .from("idea_reactions")
       .select("idea_id, preference")
       .returns<{ idea_id: string; preference: "yes" | "maybe" | "no" }[]>(),
+    // מונה הודעות לכל רעיון (member_read) — באותה קפיצה, סופרים בזיכרון.
+    supabase.from("idea_comments").select("idea_id").returns<{ idea_id: string }[]>(),
   ]);
 
   if (!rows || rows.length === 0) return { ideas: [], counts: { all: 0, unreacted: 0, matches: 0 } };
@@ -86,7 +91,12 @@ export async function listIdeas(
 
   const myReactionByIdea = new Map((reactions ?? []).map((r) => [r.idea_id, r.preference]));
 
-  const all: IdeaDto[] = rows.map((i) => ({
+  const commentCountByIdea = new Map<string, number>();
+  for (const c of commentRows ?? []) {
+    commentCountByIdea.set(c.idea_id, (commentCountByIdea.get(c.idea_id) ?? 0) + 1);
+  }
+
+  const all: IdeaListItemDto[] = rows.map((i) => ({
     id: i.id,
     title: i.title,
     description: i.description,
@@ -100,6 +110,7 @@ export async function listIdeas(
     isMatch: matchedIds.has(i.id),
     status: i.status as IdeaStatus,
     version: i.version,
+    commentCount: commentCountByIdea.get(i.id) ?? 0,
   }));
 
   // חיפוש + קטגוריה קודם, ורק אז המונים לפי תצוגה — כך "עוד לא הגבתי · 3"
@@ -129,7 +140,7 @@ export async function listIdeas(
 
 // "הכי זולים"/"הכי קצרים": ערך לא ידוע (NULL) תמיד בסוף, לא כאילו הוא 0
 // (0 = חינם, NULL = לא ידוע — ראו formatCostMinor). שובר שוויון: החדש קודם.
-function sortIdeas(ideas: IdeaDto[], sort: IdeaListSort): IdeaDto[] {
+function sortIdeas<T extends IdeaDto>(ideas: T[], sort: IdeaListSort): T[] {
   const byNewest = (a: IdeaDto, b: IdeaDto) => b.createdAt.localeCompare(a.createdAt);
   const nullsLast = (a: number | null, b: number | null) =>
     a === null ? (b === null ? 0 : 1) : b === null ? -1 : a - b;

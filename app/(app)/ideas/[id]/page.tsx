@@ -3,11 +3,13 @@ import { notFound } from "next/navigation";
 import { ReactionControl } from "@/components/ReactionControl";
 import { ArchiveIdeaButton } from "@/components/ArchiveIdeaButton";
 import { getIdea } from "@/lib/dal/ideas";
+import { listComments } from "@/lib/dal/comments";
+import { IdeaConversation } from "@/components/IdeaConversation";
 import { categoryLabels, formatCostMinor, formatDurationMinutes, reactionLabels, reactionBadgeClass } from "@/lib/validation/idea";
 import { getIdeaCoverImage } from "@/lib/covers";
 
 // פרטי רעיון `/ideas/[id]` — F4, spec סעיף 6.
-// TODO: תגובות טקסט (addComment/editComment/deleteComment).
+// תגובות טקסט: IdeaConversation (0017). בארכיון — קריאה בלבד.
 // פריט זר/חסר מקבל את אותו 404 (notFound()) — אין הבחנה בין "לא קיים"
 // ל"שייך למרחב אחר". רעיון בארכיון עדיין נטען כאן (getIdea לא מסנן status) —
 // כדי לאפשר שחזור — אבל בלי תגובה/תכנון/עריכה פעילים.
@@ -17,7 +19,9 @@ export default async function IdeaDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const idea = await getIdea(id);
+  // השיחה נטענת במקביל לרעיון (לא תלויה בו) — בלי קפיצת רשת נוספת.
+  // אם הרעיון זר/חסר, RLS מחזיר רשימה ריקה ו-notFound() קורה ממילא.
+  const [idea, comments] = await Promise.all([getIdea(id), listComments(id)]);
   if (!idea) notFound();
 
   const cost = formatCostMinor(idea.costMinor);
@@ -63,6 +67,11 @@ export default async function IdeaDetailPage({
           </p>
           <ArchiveIdeaButton ideaId={idea.id} version={idea.version} mode="restore" />
         </div>
+      ) : null}
+
+      {/* בארכיון: השיחה נשארת גלויה לקריאה, בלי כתיבה/עריכה (כמו תגובות רצון). */}
+      {isArchived ? (
+        comments.length > 0 && <IdeaConversation ideaId={idea.id} comments={comments} canPost={false} />
       ) : (
         <>
           <div className="card" style={{ marginBottom: 16 }}>
@@ -97,6 +106,8 @@ export default async function IdeaDetailPage({
             </div>
           )}
 
+          <IdeaConversation ideaId={idea.id} comments={comments} canPost />
+
           <Link
             href={`/ideas/${idea.id}/edit`}
             className="link-plain"
@@ -123,8 +134,6 @@ export default async function IdeaDetailPage({
           />
         </>
       )}
-
-      {/* TODO: תגובות טקסט (1-1000 תווים, גלוי לשניהם, רק המחבר עורך/מוחק) */}
     </div>
   );
 }

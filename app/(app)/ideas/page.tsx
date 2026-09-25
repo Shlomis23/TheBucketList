@@ -2,7 +2,7 @@ import Link from "next/link";
 import { EmptyState } from "@/components/EmptyState";
 import { ReactionControl } from "@/components/ReactionControl";
 import { CategorySelect, IdeaSearch, SortSelect } from "@/components/IdeaFilterControls";
-import { listIdeas, type IdeaDto, type IdeaListCounts } from "@/lib/dal/ideas";
+import { listIdeas, type IdeaListItemDto, type IdeaListCounts } from "@/lib/dal/ideas";
 import { categoryLabels, formatCostMinor, formatDurationMinutes } from "@/lib/validation/idea";
 import {
   buildIdeasHref,
@@ -138,7 +138,7 @@ function ViewChips({ filters, counts }: { filters: IdeaListFilters; counts: Idea
   );
 }
 
-function IdeaRow({ idea, archived }: { idea: IdeaDto; archived: boolean }) {
+function IdeaRow({ idea, archived }: { idea: IdeaListItemDto; archived: boolean }) {
   const href = `/ideas/${idea.id}`;
   const meta = [
     categoryLabels[idea.category],
@@ -159,6 +159,17 @@ function IdeaRow({ idea, archived }: { idea: IdeaDto; archived: boolean }) {
         <div className="idea-row-title-line">
           <p className="idea-row-title">{idea.title}</p>
           {idea.isMatch && <span className="badge badge-green badge-sm">מאצ&apos;!</span>}
+          {idea.commentCount > 0 && (
+            <span
+              className="comment-count"
+              aria-label={idea.commentCount === 1 ? "הודעה אחת בשיחה" : `${idea.commentCount} הודעות בשיחה`}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z" />
+              </svg>
+              {idea.commentCount}
+            </span>
+          )}
         </div>
         <p className="idea-row-meta">{meta}</p>
       </Link>
