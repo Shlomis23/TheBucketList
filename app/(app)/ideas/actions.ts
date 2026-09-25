@@ -41,6 +41,8 @@ export async function setReactionAction(
     revalidatePath("/ideas");
     revalidatePath(`/ideas/${ideaId}`);
     revalidatePath("/");
+    // "כן" שהשלים מאצ' — התראה לשניכם (פעם אחת לכל רעיון, ראו lib/push).
+    if (preference === "yes" && result.data.isMatch) notifyPartner({ kind: "match", ideaId });
   }
   return result;
 }

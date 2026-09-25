@@ -15,6 +15,7 @@ import { formatPlanWhen } from "@/lib/validation/plan";
 
 export type PushEvent =
   | { kind: "idea_created"; ideaId: string }
+  | { kind: "match"; ideaId: string }
   | { kind: "comment_added"; ideaId: string; body: string }
   | { kind: "plan_created"; planId: string }
   | { kind: "plan_updated"; planId: string }
@@ -28,10 +29,11 @@ type Context = {
   ideaTitle: string | null;
   planTitle: string | null;
   planStartsAt: string | null;
-  targets: { endpoint: string; p256dh: string; auth: string }[];
+  targets: PushTarget[];
 };
 
-type Payload = { title: string; body: string; url: string; tag: string };
+export type PushTarget = { endpoint: string; p256dh: string; auth: string };
+export type Payload = { title: string; body: string; url: string; tag: string };
 
 function clip(s: string, n: number) {
   const t = s.replace(/\s+/g, " ").trim();
@@ -45,6 +47,10 @@ function buildPayload(e: PushEvent, c: Context): Payload | null {
     case "idea_created":
       if (!c.ideaTitle) return null;
       return { title: `רעיון חדש ${from}`, body: c.ideaTitle, url: `/ideas/${e.ideaId}`, tag: `idea-${e.ideaId}` };
+    // מאצ' — לשניכם (גם למי שענה "כן" עכשיו): זה רגע משותף.
+    case "match":
+      if (!c.ideaTitle) return null;
+      return { title: "יש מאצ'!", body: `שניכם רוצים: ${c.ideaTitle}`, url: `/ideas/${e.ideaId}`, tag: `match-${e.ideaId}` };
     case "comment_added":
       if (!c.ideaTitle) return null;
       return {
@@ -76,32 +82,25 @@ function buildPayload(e: PushEvent, c: Context): Payload | null {
   }
 }
 
-async function send(actorId: string, event: PushEvent) {
+function vapidReady() {
   const publicKey = process.env.VAPID_PUBLIC_KEY;
   const privateKey = process.env.VAPID_PRIVATE_KEY;
-  if (!publicKey || !privateKey) return;
-
-  const service = createSupabaseServiceClient();
-  const args: Record<string, string> = { p_actor: actorId };
-  if ("ideaId" in event) args.p_idea_id = event.ideaId;
-  if ("planId" in event) args.p_plan_id = event.planId;
-  if ("memoryId" in event) args.p_memory_id = event.memoryId;
-  const { data } = await service.rpc("push_context", args);
-  const context = data as Context | null;
-  if (!context || context.targets.length === 0) return;
-  if (context.spaceStatus !== "open" && event.kind !== "space_closed") return;
-
-  const payload = buildPayload(event, context);
-  if (!payload) return;
-
+  if (!publicKey || !privateKey) return false;
   webpush.setVapidDetails(process.env.VAPID_SUBJECT ?? "https://the-bucket-list-seven.vercel.app", publicKey, privateKey);
+  return true;
+}
+
+// שליחה ישירה לרשימת מכשירים — משמש גם את המשימה היומית (תזכורות).
+export async function sendPayload(targets: PushTarget[], payload: Payload, urgency: "normal" | "high" = "normal") {
+  if (targets.length === 0 || !vapidReady()) return;
+  const service = createSupabaseServiceClient();
   await Promise.all(
-    context.targets.map(async (t) => {
+    targets.map(async (t) => {
       try {
         await webpush.sendNotification(
           { endpoint: t.endpoint, keys: { p256dh: t.p256dh, auth: t.auth } },
           JSON.stringify(payload),
-          { TTL: 60 * 60 * 24, urgency: event.kind === "space_closed" ? "high" : "normal", timeout: 8_000 },
+          { TTL: 60 * 60 * 24, urgency, timeout: 8_000 },
         );
       } catch (e) {
         const status = (e as { statusCode?: number }).statusCode;
@@ -114,6 +113,28 @@ async function send(actorId: string, event: PushEvent) {
       }
     }),
   );
+}
+
+async function send(actorId: string, event: PushEvent) {
+  const service = createSupabaseServiceClient();
+  const args: Record<string, string | boolean> = { p_actor: actorId };
+  if ("ideaId" in event) args.p_idea_id = event.ideaId;
+  if ("planId" in event) args.p_plan_id = event.planId;
+  if ("memoryId" in event) args.p_memory_id = event.memoryId;
+  if (event.kind === "match") args.p_include_actor = true;
+  const { data } = await service.rpc("push_context", args);
+  const context = data as Context | null;
+  if (!context || context.targets.length === 0) return;
+  if (context.spaceStatus !== "open" && event.kind !== "space_closed") return;
+
+  const payload = buildPayload(event, context);
+  if (!payload) return;
+  // מאצ' פעם אחת לכל רעיון — גם אם מישהו מחליף "כן"->"לא"->"כן".
+  if (event.kind === "match") {
+    const { data: first } = await service.rpc("claim_push", { p_key: `match:${event.ideaId}` });
+    if (first !== true) return;
+  }
+  await sendPayload(context.targets, payload, event.kind === "space_closed" ? "high" : "normal");
 }
 
 // לקרוא אחרי פעולה מוצלחת. actorId אופציונלי (אם כבר ידוע); אחרת מה-session.

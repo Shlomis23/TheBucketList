@@ -1189,3 +1189,22 @@ button {
   border-top: 0;
   padding-top: 0;
 }
+
+/* מסכי מצב (components/StatusScreen.tsx) — 404 / שגיאה */
+.status-screen {
+  text-align: center;
+  padding-top: calc(72px + var(--safe-area-top));
+  max-width: 420px;
+  margin-inline: auto;
+}
+.status-screen-icon {
+  width: 84px;
+  height: 84px;
+  margin: 0 auto 18px;
+  border-radius: 26px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
