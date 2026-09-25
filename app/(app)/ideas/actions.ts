@@ -9,6 +9,7 @@ import { addCommentSchema, editCommentSchema, deleteCommentSchema } from "@/lib/
 import type { Result } from "@/lib/errors/result";
 import { fail } from "@/lib/errors/result";
 import { notifyPartner } from "@/lib/push";
+import { markMatchesSeen, type MatchItem } from "@/lib/dal/matches";
 
 export async function createIdeaAction(
   input: unknown,
@@ -37,14 +38,19 @@ export async function setReactionAction(
   preference: "yes" | "maybe" | "no" | null,
 ) {
   const result = await setReaction(ideaId, preference);
-  if (result.ok) {
-    revalidatePath("/ideas");
-    revalidatePath(`/ideas/${ideaId}`);
-    revalidatePath("/");
-    // "כן" שהשלים מאצ' — התראה לשניכם (פעם אחת לכל רעיון, ראו lib/push).
-    if (preference === "yes" && result.data.isMatch) notifyPartner({ kind: "match", ideaId });
+  if (!result.ok) return result;
+  revalidatePath("/ideas");
+  revalidatePath(`/ideas/${ideaId}`);
+  revalidatePath("/");
+  // "כן" שהשלים מאצ' (0030): מסך חגיגה אצלי עכשיו — ומסמנים שראיתי, כדי
+  // שלא יקפוץ שוב ברענון. בן/בת הזוג מקבלים התראה (פעם אחת לרעיון, lib/push)
+  // ואת אותו מסך כשהם פותחים את האפליקציה.
+  let celebrate: MatchItem | null = null;
+  if (preference === "yes" && result.data.isMatch) {
+    notifyPartner({ kind: "match", ideaId });
+    celebrate = (await markMatchesSeen([ideaId]))[0] ?? null;
   }
-  return result;
+  return { ...result, data: { ...result.data, celebrate } };
 }
 
 export async function archiveIdeaAction(ideaId: string, expectedVersion: number) {

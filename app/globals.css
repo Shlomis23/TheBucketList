@@ -1348,3 +1348,137 @@ button {
     box-shadow: 0 18px 40px -26px rgba(70, 40, 130, 0.45);
   }
 }
+
+/* ---------------------------------------------------------------------------
+   רגע המאצ' — מסך חגיגה מלא (components/MatchCelebration.tsx, 0030).
+   אותם צבעים כמו מסך הכניסה. ב"הפחתת תנועה" הכול מופיע מיד, בלי קונפטי.
+   --------------------------------------------------------------------------- */
+.match-overlay {
+  outline: none;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  padding: calc(32px + var(--safe-area-top)) 28px calc(32px + var(--safe-area-bottom));
+  color: #fff;
+  background: radial-gradient(120% 80% at 50% 20%, #7a58c4 0%, #4b3290 55%, #2e1f5c 100%);
+  animation: match-fade 0.3s ease-out both;
+}
+@keyframes match-fade {
+  from { opacity: 0; }
+}
+.match-duo {
+  position: relative;
+  width: 196px;
+  height: 100px;
+  margin-bottom: 22px;
+}
+.match-av {
+  position: absolute;
+  top: 8px;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 800;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+}
+.match-av.me {
+  right: 0;
+  background: #f3edff;
+  color: #5b3e9e;
+  animation: match-from-right 0.6s 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+.match-av.partner {
+  left: 0;
+  background: #fef1cf;
+  color: #8a5a00;
+  animation: match-from-left 0.6s 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+@keyframes match-from-right {
+  from { transform: translateX(60px); opacity: 0; }
+}
+@keyframes match-from-left {
+  from { transform: translateX(-60px); opacity: 0; }
+}
+.match-heart {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  animation: match-pop 0.5s 0.8s cubic-bezier(0.2, 0.9, 0.3, 1.6) both;
+}
+@keyframes match-pop {
+  from { transform: scale(0); }
+}
+.match-title,
+.match-sub,
+.match-idea,
+.match-actions {
+  animation: match-up 0.5s both;
+}
+.match-title { margin: 0 0 4px; font-size: 32px; font-weight: 800; animation-delay: 1.05s; }
+.match-sub { margin: 0; font-size: 16px; opacity: 0.88; animation-delay: 1.2s; }
+.match-idea {
+  margin: 12px 0 28px;
+  max-width: 100%;
+  font-size: 19px;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.13);
+  overflow-wrap: anywhere;
+  animation-delay: 1.35s;
+}
+.match-actions { width: 100%; max-width: 360px; animation-delay: 1.5s; }
+@keyframes match-up {
+  from { opacity: 0; transform: translateY(10px); }
+}
+.match-btn-primary {
+  background: #fff;
+  color: #5b3e9e;
+  text-decoration: none;
+}
+.match-btn-later {
+  margin-top: 6px;
+  background: transparent;
+  color: #fff;
+}
+.match-more {
+  display: inline-block;
+  margin-top: 10px;
+  color: #fef1cf;
+  font-size: 14px;
+  font-weight: 600;
+}
+.match-confetti {
+  position: absolute;
+  top: -16px;
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  opacity: 0.9;
+  animation: match-fall 2.8s linear infinite;
+}
+@keyframes match-fall {
+  to { transform: translateY(110dvh) rotate(540deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .match-confetti { display: none; }
+}

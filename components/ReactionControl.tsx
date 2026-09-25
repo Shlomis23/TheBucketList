@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { setReactionAction } from "@/app/(app)/ideas/actions";
+import { MATCH_EVENT } from "@/components/MatchCelebration";
 
 type Preference = "yes" | "maybe" | "no";
 
@@ -33,6 +34,11 @@ export function ReactionControl({
       if (!result.ok) {
         setReactionState(prev);
         setError(result.error.message);
+        return;
+      }
+      // "כן" שהשלים מאצ' — מסך החגיגה (MatchCelebration ב-(app)/layout).
+      if (result.data.celebrate) {
+        window.dispatchEvent(new CustomEvent(MATCH_EVENT, { detail: result.data.celebrate }));
       }
     });
   }

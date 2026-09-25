@@ -51,7 +51,6 @@ async function send(actorId: string, event: PushEvent) {
   if ("ideaId" in event) args.p_idea_id = event.ideaId;
   if ("planId" in event) args.p_plan_id = event.planId;
   if ("memoryId" in event) args.p_memory_id = event.memoryId;
-  if (event.kind === "match") args.p_include_actor = true;
   const { data } = await service.rpc("push_context", args);
   const context = data as PushContext | null;
   if (!context || context.targets.length === 0) return;

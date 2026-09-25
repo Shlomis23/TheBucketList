@@ -80,6 +80,17 @@ begin
   -- ומה שכן מותר ל-B: לענות, לכתוב, לראות בייצוא
   checks := checks + 1;
   if pg_temp.must_fail(format('select public.set_reaction(%L, %L, ''yes'')', b, idea.id)) then failures := failures || 'B:set_reaction blocked'::text; end if;
+  -- רגע המאצ' (0030): A ו-B רואים מאצ' חדש, C לא יכול לסמן/לראות אותו
+  checks := checks + 1;
+  if jsonb_array_length(public.match_celebration_state(b)->'unseen') <> 1 then failures := failures || 'B:match not unseen'::text; end if;
+  checks := checks + 1;
+  if jsonb_array_length(public.match_celebration_state(c)->'unseen') <> 0 then failures := failures || 'C:sees foreign match'::text; end if;
+  checks := checks + 1;
+  if jsonb_array_length(public.mark_matches_seen(c, array[idea.id])) <> 0 then failures := failures || 'C:mark foreign match'::text; end if;
+  checks := checks + 1;
+  if jsonb_array_length(public.mark_matches_seen(b, array[idea.id])) <> 1 then failures := failures || 'B:mark own match'::text; end if;
+  checks := checks + 1;
+  if jsonb_array_length(public.match_celebration_state(b)->'unseen') <> 0 then failures := failures || 'B:match still unseen'::text; end if;
   checks := checks + 1;
   if public.export_photo_path(b, photo_id) is null then failures := failures || 'B:export blocked'::text; end if;
   -- תמונה = זיכרון משותף (0029): B מוחק גם תמונה ש-A העלה
