@@ -6,10 +6,11 @@ import { getMyProfile } from "@/lib/dal/profile";
 import { InvitationPanel } from "./InvitationPanel";
 import { DisplayNameForm } from "./DisplayNameForm";
 import { signOutAction } from "./actions";
+import Link from "next/link";
+import { ExportButton } from "@/components/ExportButton";
 
-// הגדרות `/settings` — F8, spec סעיף 6, 11.1: השם שלי, ניהול הזמנה, יציאה.
-// פרטיות וסגירת מרחב נשארים TODO — סגירה דורשת החלטת מוצר מפורשת (spec
-// סעיף 16 #4: צד אחד שסוגר חוסם גם את השני), לא נבנית "אגב".
+// הגדרות `/settings` — F8, spec סעיף 6, 11.1: השם שלי, ניהול הזמנה, הורדת
+// הזיכרונות, יציאה, ובתחתית — סגירת מרחב ומחיקת חשבון (החלטות 25.9, 0020).
 export default async function SettingsPage() {
   // userId ו-spaceId לא תלויים זה בזה — במקביל במקום ברצף (ראו app/(app)/page.tsx).
   const [userId, spaceId] = await Promise.all([getVerifiedUserId(), getMySpaceId()]);
@@ -44,12 +45,22 @@ export default async function SettingsPage() {
         )}
       </section>
 
+      <section className="card" aria-labelledby="export" style={{ marginTop: 12 }}>
+        <p id="export" className="page-eyebrow" style={{ marginBottom: 4 }}>
+          גיבוי
+        </p>
+        <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13.5 }}>
+          כל הזיכרונות, התמונות והרעיונות בקובץ ZIP אחד — עם דף שנפתח בכל דפדפן.
+        </p>
+        <ExportButton />
+      </section>
+
       <section className="card" aria-labelledby="signout" style={{ marginTop: 12 }}>
         <p id="signout" className="page-eyebrow" style={{ marginBottom: 4 }}>
           יציאה
         </p>
         <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13.5 }}>
-          מתנתק רק במכשיר הזה. כדי לחזור צריך להתחבר שוב עם קישור במייל.
+          מתנתק רק במכשיר הזה. כדי לחזור צריך להתחבר שוב עם קוד במייל.
         </p>
         <form action={signOutAction}>
           <button
@@ -60,6 +71,25 @@ export default async function SettingsPage() {
             התנתקות
           </button>
         </form>
+      </section>
+
+      {/* אזור רגיש — בנפרד, בתחתית, וכל פעולה במסך הסבר משלה. */}
+      <section className="card danger-card" aria-labelledby="danger" style={{ marginTop: 24 }}>
+        <p id="danger" className="page-eyebrow" style={{ marginBottom: 10, color: "var(--color-danger)" }}>
+          אזור רגיש
+        </p>
+        <Link href="/settings/close" className="danger-link">
+          <span>סגירת המרחב</span>
+          <span className="status-msg" style={{ fontSize: 12.5, margin: 0 }}>
+            נועל לשניכם ונמחק אחרי 14 יום. אפשר להתחרט עד אז.
+          </span>
+        </Link>
+        <Link href="/account/delete" className="danger-link">
+          <span>מחיקת החשבון</span>
+          <span className="status-msg" style={{ fontSize: 12.5, margin: 0 }}>
+            {partnerPresent ? "סוגר גם את המרחב המשותף." : "מוחק את החשבון ואת המרחב מיד."}
+          </span>
+        </Link>
       </section>
     </div>
   );

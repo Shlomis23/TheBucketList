@@ -60,8 +60,9 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   // לא על קבצים סטטיים/תמונות/אייקונים/manifest — אין בהם session, וכל
-  // בקשה מיותרת כאן היא עוד קריאה ל-Auth.
+  // בקשה מיותרת כאן היא עוד קריאה ל-Auth. וגם לא על /api/cron/: Vercel
+  // קורא לו בכתובת הפריסה, והפניה לכתובת הקבועה הייתה מאבדת את הסוד.
   matcher: [
-    "/((?!_next/static|_next/image|favicon\\.ico|icon\\.svg|apple-icon\\.png|manifest\\.webmanifest|icons/|images/|offline-assets/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/((?!api/cron/|_next/static|_next/image|favicon\\.ico|icon\\.svg|apple-icon\\.png|manifest\\.webmanifest|icons/|images/|offline-assets/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };

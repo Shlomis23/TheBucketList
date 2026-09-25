@@ -1145,3 +1145,47 @@ button {
   background: rgba(255, 255, 255, 0.9);
   color: #241b3a;
 }
+
+/* ---------- סגירת מרחב / מחיקת חשבון ---------- */
+.plain-list {
+  margin: 0;
+  padding-inline-start: 18px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.plain-list li {
+  margin-bottom: 6px;
+}
+.plain-list li:last-child {
+  margin-bottom: 0;
+}
+.danger-card {
+  border-color: var(--color-danger-soft);
+}
+.btn-danger {
+  background: var(--color-danger);
+  color: var(--color-surface);
+}
+.btn-danger:disabled {
+  opacity: 0.45;
+}
+.btn-danger-outline {
+  background: transparent;
+  border: 1.5px solid var(--color-danger);
+  color: var(--color-danger);
+}
+.danger-link {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 0;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-danger);
+  font-weight: 700;
+  font-size: 14.5px;
+  text-decoration: none;
+}
+.danger-link:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}

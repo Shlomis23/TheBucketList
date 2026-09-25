@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getVerifiedUserId } from "@/lib/supabase/server";
 import { getMySpaceId, hasPendingInvitationForMe } from "@/lib/dal/space";
+import { getMySpaceState } from "@/lib/dal/account";
 import { peekInviteCookie } from "@/lib/invitations/cookie";
 import { OnboardingForm } from "./OnboardingForm";
 
@@ -20,6 +21,10 @@ export default async function OnboardingPage() {
   const [userId, spaceId] = await Promise.all([getVerifiedUserId(), getMySpaceId()]);
   if (!userId) redirect("/login");
   if (spaceId) redirect("/");
+  // מרחב סגור: RLS כבר לא מחזירה אותו (spaceId=null), אבל החברות עדיין
+  // קיימת עד המחיקה — מסך הסגירה, לא "יצירת מרחב" (שהייתה נכשלת).
+  const state = await getMySpaceState();
+  if (state?.status === "closed") redirect("/space-closed");
 
   const invite = await peekInviteCookie();
   if (invite) redirect("/invite/continue");
