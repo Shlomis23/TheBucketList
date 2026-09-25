@@ -8,9 +8,11 @@ import {
   buildIdeasHref,
   hasNarrowingFilter,
   parseIdeaListParams,
+  ideaStatusTag,
   type IdeaListFilters,
-  type IdeaListView,
 } from "@/lib/validation/ideaList";
+import { getPartnerName } from "@/lib/dal/profile";
+import { getMySpaceId, hasPartner } from "@/lib/dal/space";
 import { getIdeaCoverImage } from "@/lib/covers";
 
 // מאגר `/ideas` — spec סעיף 6: חיפוש, פילטר קטגוריה/מאצ'ים/תגובה שלי, מיון.
@@ -25,7 +27,9 @@ export default async function IdeasPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const filters = parseIdeaListParams(await searchParams);
-  const { ideas, counts } = await listIdeas(filters);
+  const [{ ideas, counts }, partnerName, spaceId] = await Promise.all([listIdeas(filters), getPartnerName(), getMySpaceId()]);
+  // תגית מצב (26.9): "מחכה ל[שם]" רק כשיש בן/בת זוג במרחב.
+  const partner = { present: spaceId ? await hasPartner(spaceId) : false, name: partnerName };
   const archived = filters.status === "archived";
   const narrowed = hasNarrowingFilter(filters);
   const nothingAtAll = counts.all === 0 && !narrowed && ideas.length === 0;
@@ -68,7 +72,7 @@ export default async function IdeasPage({
           <IdeaSearch filters={filters} />
 
           <div className="chip-scroll" role="group" aria-label="סינון רעיונות" style={{ marginBottom: 6 }}>
-            {!archived && <ViewChips filters={filters} counts={counts} />}
+            {!archived && <ViewChips filters={filters} counts={counts} partner={partner} />}
             <CategorySelect filters={filters} />
           </div>
 
@@ -104,7 +108,7 @@ export default async function IdeasPage({
               }
             />
           ) : (
-            ideas.map((idea) => <IdeaRow key={idea.id} idea={idea} archived={archived} />)
+            ideas.map((idea) => <IdeaRow key={idea.id} idea={idea} archived={archived} partner={partner} />)
           )}
         </>
       )}
@@ -112,16 +116,19 @@ export default async function IdeasPage({
   );
 }
 
-const VIEW_LABELS: Record<IdeaListView, string> = {
-  all: "הכל",
-  unreacted: "עוד לא הגבתי",
-  matches: "מאצ'ים",
-};
+type PartnerInfo = { present: boolean; name: string | null };
 
-function ViewChips({ filters, counts }: { filters: IdeaListFilters; counts: IdeaListCounts }) {
+function ViewChips({ filters, counts, partner }: { filters: IdeaListFilters; counts: IdeaListCounts; partner: PartnerInfo }) {
+  // "מחכה לי" / "מחכה ל[שם]" (26.9) — שני הצדדים באותו ניסוח.
+  const views = [
+    { view: "all" as const, label: "הכל" },
+    { view: "unreacted" as const, label: "מחכה לי" },
+    ...(partner.present ? [{ view: "waiting" as const, label: `מחכה ל${partner.name ?? "בן/בת הזוג"}` }] : []),
+    { view: "matches" as const, label: "מאצ'ים" },
+  ];
   return (
     <>
-      {(["all", "unreacted", "matches"] as const).map((view) => (
+      {views.map(({ view, label }) => (
         <Link
           key={view}
           href={buildIdeasHref(filters, { view })}
@@ -130,7 +137,7 @@ function ViewChips({ filters, counts }: { filters: IdeaListFilters; counts: Idea
           scroll={false}
           replace
         >
-          {VIEW_LABELS[view]}
+          {label}
           {view !== "all" && ` · ${counts[view]}`}
         </Link>
       ))}
@@ -138,7 +145,8 @@ function ViewChips({ filters, counts }: { filters: IdeaListFilters; counts: Idea
   );
 }
 
-function IdeaRow({ idea, archived }: { idea: IdeaListItemDto; archived: boolean }) {
+function IdeaRow({ idea, archived, partner }: { idea: IdeaListItemDto; archived: boolean; partner: PartnerInfo }) {
+  const tag = archived ? null : ideaStatusTag(idea, partner);
   const href = `/ideas/${idea.id}`;
   const meta = [
     categoryLabels[idea.category],
@@ -158,7 +166,7 @@ function IdeaRow({ idea, archived }: { idea: IdeaListItemDto; archived: boolean 
       <Link href={href} className="idea-row-text">
         <div className="idea-row-title-line">
           <p className="idea-row-title">{idea.title}</p>
-          {idea.isMatch && <span className="badge badge-green badge-sm">מאצ&apos;!</span>}
+          {tag && <span className={`status-tag ${tag.kind}`}>{tag.label}</span>}
           {idea.commentCount > 0 && (
             <span
               className={idea.unreadCount > 0 ? "comment-count has-unread" : "comment-count"}

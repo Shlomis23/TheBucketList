@@ -53,18 +53,27 @@ type IdeaRow = {
 // עשרות רעיונות, וכך גם המונים על הצ'יפים ("עוד לא הגבתי · 3") מחושבים
 // מאותה שליפה בלי שאילתות count נוספות. cursor pagination (spec: 20 בעמוד)
 // נדחה בכוונה עד שיהיה בו צורך אמיתי.
-export type IdeaListCounts = { all: number; unreacted: number; matches: number };
+export type IdeaListCounts = { all: number; unreacted: number; waiting: number; matches: number };
 
 // פריט ברשימה = IdeaDto + מספר הודעות בשיחה (אייקון בועה בשורה).
 // unreadCount — הודעות מבן/בת הזוג שעוד לא ראיתי (0026).
-export type IdeaListItemDto = IdeaDto & { commentCount: number; unreadCount: number };
+// partnerReaction / hasPlan / planStartsAt — לתגית המצב ברשימה (0032, 26.9).
+export type IdeaListItemDto = IdeaDto & {
+  commentCount: number;
+  unreadCount: number;
+  partnerReaction: "yes" | "maybe" | "no" | null;
+  hasPlan: boolean;
+  planStartsAt: string | null;
+};
 
 export async function listIdeas(
   filters: IdeaListFilters,
 ): Promise<{ ideas: IdeaListItemDto[]; counts: IdeaListCounts }> {
   const supabase = await createSupabaseServerClient();
+  const userId = await getVerifiedUserId();
+  const service = createSupabaseServiceClient();
 
-  const [{ data: rows }, { data: reactions }, { data: commentRows }, unread] = await Promise.all([
+  const [{ data: rows }, { data: reactions }, { data: commentRows }, unread, { data: partnerRows }, { data: planRows }] = await Promise.all([
     supabase
       .from("ideas")
       .select(
@@ -80,10 +89,23 @@ export async function listIdeas(
     // מונה הודעות לכל רעיון (member_read) — באותה קפיצה, סופרים בזיכרון.
     supabase.from("idea_comments").select("idea_id").returns<{ idea_id: string }[]>(),
     getUnreadConversations(),
+    // התגובות של בן/בת הזוג (גלויות לשניכם — החלטה 24.9) ותוכניות פעילות.
+    userId
+      ? service.rpc("partner_reactions", { p_actor: userId })
+      : Promise.resolve({ data: [] as { idea_id: string; preference: "yes" | "maybe" | "no" }[] }),
+    supabase
+      .from("plans")
+      .select("idea_id, starts_at")
+      .eq("status", "proposed")
+      .returns<{ idea_id: string; starts_at: string | null }[]>(),
   ]);
+  const partnerByIdea = new Map(
+    ((partnerRows as { idea_id: string; preference: "yes" | "maybe" | "no" }[] | null) ?? []).map((r) => [r.idea_id, r.preference]),
+  );
+  const planByIdea = new Map((planRows ?? []).map((p) => [p.idea_id, p.starts_at]));
   const unreadByIdea = new Map(unread.map((u) => [u.ideaId, u.unreadCount]));
 
-  if (!rows || rows.length === 0) return { ideas: [], counts: { all: 0, unreacted: 0, matches: 0 } };
+  if (!rows || rows.length === 0) return { ideas: [], counts: { all: 0, unreacted: 0, waiting: 0, matches: 0 } };
 
   let matchedIds = new Set<string>();
   if (filters.status === "active") {
@@ -116,6 +138,9 @@ export async function listIdeas(
     version: i.version,
     commentCount: commentCountByIdea.get(i.id) ?? 0,
     unreadCount: unreadByIdea.get(i.id) ?? 0,
+    partnerReaction: partnerByIdea.get(i.id) ?? null,
+    hasPlan: planByIdea.has(i.id),
+    planStartsAt: planByIdea.get(i.id) ?? null,
   }));
 
   // חיפוש + קטגוריה קודם, ורק אז המונים לפי תצוגה — כך "עוד לא הגבתי · 3"
@@ -133,14 +158,26 @@ export async function listIdeas(
   const counts: IdeaListCounts = {
     all: narrowed.length,
     unreacted: narrowed.filter((i) => i.myReaction === null).length,
+    waiting: narrowed.filter(isWaitingForPartner).length,
     matches: narrowed.filter((i) => i.isMatch).length,
   };
 
   const visible = narrowed.filter((i) =>
-    filters.view === "unreacted" ? i.myReaction === null : filters.view === "matches" ? i.isMatch : true,
+    filters.view === "unreacted"
+      ? i.myReaction === null
+      : filters.view === "waiting"
+        ? isWaitingForPartner(i)
+        : filters.view === "matches"
+          ? i.isMatch
+          : true,
   );
 
   return { ideas: sortIdeas(visible, filters.sort), counts };
+}
+
+// "מחכה ל[בן/בת הזוג]": עניתי, והם עוד לא.
+function isWaitingForPartner(i: IdeaListItemDto) {
+  return i.myReaction !== null && i.partnerReaction === null;
 }
 
 // "הכי זולים"/"הכי קצרים": ערך לא ידוע (NULL) תמיד בסוף, לא כאילו הוא 0

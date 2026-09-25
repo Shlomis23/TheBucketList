@@ -7,7 +7,7 @@ import { ideaCategories, type IdeaCategory } from "@/lib/validation/idea";
 // הקובץ טהור (בלי server-only) כי גם השרת (page/DAL) וגם רכיבי הלקוח
 // (IdeaFilterControls) בונים ממנו URL-ים — מקור אמת אחד לשמות הפרמטרים.
 
-export const ideaListViews = ["all", "unreacted", "matches"] as const;
+export const ideaListViews = ["all", "unreacted", "waiting", "matches"] as const;
 export type IdeaListView = (typeof ideaListViews)[number];
 
 export const ideaListSorts = ["new", "old", "cheap", "short"] as const;
@@ -53,7 +53,7 @@ export function parseIdeaListParams(raw: RawParams): IdeaListFilters {
     ? (sortRaw as IdeaListSort)
     : "new";
 
-  // בארכיון אין "עוד לא הגבתי"/"מאצ'ים" (אין תגובה לרעיון בארכיון, ו-
+  // בארכיון אין "מחכה לי"/"מחכה ל..."/"מאצ'ים" (אין תגובה לרעיון בארכיון, ו-
   // list_my_matches מחזיר רק פעילים) — מתעלמים מ-view שם.
   return { status, q, view: status === "archived" ? "all" : view, category, sort };
 }
@@ -74,4 +74,33 @@ export function buildIdeasHref(current: IdeaListFilters, patch: Partial<IdeaList
 
 export function hasNarrowingFilter(f: IdeaListFilters): boolean {
   return Boolean(f.q) || f.category !== null || f.view !== "all";
+}
+
+// ---------------------------------------------------------------------------
+// מצב הרעיון ברשימה (26.9, אפשרות א) — תגית אחת ליד השם. סדר: כבר בתוכנית >
+// מאצ' > מחכה לך (בן/בת הזוג ענו, אני לא) > מחכה לבן/בת הזוג (עניתי, הם לא)
+// > שניכם ענו בלי מאצ' ("גואל: אולי"). בלי תגית כששניכם עוד לא עניתם, או כשאין
+// עדיין בן/בת זוג במרחב.
+// ---------------------------------------------------------------------------
+type Pref = "yes" | "maybe" | "no";
+export type IdeaStatusTag = { kind: "plan" | "match" | "you" | "partner" | "answered"; label: string };
+
+const PREF_LABEL: Record<Pref, string> = { yes: "כן", maybe: "אולי", no: "לא" };
+
+function shortDateIL(iso: string) {
+  return new Intl.DateTimeFormat("he-IL", { timeZone: "Asia/Jerusalem", day: "numeric", month: "short" }).format(new Date(iso));
+}
+
+export function ideaStatusTag(
+  i: { myReaction: Pref | null; partnerReaction: Pref | null; isMatch: boolean; hasPlan: boolean; planStartsAt: string | null },
+  partner: { present: boolean; name: string | null },
+): IdeaStatusTag | null {
+  if (i.hasPlan) return { kind: "plan", label: i.planStartsAt ? `בתוכנית · ${shortDateIL(i.planStartsAt)}` : "בתוכנית" };
+  if (i.isMatch) return { kind: "match", label: "מאצ'!" };
+  if (!partner.present) return null;
+  const who = partner.name ?? "בן/בת הזוג";
+  if (!i.myReaction && i.partnerReaction) return { kind: "you", label: "מחכה לך" };
+  if (i.myReaction && !i.partnerReaction) return { kind: "partner", label: `מחכה ל${who}` };
+  if (i.myReaction && i.partnerReaction) return { kind: "answered", label: `${who}: ${PREF_LABEL[i.partnerReaction]}` };
+  return null;
 }

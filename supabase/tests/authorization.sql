@@ -80,6 +80,11 @@ begin
   -- ומה שכן מותר ל-B: לענות, לכתוב, לראות בייצוא
   checks := checks + 1;
   if pg_temp.must_fail(format('select public.set_reaction(%L, %L, ''yes'')', b, idea.id)) then failures := failures || 'B:set_reaction blocked'::text; end if;
+  -- תגובות בן/בת הזוג לרשימה (0032): B רואה את של A, C לא רואה כלום
+  checks := checks + 1;
+  if (select count(*) from public.partner_reactions(b) where idea_id = idea.id) <> 1 then failures := failures || 'B:partner_reactions missing'::text; end if;
+  checks := checks + 1;
+  if (select count(*) from public.partner_reactions(c)) <> 0 then failures := failures || 'C:partner_reactions leak'::text; end if;
   -- רגע המאצ' (0030): A ו-B רואים מאצ' חדש, C לא יכול לסמן/לראות אותו
   checks := checks + 1;
   if jsonb_array_length(public.match_celebration_state(b)->'unseen') <> 1 then failures := failures || 'B:match not unseen'::text; end if;
