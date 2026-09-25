@@ -5,8 +5,6 @@ import { redirect } from "next/navigation";
 import {
   createPlan,
   updatePlan,
-  confirmPlan,
-  unconfirmPlan,
   cancelPlan,
   completePlan,
   getPlan,
@@ -65,25 +63,6 @@ export async function updatePlanAction(input: unknown) {
     revalidatePlanPaths(parsed.data.id);
     notifyPartner({ kind: "plan_updated", planId: parsed.data.id });
   }
-  return result;
-}
-
-export async function confirmPlanAction(input: unknown) {
-  const parsed = planIdVersionSchema.safeParse(input);
-  if (!parsed.success) return fail("INVALID_INPUT", "בקשה לא תקינה", crypto.randomUUID());
-  const result = await confirmPlan(parsed.data.id, parsed.data.expectedVersion);
-  if (result.ok) {
-    revalidatePlanPaths(parsed.data.id);
-    notifyPartner({ kind: "plan_confirmed", planId: parsed.data.id });
-  }
-  return result;
-}
-
-export async function unconfirmPlanAction(input: unknown) {
-  const parsed = planIdVersionSchema.safeParse(input);
-  if (!parsed.success) return fail("INVALID_INPUT", "בקשה לא תקינה", crypto.randomUUID());
-  const result = await unconfirmPlan(parsed.data.id, parsed.data.expectedVersion);
-  if (result.ok) revalidatePlanPaths(parsed.data.id);
   return result;
 }
 

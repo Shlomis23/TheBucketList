@@ -4,6 +4,7 @@ import webpush from "web-push";
 import { after } from "next/server";
 import { getVerifiedUserId } from "@/lib/supabase/server";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
+import { formatPlanWhen } from "@/lib/validation/plan";
 
 // התראות לטלפון של בן/בת הזוג (Web Push, 0022). נקרא מ-Server Actions אחרי
 // פעולה מוצלחת; השליחה עצמה ב-after() — אחרי שהתשובה כבר חזרה למשתמש, כך
@@ -17,7 +18,6 @@ export type PushEvent =
   | { kind: "comment_added"; ideaId: string; body: string }
   | { kind: "plan_created"; planId: string }
   | { kind: "plan_updated"; planId: string }
-  | { kind: "plan_confirmed"; planId: string }
   | { kind: "memory_created"; memoryId: string }
   | { kind: "photos_added"; memoryId: string; count: number }
   | { kind: "space_closed" };
@@ -27,7 +27,7 @@ type Context = {
   actorName: string | null;
   ideaTitle: string | null;
   planTitle: string | null;
-  planConfirmedByBoth: boolean;
+  planStartsAt: string | null;
   targets: { endpoint: string; p256dh: string; auth: string }[];
 };
 
@@ -53,17 +53,13 @@ function buildPayload(e: PushEvent, c: Context): Payload | null {
         url: `/ideas/${e.ideaId}`,
         tag: `comment-${e.ideaId}`,
       };
+    // בלי שלב אישור (26.9): ההתראה אומרת מה ומתי — זה כל מה שצריך לדעת.
     case "plan_created":
       if (!c.planTitle) return null;
-      return { title: `תוכנית חדשה ${from}`, body: `${c.planTitle} — מחכה לאישור שלך`, url: `/plans/${e.planId}`, tag: `plan-${e.planId}` };
+      return { title: `תוכנית חדשה ${from}`, body: `${c.planTitle} · ${formatPlanWhen(c.planStartsAt)}`, url: `/plans/${e.planId}`, tag: `plan-${e.planId}` };
     case "plan_updated":
       if (!c.planTitle) return null;
-      return { title: `עדכון ${from}`, body: `"${c.planTitle}" השתנתה — צריך לאשר שוב`, url: `/plans/${e.planId}`, tag: `plan-${e.planId}` };
-    case "plan_confirmed":
-      if (!c.planTitle) return null;
-      return c.planConfirmedByBoth
-        ? { title: "יש תוכנית!", body: `"${c.planTitle}" מאושרת לשניכם`, url: `/plans/${e.planId}`, tag: `plan-${e.planId}` }
-        : { title: `אישור ${from}`, body: `"${c.planTitle}" — מחכה לאישור שלך`, url: `/plans/${e.planId}`, tag: `plan-${e.planId}` };
+      return { title: `עדכון בתוכנית ${from}`, body: `${c.planTitle} · ${formatPlanWhen(c.planStartsAt)}`, url: `/plans/${e.planId}`, tag: `plan-${e.planId}` };
     case "memory_created":
       if (!c.planTitle) return null;
       return { title: `זיכרון חדש ${from}`, body: `${c.planTitle} — אפשר להוסיף תמונות ואיך היה`, url: `/memories/${e.memoryId}`, tag: `memory-${e.memoryId}` };

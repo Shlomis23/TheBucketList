@@ -6,7 +6,7 @@ import { NewPlanForm } from "./NewPlanForm";
 // תכנון חדש `/plans/new?ideaId=...` — F6, spec סעיף 5-6.
 // מגיעים לכאן מ-/ideas/[id] ("תכננו את זה") או מ-/choose ("בואו נתכנן את זה").
 // מועד/מקום/הערות/תקציב כולם אופציונליים בשלב ההצעה (spec סעיף 6.1) —
-// שמירה יוצרת proposed; אישור שני הצדדים דורש מועד קיים.
+// שמירה יוצרת תוכנית (proposed) — בלי שלב אישור (26.9); בן/בת הזוג מקבלים התראה.
 export default async function NewPlanPage({
   searchParams,
 }: {

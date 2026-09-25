@@ -5,8 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   updatePlanAction,
-  confirmPlanAction,
-  unconfirmPlanAction,
   cancelPlanAction,
   completePlanAction,
 } from "../actions";
@@ -24,7 +22,8 @@ function todayDateInput(): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-// לוח בקרה לתוכנית בודדת — עריכה/אישור/ביטול אישור/ביטול תוכנית/השלמה.
+// לוח בקרה לתוכנית בודדת — השלמה/עריכה/ביטול. אין שלב "אישור" (שלומי, 26.9:
+// תוכנית נפתחת אחרי שכבר דיברנו עליה); בן/בת הזוג מקבלים התראה על יצירה/עדכון.
 // אחרי כל פעולה מצליחה: router.refresh() כדי לקבל מהשרת את הגרסה העדכנית
 // (במקום לתחזק state אופטימי משלנו) — כך "גרסה השתנתה" תמיד מוצג נכון,
 // כי אנחנו תמיד רואים את מה ששרת ה-RSC מחזיר, לא ניחוש מקומי (spec סעיף 7).
@@ -128,25 +127,6 @@ export function PlanDetail({
             </div>
           )}
 
-          {isProposed && (
-            <div className="card" style={{ marginBottom: 16 }}>
-              <p className="page-eyebrow" style={{ marginBottom: 8 }}>
-                אישורים
-              </p>
-              {plan.confirmations.length === 0 ? (
-                <p className="status-msg" style={{ margin: 0 }}>עדיין אף אחד לא אישר.</p>
-              ) : (
-                <ul style={{ margin: 0, paddingInlineStart: 18 }}>
-                  {plan.confirmations.map((c) => (
-                    <li key={c.userId} style={{ fontSize: 14 }}>
-                      {c.displayName || "מישהו מכם"} אישר/ה
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
-
           {errorMsg && (
             <p role="alert" className="alert-error" style={{ marginBottom: 12 }}>
               {errorMsg}
@@ -161,32 +141,14 @@ export function PlanDetail({
 
           {isProposed && (
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {plan.myConfirmation ? (
-                <button
-                  type="button"
-                  className="btn"
-                  style={{ background: "transparent", border: "1.5px solid var(--color-border)" }}
-                  disabled={isPending}
-                  onClick={() => runAction(() => confirmActionCall("unconfirm", plan))}
-                >
-                  ביטול האישור שלי
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  disabled={isPending || !plan.startsAt}
-                  onClick={() => runAction(() => confirmActionCall("confirm", plan))}
-                  title={!plan.startsAt ? "צריך לקבוע מועד לפני אישור" : undefined}
-                >
-                  אישור התוכנית
-                </button>
-              )}
-              {!plan.startsAt && !plan.myConfirmation && (
-                <p className="status-msg" style={{ margin: 0, fontSize: 12.5 }}>
-                  צריך לקבוע מועד כדי לאשר.
-                </p>
-              )}
+              <button
+                type="button"
+                className="btn btn-primary"
+                disabled={isPending}
+                onClick={() => setMode("complete")}
+              >
+                עשינו את זה!
+              </button>
 
               <button
                 type="button"
@@ -196,15 +158,6 @@ export function PlanDetail({
                 onClick={() => setMode("edit")}
               >
                 עריכת פרטים
-              </button>
-
-              <button
-                type="button"
-                className="btn btn-primary"
-                disabled={isPending}
-                onClick={() => setMode("complete")}
-              >
-                עשינו את זה!
               </button>
 
               <CancelPlanButton plan={plan} disabled={isPending} onCancel={() =>
@@ -222,16 +175,12 @@ export function PlanDetail({
   );
 }
 
-function confirmActionCall(kind: "confirm" | "unconfirm", plan: PlanDto) {
-  const payload = { id: plan.id, expectedVersion: plan.version };
-  return kind === "confirm" ? confirmPlanAction(payload) : unconfirmPlanAction(payload);
-}
-
 function StatusBadge({ plan }: { plan: PlanDto }) {
   if (plan.status === "cancelled") return <span className="badge badge-neutral">בוטלה</span>;
   if (plan.status === "completed") return <span className="badge badge-green">בוצע</span>;
-  if (plan.isConfirmedByBoth) return <span className="badge badge-green">מאושר לשנינו</span>;
-  return <span className="badge badge-yellow">ממתין לאישור</span>;
+  // בלי שלב אישור (26.9): תוכנית שנוצרה = סגורה. מסמנים רק מה שחסר.
+  if (!plan.startsAt) return <span className="badge badge-yellow">מועד לא נקבע</span>;
+  return null;
 }
 
 function CancelPlanButton({
