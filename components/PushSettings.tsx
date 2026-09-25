@@ -53,6 +53,12 @@ export function PushSettings({ publicKey }: { publicKey: string | null }) {
         const reg = await navigator.serviceWorker.getRegistration("/");
         sub = (await reg?.pushManager.getSubscription()) ?? null;
         next = sub && Notification.permission === "granted" ? "on" : "off";
+        // "פעילות" בדפדפן לא מבטיח שהשרת יודע על המכשיר (למשל אחרי איפוס
+        // נתונים) — שומרים שוב, כדי שמה שמוצג כאן יהיה נכון גם בשרת.
+        if (next === "on" && sub) {
+          const saved = await savePushSubscriptionAction(sub.toJSON());
+          if (!saved.ok) next = "off";
+        }
       }
       if (!cancelled) {
         setSubscription(sub);

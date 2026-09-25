@@ -1,4 +1,5 @@
 import { BottomNav } from "@/components/BottomNav";
+import { AppLifecycle } from "@/components/AppLifecycle";
 
 // עטיפה משותפת למסכי האפליקציה המחוברת (בית/רעיונות/בחירה/תוכניות/זיכרונות/הגדרות).
 // מסכי Auth/onboarding/invite/offline/space-closed נשארים מחוץ לקבוצה הזו בכוונה —
@@ -20,6 +21,7 @@ export default function AppLayout({
         {children}
       </main>
       <BottomNav />
+      <AppLifecycle />
     </div>
   );
 }
