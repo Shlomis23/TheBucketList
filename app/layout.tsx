@@ -3,6 +3,7 @@ import { Rubik } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
+import { splashStartupImages } from "@/lib/pwa/splash";
 
 // Rubik — גופן עגול וחברותי עם תמיכת עברית מלאה, לפי כיוון העיצוב שנבחר.
 const rubik = Rubik({
@@ -22,10 +23,13 @@ export const metadata: Metadata = {
   // מתחת לאייקון ("The Bucket List" נחתך במסך הבית). האייקון עצמו מגיע
   // מ-app/apple-icon.png. statusBarStyle "default" ולא "black-translucent":
   // לא כל המסכים מוסיפים ריווח safe-area-top, ותוכן היה נכנס מתחת לשעון.
+  // startupImage: מסך פתיחה לכל גודל אייפון (lib/pwa/splash.ts) — בלי זה
+  // פתיחה מהבית מתחילה בהבזק לבן.
   appleWebApp: {
     capable: true,
     title: "Bucket List",
     statusBarStyle: "default",
+    startupImage: splashStartupImages,
   },
 };
 

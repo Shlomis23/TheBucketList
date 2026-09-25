@@ -81,13 +81,13 @@ function buildHtml(data: ExportData, photoPaths: Map<string, string>) {
 <style>
 body{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:#faf8ff;color:#241b3a;margin:0;padding:24px 16px;line-height:1.6}
 main{max-width:760px;margin:0 auto}
-h1{margin:0 0 4px}.sub{color:#837a97;margin:0 0 28px}
+h1{margin:0 0 4px}.sub{color:#6e6584;margin:0 0 28px}
 article{background:#fff;border:1px solid #e6e0f2;border-radius:18px;padding:18px;margin-bottom:16px}
 .date{color:#5b3e9e;font-weight:700;font-size:13px;margin:0}h2{margin:2px 0 8px;font-size:20px}
 .story{white-space:pre-wrap;margin:0 0 12px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
 .grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;display:block}
-ul{padding-inline-start:20px}li{margin-bottom:10px}li span{color:#837a97}
+ul{padding-inline-start:20px}li{margin-bottom:10px}li span{color:#6e6584}
 </style></head><body><main>
 <h1>הזיכרונות שלנו</h1>
 <p class="sub">${names ? `${esc(names)} · ` : ""}The Bucket List · ירד ב-${esc(new Date().toLocaleDateString("he-IL"))}</p>
