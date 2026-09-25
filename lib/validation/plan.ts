@@ -101,3 +101,17 @@ export function pastWhenLabel(startsAt: string | null, now = new Date()): string
   }
   return `לפני ${days} ימים`;
 }
+
+// כרטיס "התוכנית הקרובה" בבית (25.9): "היום, 19:00" / "מחר, 19:00", ומעבר לזה
+// תמיד עם תאריך — "יום שלישי" לבד נקרא כמו "השלישי הקרוב" גם כשזה בעוד שבועות.
+export function upcomingWhenLabel(startsAt: string | null, now = new Date()): string {
+  if (!startsAt) return formatPlanWhen(null);
+  const dayKey = (d: Date) =>
+    new Intl.DateTimeFormat("en-CA", { timeZone: DEFAULT_PLAN_TIMEZONE, year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
+  const days = Math.round((Date.parse(dayKey(new Date(startsAt))) - Date.parse(dayKey(now))) / 86_400_000);
+  if (days === 0 || days === 1) {
+    const time = new Intl.DateTimeFormat("he-IL", { timeZone: DEFAULT_PLAN_TIMEZONE, hour: "2-digit", minute: "2-digit" }).format(new Date(startsAt));
+    return `${days === 0 ? "היום" : "מחר"}, ${time}`;
+  }
+  return formatPlanWhen(startsAt);
+}

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getVerifiedUserId } from "@/lib/supabase/server";
 import { getMySpaceId } from "@/lib/dal/space";
 import { getHome, type PartnerNewIdea, type PastPlan } from "@/lib/dal/home";
-import { pastWhenLabel } from "@/lib/validation/plan";
+import { pastWhenLabel, upcomingWhenLabel } from "@/lib/validation/plan";
 import { getIdeaCoverImage } from "@/lib/covers";
 import { categoryLabels, type IdeaCategory } from "@/lib/validation/idea";
 import { ReactionControl } from "@/components/ReactionControl";
@@ -265,14 +265,7 @@ function UpcomingPlanCard({
     );
   }
 
-  const when = plan.startsAt
-    ? new Intl.DateTimeFormat("he-IL", {
-        timeZone: "Asia/Jerusalem",
-        weekday: "long",
-        hour: "2-digit",
-        minute: "2-digit",
-      }).format(new Date(plan.startsAt))
-    : "מועד לא נקבע עדיין";
+  const when = upcomingWhenLabel(plan.startsAt);
 
   return (
     <Link
