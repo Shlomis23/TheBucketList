@@ -80,3 +80,14 @@ export async function listSpacesDueForPurge(): Promise<string[]> {
   if (error) throw new Error("list_spaces_due_for_purge failed");
   return (data as string[] | null) ?? [];
 }
+
+// קבצים יתומים (0027): אין להם שורה ב-memory_photos — העלאה שנכשלה באמצע,
+// או נתונים שנמחקו ישירות ב-DB (Supabase לא מאפשר מחיקת קבצים ב-SQL).
+export async function sweepOrphanObjects(): Promise<number> {
+  const service = createSupabaseServiceClient();
+  const { data, error } = await service.rpc("list_orphan_storage_objects");
+  if (error) throw new Error("list_orphan_storage_objects failed");
+  const paths = (data as string[] | null) ?? [];
+  if (paths.length) await removeObjects(paths);
+  return paths.length;
+}

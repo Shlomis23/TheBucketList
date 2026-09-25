@@ -1,13 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { timingSafeEqual } from "crypto";
-import { cleanupStalePhotos, listSpacesDueForPurge, purgeSpaceNow } from "@/lib/purge";
+import { cleanupStalePhotos, listSpacesDueForPurge, purgeSpaceNow, sweepOrphanObjects } from "@/lib/purge";
 import { sendBackupReminders, sendPlanNotifications } from "@/lib/reminders";
 
 // משימה יומית (vercel.json -> crons). Vercel שולח Authorization: Bearer
 // <CRON_SECRET>; בלי הסוד — 401, כך שאף אחד מבחוץ לא יכול להפעיל מחיקה.
 //
 //   1. מחיקה סופית של מרחבים שתקופת החרטה שלהם (14 יום) נגמרה.
-//   2. ניקוי העלאות תמונה שנתקעו באמצע.
+//   2. ניקוי העלאות תמונה שנתקעו באמצע, וקבצים יתומים באחסון (בלי שורה ב-DB).
 //   3. התראות בוקר: "מחר ב-19:30: ..." ו"איך היה?", וב-1 לחודש תזכורת
 //      גיבוי (lib/reminders.ts).
 //   4. בדרך אגב — פעילות יומית מול Supabase, כך שהפרויקט בתוכנית החינמית
@@ -26,7 +26,7 @@ function authorized(request: NextRequest) {
 export async function GET(request: NextRequest) {
   if (!authorized(request)) return NextResponse.json({ ok: false }, { status: 401 });
 
-  const summary = { purged: 0, purgeFailed: 0, stalePhotos: 0, planNotifications: 0, backupReminders: 0, errors: [] as string[] };
+  const summary = { purged: 0, purgeFailed: 0, stalePhotos: 0, orphanObjects: 0, planNotifications: 0, backupReminders: 0, errors: [] as string[] };
 
   try {
     for (const spaceId of await listSpacesDueForPurge()) {
@@ -39,6 +39,7 @@ export async function GET(request: NextRequest) {
 
   try {
     summary.stalePhotos = await cleanupStalePhotos();
+    summary.orphanObjects = await sweepOrphanObjects();
   } catch (e) {
     summary.errors.push(e instanceof Error ? e.message : "stale cleanup failed");
   }
