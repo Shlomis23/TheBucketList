@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { PlaceInput } from "@/components/PlaceInput";
 import { updateIdeaAction } from "../../actions";
 import { ideaCategories, categoryLabels, durationOptionsFor, type IdeaCategory } from "@/lib/validation/idea";
 import type { IdeaDetailDto } from "@/lib/dal/ideas";
@@ -15,6 +16,7 @@ export function EditIdeaForm({ idea }: { idea: IdeaDetailDto }) {
   const [category, setCategory] = useState<IdeaCategory>(idea.category);
   const [description, setDescription] = useState(idea.description);
   const [locationText, setLocationText] = useState(idea.locationText ?? "");
+  const [placeId, setPlaceId] = useState<string | null>(idea.placeId);
   const [sourceUrl, setSourceUrl] = useState(idea.sourceUrl ?? "");
   const [costShekels, setCostShekels] = useState(
     idea.costMinor !== null ? String(idea.costMinor / 100) : "",
@@ -44,6 +46,7 @@ export function EditIdeaForm({ idea }: { idea: IdeaDetailDto }) {
       description,
       category,
       locationText: locationText.trim() === "" ? undefined : locationText,
+      placeId: locationText.trim() === "" ? undefined : (placeId ?? undefined),
       sourceUrl: sourceUrl.trim() === "" ? undefined : sourceUrl,
       costMinor: costMinor !== undefined && !Number.isNaN(costMinor) ? costMinor : undefined,
       durationMinutes:
@@ -109,12 +112,14 @@ export function EditIdeaForm({ idea }: { idea: IdeaDetailDto }) {
 
       <div className="field">
         <label htmlFor="locationText">מקום</label>
-        <input
+        <PlaceInput
           id="locationText"
-          maxLength={200}
           value={locationText}
-          onChange={(e) => setLocationText(e.target.value)}
-          className="input"
+          placeId={placeId}
+          onChange={(text, pid) => {
+            setLocationText(text);
+            setPlaceId(pid);
+          }}
         />
       </div>
 

@@ -86,6 +86,7 @@ export function PlanDetail({ plan, memoryId }: { plan: PlanDetailDto; memoryId: 
             ideaId={plan.ideaId}
             sourceUrl={plan.ideaSourceUrl}
             locationText={plan.ideaLocationText}
+            placeId={plan.ideaPlaceId}
             conversationLinks={plan.conversationLinks}
           />
 

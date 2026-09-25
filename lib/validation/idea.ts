@@ -12,6 +12,14 @@ export const ideaCategories = [
   "other",
 ] as const;
 
+// Google place_id (0019) — רק תווים שמופיעים במזהים של Google. נשלח רק
+// כשהמקום נבחר מההשלמה; טקסט חופשי = בלי place_id.
+export const placeIdSchema = z
+  .string()
+  .max(300)
+  .regex(/^[A-Za-z0-9_-]+$/)
+  .optional();
+
 export const createIdeaSchema = z.object({
   requestId: z.string().uuid(),
   title: z
@@ -22,6 +30,7 @@ export const createIdeaSchema = z.object({
   description: z.string().max(3000).default(""),
   category: z.enum(ideaCategories).default("other"),
   locationText: z.string().max(200).optional(),
+  placeId: placeIdSchema,
   sourceUrl: z
     .string()
     .max(2048)
@@ -63,6 +72,7 @@ export const updateIdeaSchema = z.object({
   description: z.string().max(3000).default(""),
   category: z.enum(ideaCategories).default("other"),
   locationText: z.string().max(200).optional(),
+  placeId: placeIdSchema,
   sourceUrl: z
     .string()
     .max(2048)

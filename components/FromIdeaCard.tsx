@@ -1,22 +1,12 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
+import { NavigateTile } from "@/components/NavigateTile";
 import { linkHost, shortLinkLabel } from "@/lib/validation/comment";
 
 // "מהרעיון" בדף התוכנית (25.9): הקישור והמיקום יושבים ברעיון, וכדי להגיע
 // אליהם ביום עצמו היה צריך לעבור דרך לשונית הרעיונות. כאן הם במרחק לחיצה.
 // מוצג רק מה שקיים; אם אין כלום — רק "לרעיון המלא".
 //
-// ניווט: לחיצה שואלת Waze או Google Maps (בחירה של שלומי). שני הקישורים
-// הם universal links — נפתחים באפליקציה אם מותקנת, אחרת בדפדפן.
-
-function wazeUrl(place: string) {
-  return `https://waze.com/ul?q=${encodeURIComponent(place)}&navigate=yes`;
-}
-function googleMapsUrl(place: string) {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place)}`;
-}
+// ניווט: NavigateTile (Waze / Google Maps, מדויק כשיש place_id).
 
 function ExternalIcon() {
   return (
@@ -26,27 +16,19 @@ function ExternalIcon() {
   );
 }
 
-function PinIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11Z" />
-      <circle cx="12" cy="10" r="2.5" />
-    </svg>
-  );
-}
-
 export function FromIdeaCard({
   ideaId,
   sourceUrl,
   locationText,
+  placeId,
   conversationLinks,
 }: {
   ideaId: string;
   sourceUrl: string | null;
   locationText: string | null;
+  placeId: string | null;
   conversationLinks: string[];
 }) {
-  const [choosingNav, setChoosingNav] = useState(false);
   const place = locationText?.trim() || null;
   const hasLinks = Boolean(sourceUrl || place || conversationLinks.length);
 
@@ -78,28 +60,7 @@ export function FromIdeaCard({
         </a>
       )}
 
-      {place &&
-        (choosingNav ? (
-          <div className="link-tile nav-choice" role="group" aria-label={`ניווט אל ${place}`}>
-            <span className="link-tile-text" style={{ color: "var(--color-text)" }}>
-              לנווט עם:
-            </span>
-            <a href={wazeUrl(place)} target="_blank" rel="noopener noreferrer" className="nav-option" onClick={() => setChoosingNav(false)}>
-              Waze
-            </a>
-            <a href={googleMapsUrl(place)} target="_blank" rel="noopener noreferrer" className="nav-option" onClick={() => setChoosingNav(false)}>
-              Google Maps
-            </a>
-            <button type="button" className="link-plain" style={{ fontSize: 13, minHeight: 36, minWidth: 0 }} onClick={() => setChoosingNav(false)}>
-              ביטול
-            </button>
-          </div>
-        ) : (
-          <button type="button" className="link-tile" onClick={() => setChoosingNav(true)} aria-expanded={false}>
-            <PinIcon />
-            <span className="link-tile-text">{place} · ניווט</span>
-          </button>
-        ))}
+      {place && <NavigateTile place={place} placeId={placeId} />}
 
       {conversationLinks.length > 0 && (
         <>

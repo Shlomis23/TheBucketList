@@ -165,6 +165,7 @@ export type ReactionWithNameDto = {
 };
 
 export type IdeaDetailDto = IdeaDto & {
+  placeId: string | null; // Google place_id (0019) — ניווט מדויק; null = טקסט חופשי
   isMatch: boolean;
   activePlanId: string | null;
   reactions: ReactionWithNameDto[];
@@ -183,10 +184,10 @@ export async function getIdea(ideaId: string): Promise<IdeaDetailDto | null> {
   const { data: idea } = await supabase
     .from("ideas")
     .select(
-      "id, space_id, title, description, category, location_text, source_url, cost_minor, duration_minutes, created_at, status, version",
+      "id, space_id, title, description, category, location_text, place_id, source_url, cost_minor, duration_minutes, created_at, status, version",
     )
     .eq("id", ideaId)
-    .maybeSingle<IdeaRow & { space_id: string }>();
+    .maybeSingle<IdeaRow & { space_id: string; place_id: string | null }>();
   if (!idea) return null;
 
   const [{ data: reaction }, { data: matchIds }, { data: activePlan }, { data: reactionsWithNames }] =
@@ -222,6 +223,7 @@ export async function getIdea(ideaId: string): Promise<IdeaDetailDto | null> {
     description: idea.description,
     category: idea.category as IdeaCategory,
     locationText: idea.location_text,
+    placeId: idea.place_id,
     sourceUrl: idea.source_url,
     costMinor: idea.cost_minor,
     durationMinutes: idea.duration_minutes,
@@ -251,6 +253,7 @@ export async function createIdea(input: CreateIdeaInput): Promise<Result<{ id: s
     p_description: input.description ?? "",
     p_category: input.category ?? "other",
     p_location_text: input.locationText ?? null,
+    p_place_id: input.locationText ? (input.placeId ?? null) : null,
     p_source_url: input.sourceUrl ?? null,
     p_cost_minor: input.costMinor ?? null,
     p_duration_minutes: input.durationMinutes ?? null,
@@ -322,6 +325,7 @@ export async function updateIdea(input: UpdateIdeaInput): Promise<Result<{ id: s
     p_description: input.description ?? "",
     p_category: input.category ?? "other",
     p_location_text: input.locationText ?? null,
+    p_place_id: input.locationText ? (input.placeId ?? null) : null,
     p_source_url: input.sourceUrl ?? null,
     p_cost_minor: input.costMinor ?? null,
     p_duration_minutes: input.durationMinutes ?? null,

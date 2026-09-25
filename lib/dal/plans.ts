@@ -40,6 +40,7 @@ export type PlanDto = {
   // יושבים ברעיון, ובלי זה היה צריך לעבור דרך לשונית הרעיונות כדי להגיע אליהם.
   ideaSourceUrl: string | null;
   ideaLocationText: string | null;
+  ideaPlaceId: string | null;
 };
 
 // getPlan בלבד: קישורים שהודבקו בשיחה על הרעיון (החדשים קודם, עד 3, בלי כפילות).
@@ -84,9 +85,9 @@ async function attachConfirmations(
     // קטגוריה (תמונת עטיפה, lib/covers.ts) + קישור ומיקום לכרטיס "מהרעיון".
     supabase
       .from("ideas")
-      .select("id, category, source_url, location_text")
+      .select("id, category, source_url, location_text, place_id")
       .in("id", ideaIds)
-      .returns<{ id: string; category: IdeaCategory; source_url: string | null; location_text: string | null }[]>(),
+      .returns<{ id: string; category: IdeaCategory; source_url: string | null; location_text: string | null; place_id: string | null }[]>(),
     // שמות המאשרים: בלי .in(userIds) — RLS (can_read_profile) מחזיר ממילא רק
     // אותי ואת בן/בת הזוג, וכך זה רץ במקביל ולא כקפיצת רשת נוספת אחרי האישורים.
     supabase.from("profiles").select("id, display_name").returns<{ id: string; display_name: string }[]>(),
@@ -110,6 +111,7 @@ async function attachConfirmations(
       ideaCategory: ideaById.get(p.idea_id)?.category ?? null,
       ideaSourceUrl: ideaById.get(p.idea_id)?.source_url ?? null,
       ideaLocationText: ideaById.get(p.idea_id)?.location_text ?? null,
+      ideaPlaceId: ideaById.get(p.idea_id)?.place_id ?? null,
       title: p.title,
       status: p.status,
       startsAt: p.starts_at,

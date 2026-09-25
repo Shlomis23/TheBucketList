@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { PlaceInput } from "@/components/PlaceInput";
 import { createIdeaAction } from "../actions";
 import { ideaCategories, categoryLabels, durationPresets, type IdeaCategory } from "@/lib/validation/idea";
 
@@ -15,6 +16,7 @@ export function NewIdeaForm() {
   const [category, setCategory] = useState<IdeaCategory>("other");
   const [description, setDescription] = useState("");
   const [locationText, setLocationText] = useState("");
+  const [placeId, setPlaceId] = useState<string | null>(null);
   const [sourceUrl, setSourceUrl] = useState("");
   const [costShekels, setCostShekels] = useState("");
   const [durationMinutes, setDurationMinutes] = useState("");
@@ -39,6 +41,7 @@ export function NewIdeaForm() {
       description,
       category,
       locationText: locationText.trim() === "" ? undefined : locationText,
+      placeId: locationText.trim() === "" ? undefined : (placeId ?? undefined),
       sourceUrl: sourceUrl.trim() === "" ? undefined : sourceUrl,
       costMinor: costMinor !== undefined && !Number.isNaN(costMinor) ? costMinor : undefined,
       durationMinutes:
@@ -118,12 +121,14 @@ export function NewIdeaForm() {
 
           <div className="field">
             <label htmlFor="locationText">מקום</label>
-            <input
+            <PlaceInput
               id="locationText"
-              maxLength={200}
               value={locationText}
-              onChange={(e) => setLocationText(e.target.value)}
-              className="input"
+              placeId={placeId}
+              onChange={(text, pid) => {
+                setLocationText(text);
+                setPlaceId(pid);
+              }}
             />
           </div>
 

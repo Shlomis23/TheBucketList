@@ -8,6 +8,7 @@ import { IdeaConversation } from "@/components/IdeaConversation";
 import { categoryLabels, formatCostMinor, formatDurationMinutes, reactionLabels, reactionBadgeClass } from "@/lib/validation/idea";
 import { getIdeaCoverImage } from "@/lib/covers";
 import { linkHost } from "@/lib/validation/comment";
+import { NavigateTile } from "@/components/NavigateTile";
 
 // פרטי רעיון `/ideas/[id]` — F4, spec סעיף 6.
 // תגובות טקסט: IdeaConversation (0017). בארכיון — קריאה בלבד.
@@ -39,9 +40,8 @@ export default async function IdeaDetailPage({
         {isArchived && <span className="badge badge-neutral">בארכיון</span>}
       </div>
       <h1 className="page-title">{idea.title}</h1>
-      {(cost || duration || idea.locationText) && (
-        <p className="page-subtitle">{[cost, duration, idea.locationText].filter(Boolean).join(" · ")}</p>
-      )}
+      {/* המקום לא כאן — הוא באריח "ניווט" למטה (בלי כפילות). */}
+      {(cost || duration) && <p className="page-subtitle">{[cost, duration].filter(Boolean).join(" · ")}</p>}
 
       {idea.description && (
         <div className="card" style={{ marginBottom: 16 }}>
@@ -57,7 +57,7 @@ export default async function IdeaDetailPage({
           target="_blank"
           rel="noopener noreferrer nofollow"
           className="link-tile primary"
-          style={{ marginBottom: 16 }}
+          style={{ marginBottom: idea.locationText ? 8 : 16 }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
@@ -72,6 +72,10 @@ export default async function IdeaDetailPage({
             </span>
           </span>
         </a>
+      )}
+
+      {idea.locationText && (
+        <NavigateTile place={idea.locationText} placeId={idea.placeId} style={{ marginBottom: 16 }} />
       )}
 
       {isArchived ? (
