@@ -12,6 +12,7 @@ export type PushEvent =
   | { kind: "comment_added"; ideaId: string; body: string }
   | { kind: "plan_created"; planId: string }
   | { kind: "plan_updated"; planId: string }
+  | { kind: "plan_cancelled"; planId: string }
   | { kind: "memory_created"; memoryId: string }
   | { kind: "photos_added"; memoryId: string; count: number }
   | { kind: "space_closed" };
@@ -59,6 +60,9 @@ export function buildPayload(e: PushEvent, c: PushContext): Payload | null {
     case "plan_updated":
       if (!c.planTitle) return null;
       return { title: `עדכון בתוכנית ${from}`, body: `${c.planTitle} · ${formatPlanWhen(c.planStartsAt)}`, url: `/plans/${e.planId}`, tag: `plan-${e.planId}` };
+    case "plan_cancelled":
+      if (!c.planTitle) return null;
+      return { title: "תוכנית בוטלה", body: `${c.planTitle} · בוטלה ע״י ${who}`, url: `/plans/${e.planId}`, tag: `plan-${e.planId}` };
     case "memory_created":
       if (!c.planTitle) return null;
       return { title: `זיכרון חדש ${from}`, body: `${c.planTitle} — אפשר להוסיף תמונות ואיך היה`, url: `/memories/${e.memoryId}`, tag: `memory-${e.memoryId}` };

@@ -5,6 +5,7 @@ import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { ok, fail, type Result } from "@/lib/errors/result";
 import type { CreateIdeaInput, UpdateIdeaInput, IdeaCategory } from "@/lib/validation/idea";
 import type { IdeaListFilters, IdeaListSort } from "@/lib/validation/ideaList";
+import { getUnreadConversations } from "@/lib/dal/conversations";
 
 export type IdeaStatus = "active" | "archived";
 
@@ -55,14 +56,15 @@ type IdeaRow = {
 export type IdeaListCounts = { all: number; unreacted: number; matches: number };
 
 // פריט ברשימה = IdeaDto + מספר הודעות בשיחה (אייקון בועה בשורה).
-export type IdeaListItemDto = IdeaDto & { commentCount: number };
+// unreadCount — הודעות מבן/בת הזוג שעוד לא ראיתי (0026).
+export type IdeaListItemDto = IdeaDto & { commentCount: number; unreadCount: number };
 
 export async function listIdeas(
   filters: IdeaListFilters,
 ): Promise<{ ideas: IdeaListItemDto[]; counts: IdeaListCounts }> {
   const supabase = await createSupabaseServerClient();
 
-  const [{ data: rows }, { data: reactions }, { data: commentRows }] = await Promise.all([
+  const [{ data: rows }, { data: reactions }, { data: commentRows }, unread] = await Promise.all([
     supabase
       .from("ideas")
       .select(
@@ -77,7 +79,9 @@ export async function listIdeas(
       .returns<{ idea_id: string; preference: "yes" | "maybe" | "no" }[]>(),
     // מונה הודעות לכל רעיון (member_read) — באותה קפיצה, סופרים בזיכרון.
     supabase.from("idea_comments").select("idea_id").returns<{ idea_id: string }[]>(),
+    getUnreadConversations(),
   ]);
+  const unreadByIdea = new Map(unread.map((u) => [u.ideaId, u.unreadCount]));
 
   if (!rows || rows.length === 0) return { ideas: [], counts: { all: 0, unreacted: 0, matches: 0 } };
 
@@ -111,6 +115,7 @@ export async function listIdeas(
     status: i.status as IdeaStatus,
     version: i.version,
     commentCount: commentCountByIdea.get(i.id) ?? 0,
+    unreadCount: unreadByIdea.get(i.id) ?? 0,
   }));
 
   // חיפוש + קטגוריה קודם, ורק אז המונים לפי תצוגה — כך "עוד לא הגבתי · 3"

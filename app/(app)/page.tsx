@@ -9,6 +9,7 @@ import { categoryLabels, type IdeaCategory } from "@/lib/validation/idea";
 import { ReactionControl } from "@/components/ReactionControl";
 import { MemoryCard } from "@/components/MemoryCard";
 import { getLatestMemory } from "@/lib/dal/memories";
+import { getUnreadConversations, type UnreadConversation } from "@/lib/dal/conversations";
 
 // בית `/` — spec סעיף 6, 13.3 (getHome).
 // שלד "רעיונות אחרונים" בתור תצוגה מקדימה בפועל (לא רק מספר) ממתין ל-listIdeas
@@ -23,7 +24,11 @@ export default async function HomePage() {
   if (!spaceId) redirect("/onboarding");
 
   // "הזיכרון האחרון" במקביל ל-getHome — בלי קפיצת רשת נוספת.
-  const [home, latestMemory] = await Promise.all([getHome(spaceId, userId), getLatestMemory()]);
+  const [home, latestMemory, unread] = await Promise.all([
+    getHome(spaceId, userId),
+    getLatestMemory(),
+    getUnreadConversations(),
+  ]);
   const greetingName = home.displayName || "שם";
 
   return (
@@ -69,6 +74,8 @@ export default async function HomePage() {
       </div>
 
       <PastPlansSection plans={home.pastPlans} />
+
+      <UnreadSection items={unread} />
 
       <PartnerNewIdeasSection
         ideas={home.partnerNewIdeas}
@@ -150,6 +157,42 @@ function PastPlansSection({ plans }: { plans: PastPlan[] }) {
           </div>
         </div>
       ))}
+    </section>
+  );
+}
+
+// "הודעות חדשות" (0026) — שיחות על רעיונות שיש בהן הודעה מבן/בת הזוג שעוד
+// לא ראיתי. לחיצה פותחת את הרעיון (ומסמנת כנקרא). עד 3; השאר ברשימת הרעיונות.
+function UnreadSection({ items }: { items: UnreadConversation[] }) {
+  if (items.length === 0) return null;
+  const shown = items.slice(0, 3);
+  return (
+    <section aria-labelledby="unread" className="card" style={{ marginBottom: 16 }}>
+      <p id="unread" className="page-eyebrow" style={{ marginBottom: 10 }}>
+        הודעות חדשות
+      </p>
+      {shown.map((c) => (
+        <Link key={c.ideaId} href={`/ideas/${c.ideaId}`} className="unread-row">
+          <span className="unread-dot" aria-hidden="true" />
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ display: "block", fontWeight: 800, fontSize: 15, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {c.ideaTitle}
+            </span>
+            <span className="status-msg" style={{ fontSize: 12.5 }}>
+              {c.unreadCount === 1 ? "הודעה חדשה" : `${c.unreadCount} הודעות חדשות`}
+              {c.lastAuthor ? ` מ${c.lastAuthor}` : ""}
+            </span>
+          </span>
+          <span aria-hidden="true" style={{ color: "var(--color-primary)" }}>
+            &larr;
+          </span>
+        </Link>
+      ))}
+      {items.length > shown.length && (
+        <p className="status-msg" style={{ margin: "8px 0 0", fontSize: 12.5 }}>
+          ועוד {items.length - shown.length} ברשימת הרעיונות
+        </p>
+      )}
     </section>
   );
 }

@@ -37,6 +37,12 @@ describe("ניסוחי התראות", () => {
     expect(created.body).not.toContain("אישור");
     expect(buildPayload({ kind: "plan_updated", planId: "p1" }, ctx())!.title).toBe("עדכון בתוכנית מנועה");
   });
+  it("תוכנית בוטלה", () => {
+    expect(buildPayload({ kind: "plan_cancelled", planId: "p1" }, ctx())).toMatchObject({
+      title: "תוכנית בוטלה",
+      body: "פיקניק בטבע · בוטלה ע״י נועה",
+    });
+  });
   it("תמונות — יחיד/רבים", () => {
     expect(buildPayload({ kind: "photos_added", memoryId: "m1", count: 1 }, ctx())!.title).toBe("תמונה חדשה מנועה");
     expect(buildPayload({ kind: "photos_added", memoryId: "m1", count: 3 }, ctx())!.title).toBe("3 תמונות חדשות מנועה");

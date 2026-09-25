@@ -161,8 +161,16 @@ function IdeaRow({ idea, archived }: { idea: IdeaListItemDto; archived: boolean 
           {idea.isMatch && <span className="badge badge-green badge-sm">מאצ&apos;!</span>}
           {idea.commentCount > 0 && (
             <span
-              className="comment-count"
-              aria-label={idea.commentCount === 1 ? "הודעה אחת בשיחה" : `${idea.commentCount} הודעות בשיחה`}
+              className={idea.unreadCount > 0 ? "comment-count has-unread" : "comment-count"}
+              aria-label={
+                idea.unreadCount > 0
+                  ? idea.unreadCount === 1
+                    ? "הודעה חדשה בשיחה"
+                    : `${idea.unreadCount} הודעות חדשות בשיחה`
+                  : idea.commentCount === 1
+                    ? "הודעה אחת בשיחה"
+                    : `${idea.commentCount} הודעות בשיחה`
+              }
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z" />

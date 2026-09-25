@@ -9,6 +9,7 @@ import { categoryLabels, formatCostMinor, formatDurationMinutes, reactionLabels,
 import { getIdeaCoverImage } from "@/lib/covers";
 import { linkHost } from "@/lib/validation/comment";
 import { NavigateTile } from "@/components/NavigateTile";
+import { markIdeaRead } from "@/lib/dal/conversations";
 
 // פרטי רעיון `/ideas/[id]` — F4, spec סעיף 6.
 // תגובות טקסט: IdeaConversation (0017). בארכיון — קריאה בלבד.
@@ -23,7 +24,8 @@ export default async function IdeaDetailPage({
   const { id } = await params;
   // השיחה נטענת במקביל לרעיון (לא תלויה בו) — בלי קפיצת רשת נוספת.
   // אם הרעיון זר/חסר, RLS מחזיר רשימה ריקה ו-notFound() קורה ממילא.
-  const [idea, comments] = await Promise.all([getIdea(id), listComments(id)]);
+  // markIdeaRead — "לא נקרא" (0026): הכניסה לדף מסמנת את השיחה כנקראה.
+  const [idea, comments] = await Promise.all([getIdea(id), listComments(id), markIdeaRead(id).catch(() => {})]);
   if (!idea) notFound();
 
   const cost = formatCostMinor(idea.costMinor);

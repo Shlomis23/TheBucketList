@@ -70,7 +70,10 @@ export async function cancelPlanAction(input: unknown) {
   const parsed = planIdVersionSchema.safeParse(input);
   if (!parsed.success) return fail("INVALID_INPUT", "בקשה לא תקינה", crypto.randomUUID());
   const result = await cancelPlan(parsed.data.id, parsed.data.expectedVersion);
-  if (result.ok) revalidatePlanPaths(parsed.data.id);
+  if (result.ok) {
+    revalidatePlanPaths(parsed.data.id);
+    notifyPartner({ kind: "plan_cancelled", planId: parsed.data.id });
+  }
   return result;
 }
 
@@ -108,5 +111,34 @@ export async function completePlanAction(input: unknown) {
     }
   }
 
+  return result;
+}
+
+// "לא יצא" -> דחייה בשבוע, בלחיצה אחת (25.9). אותה שעה, אותו משך, בדיוק
+// 7 ימים אחרי. הפרטים האחרים (מקום, הערות, תקציב) נשמרים כמו שהם — נקראים
+// כאן מהשרת, לא מהלקוח. בן/בת הזוג מקבלים "עדכון בתוכנית" עם המועד החדש.
+export async function postponePlanWeekAction(input: unknown) {
+  const parsed = planIdVersionSchema.safeParse(input);
+  if (!parsed.success) return fail("INVALID_INPUT", "בקשה לא תקינה", crypto.randomUUID());
+  const plan = await getPlan(parsed.data.id);
+  if (!plan || plan.status !== "proposed") return fail("NOT_FOUND", "התוכנית כבר לא פעילה", crypto.randomUUID());
+  if (!plan.startsAt) return fail("INVALID_INPUT", "לתוכנית אין מועד לדחות", crypto.randomUUID());
+
+  const week = 7 * 86_400_000;
+  const shift = (iso: string | null) => (iso ? new Date(new Date(iso).getTime() + week).toISOString() : undefined);
+  const result = await updatePlan({
+    id: plan.id,
+    expectedVersion: parsed.data.expectedVersion,
+    startsAt: shift(plan.startsAt),
+    endsAt: shift(plan.endsAt),
+    timezone: plan.timezone,
+    meetingPlace: plan.meetingPlace ?? undefined,
+    notes: plan.notes,
+    budgetMinor: plan.budgetMinor ?? undefined,
+  });
+  if (result.ok) {
+    revalidatePlanPaths(plan.id);
+    notifyPartner({ kind: "plan_updated", planId: plan.id });
+  }
   return result;
 }

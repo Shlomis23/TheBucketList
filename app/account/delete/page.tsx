@@ -20,7 +20,7 @@ export default async function DeleteAccountPage() {
       : state.memberCount > 1
         ? "with-partner"
         : "alone";
-  const back = state?.status === "closed" ? "/space-closed" : "/settings";
+  const back = !state ? "/onboarding" : state.status === "closed" ? "/space-closed" : "/settings";
 
   return (
     <div className="page" style={{ paddingTop: "calc(24px + var(--safe-area-top))" }}>

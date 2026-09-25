@@ -3,6 +3,7 @@ import { getVerifiedUserId } from "@/lib/supabase/server";
 import { getMySpaceId, hasPendingInvitationForMe } from "@/lib/dal/space";
 import { getMySpaceState } from "@/lib/dal/account";
 import { peekInviteCookie } from "@/lib/invitations/cookie";
+import Link from "next/link";
 import { OnboardingForm } from "./OnboardingForm";
 
 // התחלה `/onboarding` — F1, spec סעיף 5, 6.
@@ -39,6 +40,12 @@ export default async function OnboardingPage() {
           בן/בת הזוג כבר הזמינו אתכם למרחב המשותף שלהם. כדי להצטרף אליו, אפשר
           לפתוח שוב את קישור ההזמנה ששלחו לכם וללחוץ על &quot;ממשיכים&quot;.
         </p>
+        <p className="status-msg" style={{ margin: "24px 0 0", fontSize: 12.5, textAlign: "center" }}>
+          לא מתכננים להמשיך?{" "}
+          <Link href="/account/delete" className="link-plain" style={{ fontSize: 12.5 }}>
+            מחיקת החשבון
+          </Link>
+        </p>
       </div>
     );
   }
@@ -51,6 +58,12 @@ export default async function OnboardingPage() {
       <div className="card">
         <OnboardingForm />
       </div>
+      <p className="status-msg" style={{ margin: "24px 0 0", fontSize: 12.5, textAlign: "center" }}>
+        לא מתכננים להמשיך?{" "}
+        <Link href="/account/delete" className="link-plain" style={{ fontSize: 12.5 }}>
+          מחיקת החשבון
+        </Link>
+      </p>
     </div>
   );
 }

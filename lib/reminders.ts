@@ -3,7 +3,7 @@ import "server-only";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { sendPayload, type PushTarget } from "@/lib/push";
 
-// התראות מתוזמנות — רצות מהמשימה היומית (app/api/cron/daily), בבוקר:
+// התראות מתוזמנות — רצות מהמשימה היומית (וגם תזכורת הגיבוי החודשית, למטה) (app/api/cron/daily), בבוקר:
 //   "מחר ב-19:30: פיקניק בטבע"        — יום לפני תוכנית
 //   "פיקניק בטבע היה אתמול. שומרים?"  — למחרת תוכנית שעוד לא נסגרה
 // לשני בני הזוג. כל אחת פעם אחת בלבד (claim_push, 0024); תזכורת תלויה גם
@@ -37,6 +37,33 @@ export async function sendPlanNotifications(): Promise<number> {
             tag: `plan-${d.plan_id}`,
           };
     await sendPayload(d.targets, payload);
+    sent++;
+  }
+  return sent;
+}
+
+// תזכורת גיבוי חודשית (0026): ב-1 בכל חודש (שעון ישראל), לשני בני הזוג,
+// רק במרחב שיש בו לפחות זיכרון אחד. פעם אחת לחודש (claim_push).
+export async function sendBackupReminders(now = new Date()): Promise<number> {
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem" }).format(now); // YYYY-MM-DD
+  if (!today.endsWith("-01")) return 0;
+  const month = today.slice(0, 7);
+
+  const service = createSupabaseServiceClient();
+  const { data, error } = await service.rpc("backup_reminder_targets");
+  if (error) throw new Error("backup_reminder_targets failed");
+
+  let sent = 0;
+  for (const s of (data as { space_id: string; memories: number; targets: PushTarget[] }[] | null) ?? []) {
+    if (s.targets.length === 0) continue;
+    const { data: first } = await service.rpc("claim_push", { p_key: `backup:${s.space_id}:${month}` });
+    if (first !== true) continue;
+    await sendPayload(s.targets, {
+      title: "גיבוי חודשי",
+      body: `${s.memories === 1 ? "זיכרון אחד" : `${s.memories} זיכרונות`} — שווה לשמור עותק. הגדרות ← גיבוי`,
+      url: "/settings#export",
+      tag: "backup",
+    });
     sent++;
   }
   return sent;

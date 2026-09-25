@@ -7,6 +7,7 @@ import {
   updatePlanAction,
   cancelPlanAction,
   completePlanAction,
+  postponePlanWeekAction,
 } from "../actions";
 import { DEFAULT_PLAN_TIMEZONE, formatBudgetMinor, formatPlanWhen, isPlanPast, pastWhenLabel } from "@/lib/validation/plan";
 import { getIdeaCoverImage } from "@/lib/covers";
@@ -40,6 +41,8 @@ export function PlanDetail({
   const router = useRouter();
   const [mode, setMode] = useState<Mode>(startCompleting ? "complete" : "view");
   const past = plan.status === "proposed" && isPlanPast(plan.startsAt, plan.endsAt);
+  // "לדחות בשבוע (יום שבת, 10 באוק׳, 19:30)" — אותה שעה, 7 ימים אחרי.
+  const weekLater = plan.startsAt ? formatPlanWhen(new Date(new Date(plan.startsAt).getTime() + 7 * 86_400_000).toISOString()) : null;
   const [isPending, startTransition] = useTransition();
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -95,12 +98,37 @@ export function PlanDetail({
             <div className="card" style={{ marginBottom: 16, background: "var(--color-primary-soft)", borderColor: "transparent" }}>
               <p style={{ margin: "0 0 4px", fontWeight: 800, color: "var(--color-primary)" }}>המועד עבר — איך היה?</p>
               <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13 }}>
-                {plan.startsAt ? `זה היה ${pastWhenLabel(plan.startsAt)}. ` : ""}אם עשיתם את זה — שומרים כזיכרון. אם לא
-                יצא, אפשר לקבוע מועד חדש ב&quot;עריכת פרטים&quot;, או לבטל.
+                {plan.startsAt ? `זה היה ${pastWhenLabel(plan.startsAt)}. ` : ""}עשיתם את זה? שומרים כזיכרון. לא יצא? אפשר
+                לדחות או לבטל.
               </p>
-              <button type="button" className="btn btn-primary btn-block" disabled={isPending} onClick={() => setMode("complete")}>
-                עשינו את זה! לשמור כזיכרון
-              </button>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <button type="button" className="btn btn-primary btn-block" disabled={isPending} onClick={() => setMode("complete")}>
+                  עשינו את זה! לשמור כזיכרון
+                </button>
+                {weekLater && (
+                  <button
+                    type="button"
+                    className="btn btn-block"
+                    style={{ background: "var(--color-surface)", color: "var(--color-primary)" }}
+                    disabled={isPending}
+                    onClick={() => runAction(() => postponePlanWeekAction({ id: plan.id, expectedVersion: plan.version }))}
+                  >
+                    <span style={{ display: "flex", flexDirection: "column", lineHeight: 1.3 }}>
+                      <span>לא יצא — לדחות בשבוע</span>
+                      <span style={{ fontSize: 12.5, fontWeight: 600, color: "var(--color-muted)" }}>ל{weekLater}</span>
+                    </span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="btn btn-block"
+                  style={{ background: "transparent", border: "1.5px solid var(--color-border)" }}
+                  disabled={isPending}
+                  onClick={() => setMode("edit")}
+                >
+                  לקבוע מועד אחר
+                </button>
+              </div>
             </div>
           )}
 
@@ -141,24 +169,30 @@ export function PlanDetail({
 
           {isProposed && (
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <button
-                type="button"
-                className="btn btn-primary"
-                disabled={isPending}
-                onClick={() => setMode("complete")}
-              >
-                עשינו את זה!
-              </button>
+              {/* כשהמועד עבר, הכפתור הזה כבר בבאנר "איך היה?" למעלה. */}
+              {!past && (
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  disabled={isPending}
+                  onClick={() => setMode("complete")}
+                >
+                  עשינו את זה!
+                </button>
+              )}
 
-              <button
-                type="button"
-                className="btn"
-                style={{ background: "transparent", border: "1.5px solid var(--color-border)" }}
-                disabled={isPending}
-                onClick={() => setMode("edit")}
-              >
-                עריכת פרטים
-              </button>
+              {/* כשהמועד עבר — "לקבוע מועד אחר" בבאנר פותח את אותו טופס עריכה. */}
+              {!past && (
+                <button
+                  type="button"
+                  className="btn"
+                  style={{ background: "transparent", border: "1.5px solid var(--color-border)" }}
+                  disabled={isPending}
+                  onClick={() => setMode("edit")}
+                >
+                  עריכת פרטים
+                </button>
+              )}
 
               <CancelPlanButton plan={plan} disabled={isPending} onCancel={() =>
                   runAction(
