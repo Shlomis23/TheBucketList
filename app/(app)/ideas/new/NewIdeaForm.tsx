@@ -8,7 +8,7 @@ import { ideaCategories, categoryLabels, durationPresets, type IdeaCategory } fr
 
 // כותרת חובה + "הוסף פרטים" להרחבה — spec סעיף 6 (`/ideas/new`), 6.1.
 // טיוטה נשמרת בזיכרון הדף בלבד (state), לא ב-localStorage/שרת עד שמירה.
-export function NewIdeaForm() {
+export function NewIdeaForm({ partnerName = null }: { partnerName?: string | null }) {
   const router = useRouter();
   const [requestId] = useState(() => crypto.randomUUID());
   const [title, setTitle] = useState("");
@@ -86,7 +86,9 @@ export function NewIdeaForm() {
         <span>
           גם אני רוצה את זה
           <span className="status-msg" style={{ display: "block", fontSize: 12, margin: 0 }}>
-            {selfYes ? "יסומן אצלך \"כן\". \"כן\" גם מבן/בת הזוג = מאצ'." : "רק מציעים — בלי תגובה שלך בינתיים."}
+            {selfYes
+              ? `יסומן אצלך "כן". "כן" ${partnerName ? `מ${partnerName}` : "גם מבן/בת הזוג"} = מאצ'.`
+              : "רק מציעים — בלי תגובה שלך בינתיים."}
           </span>
         </span>
       </label>

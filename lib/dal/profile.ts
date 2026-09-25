@@ -22,6 +22,21 @@ export async function getMyProfile(): Promise<{ id: string; displayName: string 
   return data ? { id: data.id, displayName: data.display_name } : null;
 }
 
+// שם התצוגה של בן/בת הזוג (null אם עוד אין, או בלי שם). RLS (can_read_profile)
+// מחזיר רק אותי ואת בן/בת הזוג במרחב פתוח — אז "מי שאינו אני" הוא בן/בת הזוג.
+export async function getPartnerName(): Promise<string | null> {
+  const userId = await getVerifiedUserId();
+  if (!userId) return null;
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from("profiles")
+    .select("id, display_name")
+    .neq("id", userId)
+    .limit(1)
+    .maybeSingle<{ id: string; display_name: string }>();
+  return data?.display_name?.trim() || null;
+}
+
 // updateMyProfile — spec סעיף 13.2. actor בלבד; profile נוצרת/מתעדכנת
 // אחרי Auth, לעולם לא ממשתמש שרירותי מהטופס.
 export async function updateMyProfile(
