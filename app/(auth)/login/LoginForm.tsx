@@ -182,16 +182,18 @@ export function LoginForm({ initialError }: { initialError?: string }) {
           dir="ltr"
           required
           autoComplete="email"
+          placeholder="name@gmail.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="input"
         />
       </div>
-      <button type="submit" className="btn btn-primary btn-block" disabled={busy || cooldown > 0 || !email.trim()}>
+      {/* לא "מושבת" כשהשדה ריק (נראה שבור) — required של הדפדפן מטפל בזה. */}
+      <button type="submit" className="btn btn-primary btn-block" disabled={busy || cooldown > 0}>
         {busy ? "שולחים…" : cooldown > 0 ? `אפשר לשלוח שוב בעוד ${cooldown}` : "שליחת קוד כניסה"}
       </button>
       <p className="status-msg" style={{ margin: 0, fontSize: 13 }}>
-        נשלח אליך מייל עם קוד בן 6 ספרות. בלי סיסמה.
+        בכניסה הראשונה ייפתח לך חשבון אוטומטית.
       </p>
       {errorMsg && (
         <p role="alert" className="alert-error">
