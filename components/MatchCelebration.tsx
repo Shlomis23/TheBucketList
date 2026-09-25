@@ -112,7 +112,7 @@ export function MatchCelebration({
       <p className="match-idea">{shown.title}</p>
       <div className="match-actions">
         <Link href={`/plans/new?ideaId=${shown.id}`} className="btn btn-block match-btn-primary" onClick={close}>
-          בואו נקבע מועד
+          בואו נתחיל לתכנן את זה
         </Link>
         <button type="button" className="btn btn-block match-btn-later" onClick={close}>
           אחר כך
