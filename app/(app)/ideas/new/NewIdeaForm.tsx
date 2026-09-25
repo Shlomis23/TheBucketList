@@ -17,6 +17,8 @@ export function NewIdeaForm() {
   const [description, setDescription] = useState("");
   const [locationText, setLocationText] = useState("");
   const [placeId, setPlaceId] = useState<string | null>(null);
+  // "כן" כברירת מחדל (25.9): מי שמוסיף רעיון בדרך כלל רוצה אותו.
+  const [selfYes, setSelfYes] = useState(true);
   const [sourceUrl, setSourceUrl] = useState("");
   const [costShekels, setCostShekels] = useState("");
   const [durationMinutes, setDurationMinutes] = useState("");
@@ -42,6 +44,7 @@ export function NewIdeaForm() {
       category,
       locationText: locationText.trim() === "" ? undefined : locationText,
       placeId: locationText.trim() === "" ? undefined : (placeId ?? undefined),
+      selfYes,
       sourceUrl: sourceUrl.trim() === "" ? undefined : sourceUrl,
       costMinor: costMinor !== undefined && !Number.isNaN(costMinor) ? costMinor : undefined,
       durationMinutes:
@@ -77,6 +80,16 @@ export function NewIdeaForm() {
           </p>
         )}
       </div>
+
+      <label className="check-row">
+        <input type="checkbox" checked={selfYes} onChange={(e) => setSelfYes(e.target.checked)} />
+        <span>
+          גם אני רוצה את זה
+          <span className="status-msg" style={{ display: "block", fontSize: 12, margin: 0 }}>
+            {selfYes ? "יסומן אצלך \"כן\". \"כן\" גם מבן/בת הזוג = מאצ'." : "רק מציעים — בלי תגובה שלך בינתיים."}
+          </span>
+        </span>
+      </label>
 
       {!showDetails && (
         <button

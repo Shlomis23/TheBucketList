@@ -22,7 +22,7 @@ function todayDateInput(): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-// לוח בקרה לתוכנית בודדת — השלמה/עריכה/ביטול. אין שלב "אישור" (שלומי, 26.9:
+// לוח בקרה לתוכנית בודדת — השלמה/עריכה/ביטול. אין שלב "אישור" (שלומי, 25.9:
 // תוכנית נפתחת אחרי שכבר דיברנו עליה); בן/בת הזוג מקבלים התראה על יצירה/עדכון.
 // אחרי כל פעולה מצליחה: router.refresh() כדי לקבל מהשרת את הגרסה העדכנית
 // (במקום לתחזק state אופטימי משלנו) — כך "גרסה השתנתה" תמיד מוצג נכון,
@@ -178,7 +178,7 @@ export function PlanDetail({
 function StatusBadge({ plan }: { plan: PlanDto }) {
   if (plan.status === "cancelled") return <span className="badge badge-neutral">בוטלה</span>;
   if (plan.status === "completed") return <span className="badge badge-green">בוצע</span>;
-  // בלי שלב אישור (26.9): תוכנית שנוצרה = סגורה. מסמנים רק מה שחסר.
+  // בלי שלב אישור (25.9): תוכנית שנוצרה = סגורה. מסמנים רק מה שחסר.
   if (!plan.startsAt) return <span className="badge badge-yellow">מועד לא נקבע</span>;
   return null;
 }

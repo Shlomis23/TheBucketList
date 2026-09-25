@@ -5,7 +5,7 @@ import { formatPlanWhen, isPlanPast, pastWhenLabel } from "@/lib/validation/plan
 import { getIdeaCoverImage } from "@/lib/covers";
 
 // תוכניות `/plans` — רק פעילות. מה שבוצע נמצא בזיכרונות, מה שבוטל לא מוצג
-// (25.9). בלי "מוצעות/מאושרות" — אין שלב אישור (26.9). למעלה "המועד עבר",
+// (25.9). בלי "מוצעות/מאושרות" — אין שלב אישור (25.9). למעלה "המועד עבר",
 // אחר כך "לפנינו" לפי תאריך; listPlans ממיין starts_at עם nullsFirst:false,
 // כך שתוכנית בלי מועד נופלת לסוף.
 export default async function PlansPage() {
@@ -27,7 +27,7 @@ export default async function PlansPage() {
     );
   }
 
-  // מה שהמועד שלו עבר — בראש, "מחכות לסיכום" (26.9), ולא מתערבב עם מה שלפנינו.
+  // מה שהמועד שלו עבר — בראש, "מחכות לסיכום" (25.9), ולא מתערבב עם מה שלפנינו.
   const past = plans.filter((p) => isPlanPast(p.startsAt, p.endsAt));
   const ahead = plans.filter((p) => !past.includes(p));
 

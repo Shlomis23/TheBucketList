@@ -4,83 +4,13 @@ import webpush from "web-push";
 import { after } from "next/server";
 import { getVerifiedUserId } from "@/lib/supabase/server";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
-import { formatPlanWhen } from "@/lib/validation/plan";
+import { buildPayload, type Payload, type PushContext, type PushEvent, type PushTarget } from "@/lib/push-payload";
+
+export type { PushEvent, PushTarget, Payload };
 
 // התראות לטלפון של בן/בת הזוג (Web Push, 0022). נקרא מ-Server Actions אחרי
 // פעולה מוצלחת; השליחה עצמה ב-after() — אחרי שהתשובה כבר חזרה למשתמש, כך
-// שהתראה איטית/נכשלת לא מאטה ולא מפילה שום פעולה.
-//
-// הנוסח בלי מגדר ("רעיון חדש מנועה", לא "נועה הוסיפה") ועם כותרת הפריט —
-// מופיע גם במסך הנעילה, לכן בלי תוכן הודעות ארוך.
-
-export type PushEvent =
-  | { kind: "idea_created"; ideaId: string }
-  | { kind: "match"; ideaId: string }
-  | { kind: "comment_added"; ideaId: string; body: string }
-  | { kind: "plan_created"; planId: string }
-  | { kind: "plan_updated"; planId: string }
-  | { kind: "memory_created"; memoryId: string }
-  | { kind: "photos_added"; memoryId: string; count: number }
-  | { kind: "space_closed" };
-
-type Context = {
-  spaceStatus: string;
-  actorName: string | null;
-  ideaTitle: string | null;
-  planTitle: string | null;
-  planStartsAt: string | null;
-  targets: PushTarget[];
-};
-
-export type PushTarget = { endpoint: string; p256dh: string; auth: string };
-export type Payload = { title: string; body: string; url: string; tag: string };
-
-function clip(s: string, n: number) {
-  const t = s.replace(/\s+/g, " ").trim();
-  return t.length > n ? `${t.slice(0, n - 1)}…` : t;
-}
-
-function buildPayload(e: PushEvent, c: Context): Payload | null {
-  const from = c.actorName?.trim() ? `מ${c.actorName.trim()}` : "מבן/בת הזוג";
-  const who = c.actorName?.trim() || "בן/בת הזוג";
-  switch (e.kind) {
-    case "idea_created":
-      if (!c.ideaTitle) return null;
-      return { title: `רעיון חדש ${from}`, body: c.ideaTitle, url: `/ideas/${e.ideaId}`, tag: `idea-${e.ideaId}` };
-    // מאצ' — לשניכם (גם למי שענה "כן" עכשיו): זה רגע משותף.
-    case "match":
-      if (!c.ideaTitle) return null;
-      return { title: "יש מאצ'!", body: `שניכם רוצים: ${c.ideaTitle}`, url: `/ideas/${e.ideaId}`, tag: `match-${e.ideaId}` };
-    case "comment_added":
-      if (!c.ideaTitle) return null;
-      return {
-        title: `הודעה ${from} · ${clip(c.ideaTitle, 40)}`,
-        body: clip(e.body, 120),
-        url: `/ideas/${e.ideaId}`,
-        tag: `comment-${e.ideaId}`,
-      };
-    // בלי שלב אישור (26.9): ההתראה אומרת מה ומתי — זה כל מה שצריך לדעת.
-    case "plan_created":
-      if (!c.planTitle) return null;
-      return { title: `תוכנית חדשה ${from}`, body: `${c.planTitle} · ${formatPlanWhen(c.planStartsAt)}`, url: `/plans/${e.planId}`, tag: `plan-${e.planId}` };
-    case "plan_updated":
-      if (!c.planTitle) return null;
-      return { title: `עדכון בתוכנית ${from}`, body: `${c.planTitle} · ${formatPlanWhen(c.planStartsAt)}`, url: `/plans/${e.planId}`, tag: `plan-${e.planId}` };
-    case "memory_created":
-      if (!c.planTitle) return null;
-      return { title: `זיכרון חדש ${from}`, body: `${c.planTitle} — אפשר להוסיף תמונות ואיך היה`, url: `/memories/${e.memoryId}`, tag: `memory-${e.memoryId}` };
-    case "photos_added":
-      if (!c.planTitle) return null;
-      return {
-        title: e.count === 1 ? `תמונה חדשה ${from}` : `${e.count} תמונות חדשות ${from}`,
-        body: c.planTitle,
-        url: `/memories/${e.memoryId}`,
-        tag: `photos-${e.memoryId}`,
-      };
-    case "space_closed":
-      return { title: `המרחב נסגר ע״י ${who}`, body: "אפשר להוריד את הזיכרונות עד המחיקה.", url: "/space-closed", tag: "space-closed" };
-  }
-}
+// שהתראה איטית/נכשלת לא מאטה ולא מפילה שום פעולה. הניסוחים: lib/push-payload.ts.
 
 function vapidReady() {
   const publicKey = process.env.VAPID_PUBLIC_KEY;
@@ -123,7 +53,7 @@ async function send(actorId: string, event: PushEvent) {
   if ("memoryId" in event) args.p_memory_id = event.memoryId;
   if (event.kind === "match") args.p_include_actor = true;
   const { data } = await service.rpc("push_context", args);
-  const context = data as Context | null;
+  const context = data as PushContext | null;
   if (!context || context.targets.length === 0) return;
   if (context.spaceStatus !== "open" && event.kind !== "space_closed") return;
 

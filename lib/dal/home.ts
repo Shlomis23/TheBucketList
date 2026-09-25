@@ -32,7 +32,7 @@ export type HomeSummary = {
   // ביותר; partnerNewIdeasTotal = כמה יש סך הכל (לקישור "ועוד X").
   partnerNewIdeas: PartnerNewIdea[];
   partnerNewIdeasTotal: number;
-  // תוכניות מוצעות שהמועד שלהן עבר (26.9) — "איך היה?" בראש המסך. הן לא
+  // תוכניות מוצעות שהמועד שלהן עבר (25.9) — "איך היה?" בראש המסך. הן לא
   // נחשבות "התוכנית הקרובה".
   pastPlans: PastPlan[];
 };

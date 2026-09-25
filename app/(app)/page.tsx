@@ -117,7 +117,7 @@ export default async function HomePage() {
   );
 }
 
-// "איך היה?" (26.9) — תוכניות שהמועד שלהן עבר ועוד לא נסגרו. שתי דרכים
+// "איך היה?" (25.9) — תוכניות שהמועד שלהן עבר ועוד לא נסגרו. שתי דרכים
 // החוצה: לשמור כזיכרון (פותח ישר את טופס ההשלמה), או לדף התוכנית לדחות/לבטל.
 function PastPlansSection({ plans }: { plans: PastPlan[] }) {
   if (plans.length === 0) return null;

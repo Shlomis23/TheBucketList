@@ -39,7 +39,7 @@ self.addEventListener("push", (event) => {
   let data = {};
   try {
     data = event.data ? event.data.json() : {};
-  } catch (e) {
+  } catch {
     data = { title: "The Bucket List", body: event.data ? event.data.text() : "" };
   }
   const title = data.title || "The Bucket List";

@@ -257,6 +257,7 @@ export async function createIdea(input: CreateIdeaInput): Promise<Result<{ id: s
     p_source_url: input.sourceUrl ?? null,
     p_cost_minor: input.costMinor ?? null,
     p_duration_minutes: input.durationMinutes ?? null,
+    p_self_yes: input.selfYes ?? false,
   });
 
   if (error || !data) {

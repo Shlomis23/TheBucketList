@@ -1,60 +1,113 @@
 # The Bucket List
 
-אפליקציית PWA פרטית לשני בני זוג שאינם גרים יחד: שומרים רעיונות, מסמנים
-רצון אישי, מגלים מאצ'ים, בוחרים חוויה, מתכננים אותה ושומרים זיכרונות.
+אפליקציה פרטית (PWA, עברית, RTL) לזוג: שומרים רעיונות לחוויות, מגיבים עליהם,
+מגלים מאצ'ים, בוחרים מה עושים, מתכננים, ושומרים את מה שעשיתם כזיכרון עם
+תמונות.
 
-המסמך המחייב לכל החלטת מוצר/ארכיטקטורה/אבטחה הוא
-[`docs/The-Bucket-List-Technical-Spec-HE.md`](./docs/The-Bucket-List-Technical-Spec-HE.md).
-תוכנית הביצוע לפי שלבים נמצאת ב-
-[`docs/The-Bucket-List-Action-Plan-HE.md`](./docs/The-Bucket-List-Action-Plan-HE.md).
+- כתובת: https://the-bucket-list-seven.vercel.app
+- אפיון מקורי: [`docs/The-Bucket-List-Technical-Spec-HE.md`](./docs/The-Bucket-List-Technical-Spec-HE.md)
+- **יומן החלטות — איפה ולמה סטינו מהאפיון:** [`docs/DECISIONS-HE.md`](./docs/DECISIONS-HE.md)
 
-## מצב נוכחי
+## מה יש באפליקציה
 
-**שלב 0 (יסודות) — בתהליך.** מה שקיים כרגע: שלד Next.js App Router +
-TypeScript strict, מבנה תיקיות לפי סעיף 9.2 באפיון, ו-stub pages לכל
-המסכים מסעיף 6 בלי לוגיקה עסקית. Migrations `0001`-`0005` **כבר רצו
-בפועל** על פרויקט Supabase אמיתי (`wnsaynkcjpxpibywywal`) דרך Supabase
-MCP, כולל בדיקת security/performance advisors אחרי כל DDL. אין עדיין
-מסכי Auth עובדים מול הפרויקט הזה (login/callback/onboarding עדיין
-placeholder), ואין RPC כתיבה נוספות מעבר ל-`accept_invitation_internal`.
+| אזור | מה עושים שם |
+|---|---|
+| התחברות | קוד בן 6 ספרות במייל (בלי סיסמה), SMTP דרך Gmail |
+| מרחב זוגי | יצירה, הזמנת בן/בת זוג בקישור, שם תצוגה |
+| רעיונות | הוספה מהירה ("גם אני רוצה את זה" מסומן מראש), פרטים, מקום מ-Google Maps, חיפוש/סינון/מיון, כן/אולי/לא, מאצ'ים, שיחה על כל רעיון, ארכיון |
+| מה עושים? | מנוע בחירה לפי תקציב/משך/קטגוריה/מקום |
+| תוכניות | מועד (תאריך+שעה), מקום מפגש, תקציב, הערות, ניווט ב-Waze/Google Maps; בלי שלב אישור; "איך היה?" כשהמועד עבר |
+| זיכרונות | ציר זמן, סיפור, עד 10 תמונות לזיכרון (צפייה במסך מלא, מחיקה של מה שהעליתי) |
+| הגדרות | שם, הזמנה, התראות לטלפון, גיבוי ZIP, יציאה, סגירת מרחב, מחיקת חשבון |
+| התראות | רעיון חדש, מאצ', הודעה, תוכנית חדשה/עודכנה, זיכרון, תמונות, סגירת מרחב; תזכורת יום לפני ו"איך היה?" למחרת |
+| PWA | אייקונים לאייפון/אנדרואיד, מסך "אין חיבור", מסכי שגיאה/404 בעברית |
 
-**אל תניחו שמשהו כאן "עובד" רק כי הקובץ קיים** — ראו TODO בכל קובץ.
+## מבנה טכני
 
-## הרצה מקומית
+- **Next.js 16** (App Router, Server Components/Actions, `proxy.ts`) — מתארח ב-**Vercel**, אזור `dub1` (דבלין).
+- **Supabase** (פרויקט `wnsaynkcjpxpibywywal`, `eu-west-1`): Postgres + Auth + Storage.
+  - קריאה: דרך client המשתמש, מוגנת ב-RLS (`private.is_member` — רק מרחב פתוח שאתם חברים בו).
+  - כתיבה: **רק** דרך פונקציות RPC צרות שמקבלות `p_actor` מה-session בשרת (service role). אין endpoint גנרי עם service role.
+  - תמונות: bucket פרטי `memories-private`; כל צפייה עוברת דרך `/api/photos/[id]/content` (session + RLS). אין URL ציבורי.
+- **Google Places (New)** — השלמת מקום; המפתח בשרת בלבד, עם תקרה יומית ב-DB (מתחת למכסה החינמית).
+- **Web Push** — מפתחות VAPID; `public/sw.js` מטפל בהתראות ובמסך "אין חיבור" (שום תוכן פרטי לא נשמר במטמון).
+
+```
+app/            מסכים ו-Route Handlers (api/)
+components/     רכיבי UI משותפים
+lib/dal/        גישה לנתונים (קריאות RLS + קריאות RPC)
+lib/validation/ סכמות zod + פורמט תאריכים/סכומים (טהור, נבדק)
+lib/            push, places, purge, reminders, photos
+supabase/migrations/  כל שינויי ה-DB, לפי הסדר
+supabase/tests/       בדיקות הרשאה (SQL)
+tests/unit/           בדיקות יחידה (vitest)
+```
+
+## משתני סביבה (ב-Vercel בלבד — אף פעם לא ב-repo או בצ'אט)
+
+| שם | מה | סוד? |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | חיבור ל-Supabase מהדפדפן | לא (מוגן ב-RLS) |
+| `SUPABASE_SERVICE_ROLE_KEY` | קריאות RPC מהשרת | **כן** |
+| `INVITE_COOKIE_SECRET` | הצפנת cookie ההזמנה | **כן** |
+| `GOOGLE_PLACES_API_KEY` | השלמת מקומות | **כן** |
+| `CRON_SECRET` | הגנה על המשימה היומית | **כן** |
+| `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` | התראות | הפרטי — **כן** |
+
+## המשימה היומית (Vercel Cron, 09:07 שעון ישראל)
+
+`/api/cron/daily` (מוגן ב-`CRON_SECRET`):
+1. מחיקה סופית של מרחבים שנסגרו לפני 14 יום (שורות + קבצים).
+2. ניקוי העלאות תמונה שנתקעו.
+3. התראות בוקר: "מחר ב-19:30: ..." ו"איך היה?".
+4. בדרך אגב — פעילות יומית שמונעת מ-Supabase החינמי להיכנס להשהיה אחרי 7 ימים.
+
+## פיתוח מקומי
 
 ```bash
 npm install
-cp .env.example .env.local   # למלא NEXT_PUBLIC_SUPABASE_URL/ANON_KEY מפרויקט Supabase אמיתי
+cp .env.example .env.local   # רק NEXT_PUBLIC_*; פעולות כתיבה צריכות את מפתח השירות (לא מקומית)
 npm run dev
 ```
 
-בדיקות סטטיות לפני כל commit:
+בדיקות:
 
 ```bash
-npm run typecheck
-npm run lint
-npm run build
+npm run typecheck && npm run lint && npm test
 ```
 
-## Supabase
+בדיקות ההרשאה של ה-DB: להריץ את `supabase/tests/authorization.sql` ב-SQL Editor של
+Supabase. הכול בטרנזקציה שמתבטלת; התוצאה היא הודעה `ALL PASS (N checks)`.
 
-1. ליצור פרויקט חדש ב-[supabase.com](https://supabase.com) (בחינם).
-2. להריץ את המיגרציות תחת `supabase/migrations/` **בסדר המספור** מול DB
-   מקומי/staging — לא production ישירות. הן טיוטה שלא נבדקה בהרצה
-   (ראו header בכל קובץ).
-3. Project URL ו-anon/publishable key הולכים ל-`.env.local`.
-   **Service role key אף פעם לא נכנס ל-`.env.local` הזה ולא ל-repo** — רק
-   ל-Environment Variables של סביבת ה-deploy (Vercel).
+בכל דחיפה ל-`main`, GitHub Actions מריץ typecheck + lint + בדיקות יחידה (`.github/workflows/ci.yml`).
+
+## שינויי DB
+
+כל שינוי הוא קובץ חדש ב-`supabase/migrations/` (לא עורכים קובץ שכבר רץ).
+אחרי כל שינוי: בדיקה בטרנזקציה שמתבטלת, `get_advisors`, והרצת `supabase/tests/authorization.sql`.
+
+| # | מה |
+|---|---|
+| 0001–0005 | סכמה, RLS, קבלת הזמנה, Storage |
+| 0006–0017 | פרופיל, מרחב, רעיונות, תגובות, תוכניות, ארכיון, הזמנות, עריכות, שיחה |
+| 0018 | תמונות לזיכרונות |
+| 0019 | `place_id` לרעיון (Google Places) |
+| 0020–0021 | סגירת מרחב, 14 יום חרטה, ייצוא, מחיקה, מחיקת חשבון |
+| 0022–0024 | התראות: מנויים, הקשר, מאצ', תזכורות, יומן שליחה |
+| 0025 | "גם אני רוצה את זה" ביצירת רעיון |
 
 ## פריסה
 
-Vercel, מחובר ל-repo הזה על ענף `main`. Deploy אוטומטי על כל push — לוודא
-שמשתני הסביבה בפרויקט ה-Vercel מוגדרים לפני ה-deploy הראשון שאמור לעבוד
-בפועל.
+הקוד ב-GitHub (`Shlomis23/TheBucketList`, ענף `main`); כל דחיפה ל-`main` נפרסת
+אוטומטית ב-Vercel. גיבוי: בתוכנית החינמית של Supabase אין גיבוי אוטומטי —
+הגיבוי הוא קובץ ה-ZIP מההגדרות (זיכרונות, תמונות, רעיונות).
 
-## מבנה
+## מגבלות התוכנית החינמית
 
-ראו סעיף 9.2 באפיון. בקצרה: `app/` מסכים ו-Route Handlers,
-`lib/{auth,dal,validation,errors,rate-limit,supabase}/` שכבת שרת,
-`features/` רכיבים לפי דומיין, `supabase/migrations` סכמה ו-RLS,
-`tests/{unit,integration,e2e}` בדיקות.
+| שירות | מגבלה | מה עושים |
+|---|---|---|
+| Supabase DB | 500MB | טקסט בלבד — רחוק מהגבול |
+| Supabase Storage | 1GB | תמונות מוקטנות (~0.3–0.6MB), עד 10 לזיכרון |
+| Supabase | השהיה אחרי 7 ימים בלי פעילות | המשימה היומית |
+| Google Places | 10,000 בחודש לכל סוג | תקרה ב-DB: 300 השלמות ביום |
+| Vercel Hobby | cron פעם ביום | מספיק |

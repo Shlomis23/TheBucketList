@@ -31,6 +31,8 @@ export const createIdeaSchema = z.object({
   category: z.enum(ideaCategories).default("other"),
   locationText: z.string().max(200).optional(),
   placeId: placeIdSchema,
+  // "גם אני רוצה את זה" (0025) — מסומן מראש בטופס; false = "זה בשבילך".
+  selfYes: z.boolean().default(false),
   sourceUrl: z
     .string()
     .max(2048)
