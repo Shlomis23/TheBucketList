@@ -220,6 +220,7 @@ button {
   font-size: 15px;
   border: none;
   cursor: pointer;
+  text-decoration: none; /* <Link className="btn"> — בלי קו תחתון */
   transition: background-color 0.15s ease, opacity 0.15s ease;
 }
 
@@ -1743,4 +1744,216 @@ button {
 .mhero-dots button.on::before {
   width: 16px;
   background: var(--color-primary);
+}
+
+/* ---------------------------------------------------------------------------
+   מסך הבית — כרטיס עליון אחד + "עוד בשבילך" (26.9, אפשרות א)
+   --------------------------------------------------------------------------- */
+.home-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0 14px;
+}
+.home-stats a {
+  padding: 5px 11px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-primary);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.hero-card {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 14px;
+  padding: 18px;
+  border-radius: 22px;
+  color: #fff;
+  background: linear-gradient(135deg, #46307d, #6a49b3);
+  box-shadow: 0 16px 30px -20px rgba(40, 20, 90, 0.8);
+}
+.hero-card::before {
+  content: "";
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  inset-inline-end: -40px;
+  top: -55px;
+  pointer-events: none;
+}
+.hero-card > * {
+  position: relative;
+}
+.hero-card.tonight {
+  background: linear-gradient(135deg, #2e1f5c, #5b3e9e 60%, #8a5ad0);
+}
+.hero-card.howwas {
+  background: linear-gradient(135deg, #7a3b61, #c2567f);
+}
+.hero-card.idle {
+  text-align: center;
+}
+.hero-card.light {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+}
+.hero-card.light::before {
+  background: var(--color-primary-soft);
+  opacity: 0.6;
+}
+.hero-kicker {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 3px 11px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.18);
+  font-size: 12px;
+  font-weight: 800;
+}
+.hero-kicker.yellow {
+  background: var(--badge-yellow-bg);
+  color: var(--badge-yellow-text);
+}
+.hero-kicker.soft {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+.hero-title {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.hero-sub {
+  margin: 0 0 14px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  opacity: 0.9;
+}
+.hero-card.light .hero-sub {
+  color: var(--color-muted);
+  opacity: 1;
+}
+.hero-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+.hero-actions {
+  display: flex;
+  gap: 8px;
+}
+.hero-actions .btn {
+  flex: 1;
+}
+.hero-btn-white {
+  background: #fff;
+  color: #5b3e9e;
+}
+.hero-btn-glass {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+.home-more-h {
+  margin: 4px 2px 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-muted);
+}
+.home-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  padding: 11px 13px;
+  border-radius: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: inherit;
+  text-decoration: none;
+}
+.home-row-ic {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+.home-row-ic.how {
+  background: var(--badge-pink-bg);
+  color: var(--badge-pink-text);
+}
+.home-row-ic.idea {
+  background: var(--badge-yellow-bg);
+  color: var(--badge-yellow-text);
+}
+.home-row-ic.plan {
+  background: var(--badge-green-bg);
+  color: var(--badge-green-text);
+}
+.home-row-ic.memory {
+  background: var(--badge-pink-bg);
+  color: var(--badge-pink-text);
+}
+.home-row-thumb {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+.home-row-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.home-row-title {
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.home-row-sub {
+  font-size: 12.5px;
+  color: var(--color-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.home-row-chev {
+  flex: none;
+  font-size: 20px;
+  color: var(--color-muted);
+}
+.home-choose {
+  margin: 4px 0 12px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+/* NavigateTile בתוך כרטיס כהה — אותו אריח, על רקע לבן */
+.hero-card:not(.light) .link-tile {
+  background: #fff;
+  border-color: transparent;
+  color: #5b3e9e;
+}
+.hero-card:not(.light) .link-tile .link-tile-text {
+  color: #241b3a !important; /* גם במצב כהה — האריח לבן */
+}
+.hero-card:not(.light) .nav-option {
+  background: #5b3e9e;
+  color: #fff;
 }

@@ -26,6 +26,10 @@ export type HomeSummary = {
     startsAt: string | null;
     meetingPlace: string | null;
     ideaCategory: IdeaCategory | null;
+    // לניווט מכרטיס "היום" בבית: מקום המפגש, ואם אין — המיקום של הרעיון
+    // (עם place_id מ-Google רק במקרה הזה, כדי שיצביע על המקום הנכון).
+    navPlace: string | null;
+    navPlaceId: string | null;
   } | null;
   // רעיונות פעילים שבן/בת הזוג הוסיפו ואני עוד לא הגבתי עליהם בכלל (כן/אולי/לא
   // כולם נחשבים תשובה). partnerNewIdeas = עד PARTNER_NEW_IDEAS_LIMIT החדשים
@@ -113,15 +117,22 @@ export async function getHome(spaceId: string, userId: string): Promise<HomeSumm
   // תמונות העטיפה (לפי קטגוריית הרעיון) — שאילתה אחת לכל התוכניות שמוצגות.
   const ideaIds = [...new Set([...(plan ? [plan.idea_id] : []), ...past.slice(-3).map((p) => p.idea_id)])];
   const categoryByIdea = new Map<string, IdeaCategory>();
+  const ideaById = new Map<string, { location_text: string | null; place_id: string | null }>();
   if (ideaIds.length > 0) {
     const { data: ideas } = await supabase
       .from("ideas")
-      .select("id, category")
+      .select("id, category, location_text, place_id")
       .in("id", ideaIds)
-      .returns<{ id: string; category: IdeaCategory }[]>();
-    for (const i of ideas ?? []) categoryByIdea.set(i.id, i.category);
+      .returns<{ id: string; category: IdeaCategory; location_text: string | null; place_id: string | null }[]>();
+    for (const i of ideas ?? []) {
+      categoryByIdea.set(i.id, i.category);
+      ideaById.set(i.id, i);
+    }
   }
   const ideaCategory = plan ? (categoryByIdea.get(plan.idea_id) ?? null) : null;
+  const planIdea = plan ? ideaById.get(plan.idea_id) : undefined;
+  const meetingPlace = plan?.meeting_place?.trim() || null;
+  const ideaPlace = planIdea?.location_text?.trim() || null;
 
   return {
     displayName: profiles.find((p) => p.id === userId)?.display_name ?? "",
@@ -136,6 +147,8 @@ export async function getHome(spaceId: string, userId: string): Promise<HomeSumm
           startsAt: plan.starts_at,
           meetingPlace: plan.meeting_place,
           ideaCategory,
+          navPlace: meetingPlace ?? ideaPlace,
+          navPlaceId: meetingPlace ? null : (planIdea?.place_id ?? null),
         }
       : null,
     partnerNewIdeas: partnerUnanswered.slice(0, PARTNER_NEW_IDEAS_LIMIT).map((i) => ({

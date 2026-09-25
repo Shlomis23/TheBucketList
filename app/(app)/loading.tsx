@@ -1,6 +1,5 @@
-// שלד טעינה ל-`/` (בית) — ראו app/globals.css ".skeleton*" והתוכנית
-// שאושרה לשיפור מהירות נתפסת: מציירים משהו מיידית במקום מסך לבן בזמן
-// ש-Server Component מאמת session + שולף space + getHome.
+// שלד טעינה ל-`/` (בית) — אותה גיאומטריה כמו המסך: שם, תגיות, הכרטיס הגדול
+// ושתי שורות של "עוד בשבילך". מציירים משהו מיד במקום מסך לבן.
 export default function Loading() {
   return (
     <div className="page" style={{ paddingTop: "calc(28px + var(--safe-area-top))" }}>
@@ -8,27 +7,16 @@ export default function Loading() {
         <div className="skeleton skeleton-line" style={{ width: 96, height: 12 }} />
         <div className="skeleton" style={{ width: 32, height: 32, borderRadius: "var(--radius-pill)" }} />
       </div>
-      <div className="skeleton skeleton-title" style={{ width: "70%", height: 26 }} />
-      <div className="skeleton skeleton-line" style={{ width: "85%", marginBottom: 20 }} />
-
-      <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
-        <div className="card" style={{ flex: 1, textAlign: "center", padding: "16px 10px" }}>
-          <div className="skeleton" style={{ height: 26, width: 40, margin: "0 auto 8px" }} />
-          <div className="skeleton skeleton-line" style={{ width: "70%", height: 11, margin: "0 auto" }} />
-        </div>
-        <div className="card" style={{ flex: 1, textAlign: "center", padding: "16px 10px" }}>
-          <div className="skeleton" style={{ height: 26, width: 40, margin: "0 auto 8px" }} />
-          <div className="skeleton skeleton-line" style={{ width: "70%", height: 11, margin: "0 auto" }} />
-        </div>
+      <div className="skeleton skeleton-title" style={{ width: "55%", height: 26 }} />
+      <div style={{ display: "flex", gap: 6, margin: "4px 0 14px" }}>
+        <div className="skeleton" style={{ width: 78, height: 28, borderRadius: 999 }} />
+        <div className="skeleton" style={{ width: 86, height: 28, borderRadius: 999 }} />
       </div>
-
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div className="skeleton skeleton-cover" />
-        <div className="skeleton skeleton-line" style={{ width: "45%", marginBottom: 8 }} />
-        <div className="skeleton skeleton-line" style={{ width: "65%" }} />
-      </div>
-
-      <div className="skeleton" style={{ height: 48, borderRadius: "var(--radius-pill)" }} />
+      <div className="skeleton" style={{ height: 190, borderRadius: 22, marginBottom: 14 }} />
+      <div className="skeleton skeleton-line" style={{ width: 80, height: 11, marginBottom: 10 }} />
+      {[0, 1].map((i) => (
+        <div key={i} className="skeleton" style={{ height: 60, borderRadius: 16, marginBottom: 8 }} />
+      ))}
     </div>
   );
 }
