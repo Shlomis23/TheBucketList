@@ -2,7 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { addCommentAction, deleteCommentAction, editCommentAction } from "@/app/(app)/ideas/actions";
-import { COMMENT_MAX, HTTPS_LINK_RE, shortLinkLabel, splitTrailingPunctuation } from "@/lib/validation/comment";
+import { COMMENT_MAX, shortLinkLabel, tokenizeLinks } from "@/lib/validation/comment";
 import type { CommentDto } from "@/lib/dal/comments";
 
 // "שיחה על הרעיון" — תגובות טקסט (spec 6.1: 1–1,000 תווים, גלוי לשניהם,
@@ -13,22 +13,18 @@ import type { CommentDto } from "@/lib/dal/comments";
 
 const COUNTER_FROM = 800; // המונה מופיע רק כשמתקרבים לגבול
 
-// קישורי https בלבד הופכים ללחיצים (החלטה מ-25.9). React מבריח את הטקסט,
-// וסכמה קבועה https:// מונעת javascript:/data: — אין כאן HTML חופשי.
+// קישורים הופכים ללחיצים (tokenizeLinks — https בכל רישיות, www., דומיין
+// מוכר). React מבריח את הטקסט, וה-href תמיד https:// + כתובת — אין HTML חופשי.
 function renderBody(text: string) {
-  return text.split(HTTPS_LINK_RE).map((part, i) => {
-    if (i % 2 === 0) return part;
-    const { url, trailing } = splitTrailingPunctuation(part);
-    const label = shortLinkLabel(url);
-    return (
-      <span key={i}>
-        <a href={url} target="_blank" rel="noopener noreferrer nofollow" dir="ltr" className="msg-link">
-          {label}
-        </a>
-        {trailing}
-      </span>
-    );
-  });
+  return tokenizeLinks(text).map((t, i) =>
+    t.type === "text" ? (
+      <span key={i}>{t.value}</span>
+    ) : (
+      <a key={i} href={t.href} target="_blank" rel="noopener noreferrer nofollow" dir="ltr" className="msg-link">
+        {shortLinkLabel(t.value)}
+      </a>
+    ),
+  );
 }
 
 function autoGrow(el: HTMLTextAreaElement | null) {

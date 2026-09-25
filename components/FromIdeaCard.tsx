@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { shortLinkLabel } from "@/lib/validation/comment";
+import { linkHost, shortLinkLabel } from "@/lib/validation/comment";
 
 // "מהרעיון" בדף התוכנית (25.9): הקישור והמיקום יושבים ברעיון, וכדי להגיע
 // אליהם ביום עצמו היה צריך לעבור דרך לשונית הרעיונות. כאן הם במרחק לחיצה.
@@ -16,15 +16,6 @@ function wazeUrl(place: string) {
 }
 function googleMapsUrl(place: string) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place)}`;
-}
-
-// שם האתר בלבד ("tickets.example.co.il") — לשורה שמשלבת עברית וכתובת.
-function hostOf(url: string): string {
-  try {
-    return new URL(url).hostname.replace(/^www\./, "");
-  } catch {
-    return shortLinkLabel(url, 24);
-  }
 }
 
 function ExternalIcon() {
@@ -81,7 +72,7 @@ export function FromIdeaCard({
               dir="ltr"
               style={{ textAlign: "right", fontSize: 12, fontWeight: 600, color: "var(--color-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
             >
-              {hostOf(sourceUrl)}
+              {linkHost(sourceUrl)}
             </span>
           </span>
         </a>

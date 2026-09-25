@@ -7,6 +7,7 @@ import { listComments } from "@/lib/dal/comments";
 import { IdeaConversation } from "@/components/IdeaConversation";
 import { categoryLabels, formatCostMinor, formatDurationMinutes, reactionLabels, reactionBadgeClass } from "@/lib/validation/idea";
 import { getIdeaCoverImage } from "@/lib/covers";
+import { linkHost } from "@/lib/validation/comment";
 
 // פרטי רעיון `/ideas/[id]` — F4, spec סעיף 6.
 // תגובות טקסט: IdeaConversation (0017). בארכיון — קריאה בלבד.
@@ -48,15 +49,28 @@ export default async function IdeaDetailPage({
         </div>
       )}
 
+      {/* "קישור לרעיון" בלבל — אנחנו כבר בתוך הרעיון (25.9). אותו סגנון כמו
+          בכרטיס "מהרעיון" בדף התוכנית: "פתיחת הקישור" + שם האתר מתחת. */}
       {idea.sourceUrl && (
         <a
           href={idea.sourceUrl}
           target="_blank"
-          rel="noopener noreferrer"
-          className="link-plain"
-          style={{ display: "inline-block", marginBottom: 16 }}
+          rel="noopener noreferrer nofollow"
+          className="link-tile primary"
+          style={{ marginBottom: 16 }}
         >
-          קישור לרעיון &larr;
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
+          </svg>
+          <span className="link-tile-text" style={{ display: "flex", flexDirection: "column", whiteSpace: "normal" }}>
+            <span>פתיחת הקישור</span>
+            <span
+              dir="ltr"
+              style={{ textAlign: "right", fontSize: 12, fontWeight: 600, color: "var(--color-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+            >
+              {linkHost(idea.sourceUrl)}
+            </span>
+          </span>
         </a>
       )}
 
