@@ -2,7 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getVerifiedUserId } from "@/lib/supabase/server";
 import { getMySpaceId } from "@/lib/dal/space";
-import { getHome, type PartnerNewIdea } from "@/lib/dal/home";
+import { getHome, type PartnerNewIdea, type PastPlan } from "@/lib/dal/home";
+import { pastWhenLabel } from "@/lib/validation/plan";
 import { getIdeaCoverImage } from "@/lib/covers";
 import { categoryLabels, type IdeaCategory } from "@/lib/validation/idea";
 import { ReactionControl } from "@/components/ReactionControl";
@@ -67,6 +68,8 @@ export default async function HomePage() {
         </div>
       </div>
 
+      <PastPlansSection plans={home.pastPlans} />
+
       <PartnerNewIdeasSection
         ideas={home.partnerNewIdeas}
         total={home.partnerNewIdeasTotal}
@@ -111,6 +114,43 @@ export default async function HomePage() {
         </Link>
       )}
     </div>
+  );
+}
+
+// "איך היה?" (26.9) — תוכניות שהמועד שלהן עבר ועוד לא נסגרו. שתי דרכים
+// החוצה: לשמור כזיכרון (פותח ישר את טופס ההשלמה), או לדף התוכנית לדחות/לבטל.
+function PastPlansSection({ plans }: { plans: PastPlan[] }) {
+  if (plans.length === 0) return null;
+  return (
+    <section aria-labelledby="past-plans" style={{ marginBottom: 16 }}>
+      <p id="past-plans" className="page-eyebrow" style={{ marginBottom: 8 }}>
+        איך היה?
+      </p>
+      {plans.map((plan) => (
+        <div key={plan.id} className="card" style={{ marginBottom: 10 }}>
+          {plan.ideaCategory && (
+            // eslint-disable-next-line @next/next/no-img-element -- SVG עיצוב סטטי לפי קטגוריה, לא תוכן דינמי
+            <img src={getIdeaCoverImage(plan.ideaCategory)} alt="" className="card-cover-img cover-sm" />
+          )}
+          <p style={{ margin: "0 0 2px", fontWeight: 800, fontSize: 16 }}>{plan.title}</p>
+          <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13 }}>
+            {plan.startsAt ? `היה ${pastWhenLabel(plan.startsAt)}. ` : ""}עשיתם את זה?
+          </p>
+          <div style={{ display: "flex", gap: 8 }}>
+            <Link href={`/plans/${plan.id}?complete=1`} className="btn btn-primary" style={{ flex: 1 }}>
+              כן! לשמור כזיכרון
+            </Link>
+            <Link
+              href={`/plans/${plan.id}`}
+              className="btn"
+              style={{ flex: 1, background: "transparent", border: "1.5px solid var(--color-border)" }}
+            >
+              לא יצא
+            </Link>
+          </div>
+        </div>
+      ))}
+    </section>
   );
 }
 

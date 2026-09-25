@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { deletePhotoAction } from "@/app/(app)/memories/actions";
+import { deletePhotoAction, photosUploadedAction } from "@/app/(app)/memories/actions";
 import type { PhotoDto } from "@/lib/dal/photos";
 
 // תמונות הזיכרון — גריד, העלאה וצפייה במסך מלא ("אופציה א", 25.9).
@@ -169,13 +169,13 @@ export function MemoryPhotos({ memoryId, photos }: { memoryId: string; photos: P
     setQueue((q) => [...q.filter((i) => i.status !== "error"), ...items]);
     setBusy(true);
 
-    let anyDone = false;
+    let doneCount = 0;
     for (let n = 0; n < files.length; n++) {
       const key = items[n].key;
       setQueue((q) => q.map((i) => (i.key === key ? { ...i, status: "uploading" } : i)));
       try {
         await uploadOne(memoryId, files[n]);
-        anyDone = true;
+        doneCount++;
         setQueue((q) => q.map((i) => (i.key === key ? { ...i, status: "done" } : i)));
       } catch (e) {
         const message = e instanceof Error ? e.message : "ההעלאה נכשלה";
@@ -189,7 +189,10 @@ export function MemoryPhotos({ memoryId, photos }: { memoryId: string; photos: P
       ]);
     }
     setBusy(false);
-    if (anyDone) startTransition(() => router.refresh());
+    if (doneCount > 0) {
+      void photosUploadedAction({ memoryId, count: doneCount });
+      startTransition(() => router.refresh());
+    }
   }
 
   const errors = queue.filter((i) => i.status === "error");

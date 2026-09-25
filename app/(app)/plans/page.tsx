@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { EmptyState } from "@/components/EmptyState";
 import { listPlans, type PlanDto } from "@/lib/dal/plans";
-import { formatPlanWhen } from "@/lib/validation/plan";
+import { formatPlanWhen, isPlanPast, pastWhenLabel } from "@/lib/validation/plan";
 import { getIdeaCoverImage } from "@/lib/covers";
 
 // תוכניות `/plans` — רק מה שעוד לפנינו: מאושרות + מוצעות. "עבר" הוסר (25.9):
@@ -28,13 +28,17 @@ export default async function PlansPage() {
     );
   }
 
-  const proposed = plans.filter((p) => p.status === "proposed" && !p.isConfirmedByBoth);
-  const confirmed = plans.filter((p) => p.status === "proposed" && p.isConfirmedByBoth);
+  // מה שהמועד שלו עבר — בראש, "מחכות לסיכום" (26.9), ולא מתערבב עם מה שלפנינו.
+  const past = plans.filter((p) => isPlanPast(p.startsAt, p.endsAt));
+  const ahead = plans.filter((p) => !past.includes(p));
+  const proposed = ahead.filter((p) => !p.isConfirmedByBoth);
+  const confirmed = ahead.filter((p) => p.isConfirmedByBoth);
 
   return (
     <div className="page">
       <h1 className="page-title">תוכניות</h1>
 
+      {past.length > 0 && <PlanSection title="המועד עבר — איך היה?" plans={past} />}
       {confirmed.length > 0 && (
         <PlanSection title="מאושרות לשנינו" plans={confirmed} />
       )}
@@ -61,7 +65,10 @@ function PlanSection({ title, plans }: { title: string; plans: PlanDto[] }) {
 }
 
 function PlanCard({ plan }: { plan: PlanDto }) {
-  const statusBadge = plan.isConfirmedByBoth ? (
+  const past = isPlanPast(plan.startsAt, plan.endsAt);
+  const statusBadge = past ? (
+    <span className="badge badge-pink">מחכה לסיכום</span>
+  ) : plan.isConfirmedByBoth ? (
       <span className="badge badge-green">מאושר לשנינו</span>
     ) : (
       <span className="badge badge-yellow">ממתין לאישור</span>
@@ -82,7 +89,7 @@ function PlanCard({ plan }: { plan: PlanDto }) {
         {statusBadge}
       </div>
       <p className="status-msg" style={{ margin: 0 }}>
-        {formatPlanWhen(plan.startsAt)}
+        {past ? `היה ${pastWhenLabel(plan.startsAt)}` : formatPlanWhen(plan.startsAt)}
         {plan.meetingPlace ? ` · ${plan.meetingPlace}` : ""}
       </p>
     </Link>

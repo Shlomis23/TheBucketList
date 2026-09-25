@@ -8,6 +8,7 @@ import { addComment, editComment, deleteComment } from "@/lib/dal/comments";
 import { addCommentSchema, editCommentSchema, deleteCommentSchema } from "@/lib/validation/comment";
 import type { Result } from "@/lib/errors/result";
 import { fail } from "@/lib/errors/result";
+import { notifyPartner } from "@/lib/push";
 
 export async function createIdeaAction(
   input: unknown,
@@ -24,6 +25,7 @@ export async function createIdeaAction(
 
   const result = await createIdea(parsed.data);
   if (!result.ok) return result;
+  notifyPartner({ kind: "idea_created", ideaId: result.data.id });
 
   revalidatePath("/ideas");
   revalidatePath("/");
@@ -104,7 +106,10 @@ export async function addCommentAction(input: unknown) {
   const parsed = addCommentSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
   const result = await addComment(parsed.data);
-  if (result.ok) revalidateComments(parsed.data.ideaId);
+  if (result.ok) {
+    revalidateComments(parsed.data.ideaId);
+    notifyPartner({ kind: "comment_added", ideaId: parsed.data.ideaId, body: parsed.data.body });
+  }
   return result;
 }
 

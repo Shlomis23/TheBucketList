@@ -74,3 +74,30 @@ export function formatPlanWhen(startsAt: string | null): string {
     minute: "2-digit",
   }).format(new Date(startsAt));
 }
+
+// "המועד עבר" (26.9): תוכנית שעוד מוצעת אבל הזמן שלה כבר מאחורינו —
+// מבקשים לסגור אותה כזיכרון (או לדחות/לבטל) במקום שתישאר תלויה לנצח.
+// עם שעת סיום: אחרי הסיום. בלי שעת סיום: 3 שעות אחרי ההתחלה (באמצע ערב
+// בחוץ לא נשאל "איך היה?"). בלי מועד בכלל — אף פעם לא "עבר".
+const PAST_GRACE_MS = 3 * 60 * 60 * 1000;
+
+export function isPlanPast(startsAt: string | null, endsAt: string | null, now = Date.now()): boolean {
+  if (endsAt) return new Date(endsAt).getTime() < now;
+  if (startsAt) return new Date(startsAt).getTime() + PAST_GRACE_MS < now;
+  return false;
+}
+
+// "היום" / "אתמול" / "ביום שלישי" (עד שבוע) / "לפני 12 ימים" — לפי שעון ישראל.
+export function pastWhenLabel(startsAt: string | null, now = new Date()): string {
+  if (!startsAt) return "";
+  const dayKey = (d: Date) =>
+    new Intl.DateTimeFormat("en-CA", { timeZone: DEFAULT_PLAN_TIMEZONE, year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
+  const days = Math.round((Date.parse(dayKey(now)) - Date.parse(dayKey(new Date(startsAt)))) / 86_400_000);
+  if (days <= 0) return "היום";
+  if (days === 1) return "אתמול";
+  if (days < 7) {
+    const weekday = new Intl.DateTimeFormat("he-IL", { timeZone: DEFAULT_PLAN_TIMEZONE, weekday: "long" }).format(new Date(startsAt));
+    return `ב${weekday}`;
+  }
+  return `לפני ${days} ימים`;
+}

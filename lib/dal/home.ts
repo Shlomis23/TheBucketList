@@ -2,6 +2,7 @@ import "server-only";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { IdeaCategory } from "@/lib/validation/idea";
+import { isPlanPast } from "@/lib/validation/plan";
 
 // getHome — קריאה בלבד, דרך client עם JWT המשתמש ו-RLS (member_read /
 // own_reaction_read / list_my_matches). ראו spec סעיף 13.3:
@@ -31,6 +32,16 @@ export type HomeSummary = {
   // ביותר; partnerNewIdeasTotal = כמה יש סך הכל (לקישור "ועוד X").
   partnerNewIdeas: PartnerNewIdea[];
   partnerNewIdeasTotal: number;
+  // תוכניות מוצעות שהמועד שלהן עבר (26.9) — "איך היה?" בראש המסך. הן לא
+  // נחשבות "התוכנית הקרובה".
+  pastPlans: PastPlan[];
+};
+
+export type PastPlan = {
+  id: string;
+  title: string;
+  startsAt: string | null;
+  ideaCategory: IdeaCategory | null;
 };
 
 export type PartnerNewIdea = {
@@ -57,14 +68,16 @@ export async function getHome(spaceId: string, userId: string): Promise<HomeSumm
       .eq("space_id", spaceId)
       .eq("status", "active"),
     supabase.rpc("list_my_matches", { p_space: spaceId }),
+    // כל המוצעות (בקנה המידה של זוג — מעטות): מפרידים כאן בין "עבר" ל"קרובה".
     supabase
       .from("plans")
-      .select("id, idea_id, title, starts_at, meeting_place")
+      .select("id, idea_id, title, starts_at, ends_at, meeting_place")
       .eq("space_id", spaceId)
       .eq("status", "proposed")
       .order("starts_at", { ascending: true, nullsFirst: false })
-      .limit(1)
-      .maybeSingle(),
+      .returns<
+        { id: string; idea_id: string; title: string; starts_at: string | null; ends_at: string | null; meeting_place: string | null }[]
+      >(),
     // "חדש מבן/בת הזוג": כל הרעיונות הפעילים שלא אני יצרתי + התגובות שלי
     // בלבד (own_reaction_read — לא נוגעים בתגובות של בן/בת הזוג), והסינון
     // נעשה כאן. בקנה המידה של זוג אחד זה קטן, ושתי השאילתות רצות במקביל
@@ -92,21 +105,23 @@ export async function getHome(spaceId: string, userId: string): Promise<HomeSumm
   const reactedIds = new Set((myReactionsRes.data ?? []).map((r) => r.idea_id));
   const partnerUnanswered = (partnerIdeasRes.data ?? []).filter((i) => !reactedIds.has(i.id));
 
-  const plan = planRes.data as
-    | { id: string; idea_id: string; title: string; starts_at: string | null; meeting_place: string | null }
-    | null;
+  const proposed = planRes.data ?? [];
+  const now = Date.now();
+  const past = proposed.filter((p) => isPlanPast(p.starts_at, p.ends_at, now));
+  const plan = proposed.find((p) => !isPlanPast(p.starts_at, p.ends_at, now)) ?? null;
 
-  // תמונת עטיפה לכרטיס "התוכנית הקרובה" — לפי קטגוריית הרעיון המקושר
-  // (lib/covers.ts). שאילתה נוספת קטנה, רק כשיש תוכנית קרובה בכלל.
-  let ideaCategory: IdeaCategory | null = null;
-  if (plan) {
-    const { data: idea } = await supabase
+  // תמונות העטיפה (לפי קטגוריית הרעיון) — שאילתה אחת לכל התוכניות שמוצגות.
+  const ideaIds = [...new Set([...(plan ? [plan.idea_id] : []), ...past.slice(-3).map((p) => p.idea_id)])];
+  const categoryByIdea = new Map<string, IdeaCategory>();
+  if (ideaIds.length > 0) {
+    const { data: ideas } = await supabase
       .from("ideas")
-      .select("category")
-      .eq("id", plan.idea_id)
-      .maybeSingle<{ category: IdeaCategory }>();
-    ideaCategory = idea?.category ?? null;
+      .select("id, category")
+      .in("id", ideaIds)
+      .returns<{ id: string; category: IdeaCategory }[]>();
+    for (const i of ideas ?? []) categoryByIdea.set(i.id, i.category);
   }
+  const ideaCategory = plan ? (categoryByIdea.get(plan.idea_id) ?? null) : null;
 
   return {
     displayName: profiles.find((p) => p.id === userId)?.display_name ?? "",
@@ -130,5 +145,11 @@ export async function getHome(spaceId: string, userId: string): Promise<HomeSumm
       createdAt: i.created_at,
     })),
     partnerNewIdeasTotal: partnerUnanswered.length,
+    // החדשה ביותר קודם — "אתמול" לפני "לפני שבועיים".
+    pastPlans: past
+      .slice()
+      .reverse()
+      .slice(0, 3)
+      .map((p) => ({ id: p.id, title: p.title, startsAt: p.starts_at, ideaCategory: categoryByIdea.get(p.idea_id) ?? null })),
   };
 }

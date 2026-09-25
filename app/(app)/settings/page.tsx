@@ -8,6 +8,7 @@ import { DisplayNameForm } from "./DisplayNameForm";
 import { signOutAction } from "./actions";
 import Link from "next/link";
 import { ExportButton } from "@/components/ExportButton";
+import { PushSettings } from "@/components/PushSettings";
 
 // הגדרות `/settings` — F8, spec סעיף 6, 11.1: השם שלי, ניהול הזמנה, הורדת
 // הזיכרונות, יציאה, ובתחתית — סגירת מרחב ומחיקת חשבון (החלטות 25.9, 0020).
@@ -43,6 +44,13 @@ export default async function SettingsPage() {
         ) : (
           <InvitationPanel initialStatus={await getInvitationStatus()} />
         )}
+      </section>
+
+      <section className="card" aria-labelledby="notifications" style={{ marginTop: 12 }}>
+        <p id="notifications" className="page-eyebrow" style={{ marginBottom: 8 }}>
+          התראות
+        </p>
+        <PushSettings publicKey={process.env.VAPID_PUBLIC_KEY ?? null} />
       </section>
 
       <section className="card" aria-labelledby="export" style={{ marginTop: 12 }}>

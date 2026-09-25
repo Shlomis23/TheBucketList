@@ -20,6 +20,7 @@ import {
 } from "@/lib/validation/plan";
 import type { Result } from "@/lib/errors/result";
 import { fail } from "@/lib/errors/result";
+import { notifyPartner } from "@/lib/push";
 
 function revalidatePlanPaths(planId?: string) {
   revalidatePath("/plans");
@@ -42,6 +43,7 @@ export async function createPlanAction(
 
   const result = await createPlan(parsed.data);
   if (!result.ok) return result;
+  notifyPartner({ kind: "plan_created", planId: result.data.id });
 
   revalidatePlanPaths(result.data.id);
   revalidatePath(`/ideas/${parsed.data.ideaId}`);
@@ -59,7 +61,10 @@ export async function updatePlanAction(input: unknown) {
     );
   }
   const result = await updatePlan(parsed.data);
-  if (result.ok) revalidatePlanPaths(parsed.data.id);
+  if (result.ok) {
+    revalidatePlanPaths(parsed.data.id);
+    notifyPartner({ kind: "plan_updated", planId: parsed.data.id });
+  }
   return result;
 }
 
@@ -67,7 +72,10 @@ export async function confirmPlanAction(input: unknown) {
   const parsed = planIdVersionSchema.safeParse(input);
   if (!parsed.success) return fail("INVALID_INPUT", "בקשה לא תקינה", crypto.randomUUID());
   const result = await confirmPlan(parsed.data.id, parsed.data.expectedVersion);
-  if (result.ok) revalidatePlanPaths(parsed.data.id);
+  if (result.ok) {
+    revalidatePlanPaths(parsed.data.id);
+    notifyPartner({ kind: "plan_confirmed", planId: parsed.data.id });
+  }
   return result;
 }
 
@@ -99,6 +107,7 @@ export async function completePlanAction(input: unknown) {
   }
   const result = await completePlan(parsed.data);
   if (!result.ok) return result;
+  notifyPartner({ kind: "memory_created", memoryId: result.data.memoryId });
 
   revalidatePlanPaths(parsed.data.id);
   revalidatePath("/memories");

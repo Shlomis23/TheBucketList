@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { updateMemory } from "@/lib/dal/memories";
 import { deletePhoto } from "@/lib/dal/photos";
+import { notifyPartner } from "@/lib/push";
 import { updateMemorySchema } from "@/lib/validation/memory";
 import { fail, type Result } from "@/lib/errors/result";
 
@@ -47,4 +48,14 @@ export async function deletePhotoAction(input: unknown): Promise<Result<{ id: st
     revalidatePath("/");
   }
   return result;
+}
+
+// אחרי שסבב העלאה נגמר (לא על כל תמונה — כדי לא להציף את בן/בת הזוג
+// בעשר התראות): התראה אחת "3 תמונות חדשות".
+const photosUploadedSchema = z.object({ memoryId: z.uuid(), count: z.number().int().min(1).max(10) });
+
+export async function photosUploadedAction(input: unknown): Promise<void> {
+  const parsed = photosUploadedSchema.safeParse(input);
+  if (!parsed.success) return;
+  notifyPartner({ kind: "photos_added", memoryId: parsed.data.memoryId, count: parsed.data.count });
 }

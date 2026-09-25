@@ -9,10 +9,12 @@ import { PlanDetail } from "./PlanDetail";
 // null גם עבור "לא קיים" וגם "שייך למרחב אחר" — 404 זהה (כמו ב-/ideas/[id]).
 export default async function PlanDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ complete?: string }>;
 }) {
-  const { id } = await params;
+  const [{ id }, { complete }] = await Promise.all([params, searchParams]);
   // getMemoryIdForPlan במקביל (בלי קפיצת רשת נוספת) — null אם התוכנית עוד
   // לא הושלמה; אחרת כפתור "לזיכרון".
   const [plan, userId, memoryId] = await Promise.all([getPlan(id), getVerifiedUserId(), getMemoryIdForPlan(id)]);
@@ -20,7 +22,12 @@ export default async function PlanDetailPage({
 
   return (
     <div className="page">
-      <PlanDetail plan={plan} memoryId={plan.status === "completed" ? memoryId : null} />
+      {/* ?complete=1 — מכרטיס "איך היה?" בבית: פותח ישר את טופס ההשלמה. */}
+      <PlanDetail
+        plan={plan}
+        memoryId={plan.status === "completed" ? memoryId : null}
+        startCompleting={complete === "1" && plan.status === "proposed"}
+      />
     </div>
   );
 }

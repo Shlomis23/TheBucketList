@@ -10,7 +10,7 @@ import {
   cancelPlanAction,
   completePlanAction,
 } from "../actions";
-import { DEFAULT_PLAN_TIMEZONE, formatBudgetMinor, formatPlanWhen } from "@/lib/validation/plan";
+import { DEFAULT_PLAN_TIMEZONE, formatBudgetMinor, formatPlanWhen, isPlanPast, pastWhenLabel } from "@/lib/validation/plan";
 import { getIdeaCoverImage } from "@/lib/covers";
 import { DateTimeRangeFields, endPartsToIso, isoToParts, partsToIso, type DateTimeParts } from "@/components/DateTimeRangeFields";
 import type { PlanDetailDto, PlanDto } from "@/lib/dal/plans";
@@ -29,9 +29,18 @@ function todayDateInput(): string {
 // (במקום לתחזק state אופטימי משלנו) — כך "גרסה השתנתה" תמיד מוצג נכון,
 // כי אנחנו תמיד רואים את מה ששרת ה-RSC מחזיר, לא ניחוש מקומי (spec סעיף 7).
 // memoryId — רק לתוכנית שהושלמה (ראו getMemoryIdForPlan), לכפתור "לזיכרון".
-export function PlanDetail({ plan, memoryId }: { plan: PlanDetailDto; memoryId: string | null }) {
+export function PlanDetail({
+  plan,
+  memoryId,
+  startCompleting = false,
+}: {
+  plan: PlanDetailDto;
+  memoryId: string | null;
+  startCompleting?: boolean;
+}) {
   const router = useRouter();
-  const [mode, setMode] = useState<Mode>("view");
+  const [mode, setMode] = useState<Mode>(startCompleting ? "complete" : "view");
+  const past = plan.status === "proposed" && isPlanPast(plan.startsAt, plan.endsAt);
   const [isPending, startTransition] = useTransition();
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -83,6 +92,19 @@ export function PlanDetail({ plan, memoryId }: { plan: PlanDetailDto; memoryId: 
         />
       ) : (
         <>
+          {past && (
+            <div className="card" style={{ marginBottom: 16, background: "var(--color-primary-soft)", borderColor: "transparent" }}>
+              <p style={{ margin: "0 0 4px", fontWeight: 800, color: "var(--color-primary)" }}>המועד עבר — איך היה?</p>
+              <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13 }}>
+                {plan.startsAt ? `זה היה ${pastWhenLabel(plan.startsAt)}. ` : ""}אם עשיתם את זה — שומרים כזיכרון. אם לא
+                יצא, אפשר לקבוע מועד חדש ב&quot;עריכת פרטים&quot;, או לבטל.
+              </p>
+              <button type="button" className="btn btn-primary btn-block" disabled={isPending} onClick={() => setMode("complete")}>
+                עשינו את זה! לשמור כזיכרון
+              </button>
+            </div>
+          )}
+
           <FromIdeaCard
             ideaId={plan.ideaId}
             sourceUrl={plan.ideaSourceUrl}

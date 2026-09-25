@@ -7,6 +7,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { consumeInviteCookie } from "@/lib/invitations/cookie";
 import { fail, type Result } from "@/lib/errors/result";
 import { CLOSE_CONFIRM_WORD } from "@/lib/validation/account";
+import { notifyPartner } from "@/lib/push";
 
 // סגירת מרחב / ביטול סגירה / מחיקת חשבון — ראו lib/dal/account.ts.
 
@@ -16,6 +17,7 @@ export async function closeSpaceAction(confirmText: unknown): Promise<Result<nev
   }
   const result = await closeSpace();
   if (!result.ok) return result;
+  notifyPartner({ kind: "space_closed" });
   revalidatePath("/", "layout");
   redirect("/space-closed");
 }
@@ -39,7 +41,10 @@ export async function deleteAccountAction(code: unknown): Promise<Result<never> 
   if (!result.ok) return result;
 
   revalidatePath("/", "layout");
-  if (result.data.outcome === "scheduled") redirect("/space-closed");
+  if (result.data.outcome === "scheduled") {
+    notifyPartner({ kind: "space_closed" });
+    redirect("/space-closed");
+  }
 
   // נמחק עכשיו: ניקוי ה-session במכשיר (המשתמש כבר לא קיים ב-Auth).
   const supabase = await createSupabaseServerClient();
