@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import webpush from "web-push";
 import { deletePushSubscription, pushSubscriptionSchema, savePushSubscription } from "@/lib/dal/push";
 import { getVerifiedUserId } from "@/lib/supabase/server";
+import { getPartnerName } from "@/lib/dal/profile";
 import { fail, ok, type Result } from "@/lib/errors/result";
 
 export async function savePushSubscriptionAction(subscription: unknown) {
@@ -25,11 +26,12 @@ export async function sendTestPushAction(subscription: unknown): Promise<Result<
   const privateKey = process.env.VAPID_PRIVATE_KEY;
   if (!parsed.success || !publicKey || !privateKey) return fail("INVALID_INPUT", "ההתראות לא מוגדרות", traceId);
 
+  const partnerName = await getPartnerName();
   webpush.setVapidDetails(process.env.VAPID_SUBJECT ?? "https://the-bucket-list-seven.vercel.app", publicKey, privateKey);
   try {
     await webpush.sendNotification(
       parsed.data,
-      JSON.stringify({ title: "ההתראות עובדות", body: "מעכשיו תדעו כשיש משהו חדש מבן/בת הזוג.", url: "/settings", tag: "test" }),
+      JSON.stringify({ title: "ההתראות עובדות", body: `מעכשיו תדעו כשיש משהו חדש ${partnerName ? `מ${partnerName}` : "מבן/בת הזוג"}.`, url: "/settings", tag: "test" }),
       { TTL: 300, timeout: 8_000 },
     );
     return ok({ sent: true }, traceId);

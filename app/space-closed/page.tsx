@@ -18,7 +18,7 @@ export default async function SpaceClosedPage() {
 
   const purgeAfter = state.purgeAfter!;
   const left = daysLeft(purgeAfter);
-  const who = state.closedByMe ? "סגרת את המרחב" : `${state.closedByName ?? "בן/בת הזוג"} סגר/ה את המרחב`;
+  const who = state.closedByMe ? "סגרת את המרחב" : state.closedByName ? `המרחב נסגר על ידי ${state.closedByName}` : "המרחב נסגר על ידי בן/בת הזוג";
 
   return (
     <div className="page" style={{ paddingTop: "calc(40px + var(--safe-area-top))" }}>

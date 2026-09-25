@@ -13,12 +13,6 @@ import { extractHttpsLinks } from "@/lib/validation/comment";
 
 export type PlanStatus = "proposed" | "completed" | "cancelled";
 
-export type PlanConfirmationDto = {
-  userId: string;
-  displayName: string;
-  confirmedAt: string;
-};
-
 export type PlanDto = {
   id: string;
   ideaId: string;
@@ -33,9 +27,6 @@ export type PlanDto = {
   budgetMinor: number | null;
   version: number;
   createdAt: string;
-  confirmations: PlanConfirmationDto[];
-  isConfirmedByBoth: boolean;
-  myConfirmation: boolean;
   // מהרעיון המקורי — לכרטיס "מהרעיון" בדף התוכנית (25.9): קישור ומיקום
   // יושבים ברעיון, ובלי זה היה צריך לעבור דרך לשונית הרעיונות כדי להגיע אליהם.
   ideaSourceUrl: string | null;
@@ -61,50 +52,22 @@ type PlanRow = {
   created_at: string;
 };
 
-type ConfirmationRow = { plan_id: string; user_id: string; plan_version: number; confirmed_at: string };
-
-// listPlans/getPlan — קריאה בלבד, דרך client עם JWT המשתמש; member_read
-// policy מכסה plans/plan_confirmations, profiles_read מכסה display_name של
-// בן/בת הזוג (0002_rls.sql). "מאושר לשנינו" נגזר כאן, לא נשמר בעמודה
-// (ראו spec סעיף 7 ו-0009_plan_rpcs.sql).
-async function attachConfirmations(
-  plans: PlanRow[],
-  userId: string,
-): Promise<PlanDto[]> {
+// listPlans/getPlan — קריאה בלבד, דרך client עם JWT המשתמש (member_read,
+// 0002_rls.sql). משלים מהרעיון: קטגוריה (תמונת עטיפה, lib/covers.ts) וקישור
+// ומיקום לכרטיס "מהרעיון". (שלב האישור בוטל ב-25.9; הטבלה נמחקה ב-0028.)
+async function attachIdeaDetails(plans: PlanRow[]): Promise<PlanDto[]> {
   if (plans.length === 0) return [];
   const supabase = await createSupabaseServerClient();
 
-  const planIds = plans.map((p) => p.id);
   const ideaIds = Array.from(new Set(plans.map((p) => p.idea_id)));
-  const [{ data: confirmations }, { data: ideas }, { data: profiles }] = await Promise.all([
-    supabase
-      .from("plan_confirmations")
-      .select("plan_id, user_id, plan_version, confirmed_at")
-      .in("plan_id", planIds)
-      .returns<ConfirmationRow[]>(),
-    // קטגוריה (תמונת עטיפה, lib/covers.ts) + קישור ומיקום לכרטיס "מהרעיון".
-    supabase
-      .from("ideas")
-      .select("id, category, source_url, location_text, place_id")
-      .in("id", ideaIds)
-      .returns<{ id: string; category: IdeaCategory; source_url: string | null; location_text: string | null; place_id: string | null }[]>(),
-    // שמות המאשרים: בלי .in(userIds) — RLS (can_read_profile) מחזיר ממילא רק
-    // אותי ואת בן/בת הזוג, וכך זה רץ במקביל ולא כקפיצת רשת נוספת אחרי האישורים.
-    supabase.from("profiles").select("id, display_name").returns<{ id: string; display_name: string }[]>(),
-  ]);
+  const { data: ideas } = await supabase
+    .from("ideas")
+    .select("id, category, source_url, location_text, place_id")
+    .in("id", ideaIds)
+    .returns<{ id: string; category: IdeaCategory; source_url: string | null; location_text: string | null; place_id: string | null }[]>();
   const ideaById = new Map((ideas ?? []).map((i) => [i.id, i]));
 
-  const nameByUser = new Map((profiles ?? []).map((p) => [p.id, p.display_name]));
-
-  const confirmationsByPlan = new Map<string, ConfirmationRow[]>();
-  for (const c of confirmations ?? []) {
-    const list = confirmationsByPlan.get(c.plan_id) ?? [];
-    list.push(c);
-    confirmationsByPlan.set(c.plan_id, list);
-  }
-
   return plans.map((p) => {
-    const rows = (confirmationsByPlan.get(p.id) ?? []).filter((c) => c.plan_version === p.version);
     return {
       id: p.id,
       ideaId: p.idea_id,
@@ -122,21 +85,12 @@ async function attachConfirmations(
       budgetMinor: p.budget_minor,
       version: p.version,
       createdAt: p.created_at,
-      confirmations: rows.map((r) => ({
-        userId: r.user_id,
-        displayName: nameByUser.get(r.user_id) ?? "",
-        confirmedAt: r.confirmed_at,
-      })),
-      isConfirmedByBoth: rows.length >= 2,
-      myConfirmation: rows.some((r) => r.user_id === userId),
     };
   });
 }
 
 // listPlans — רק תוכניות פעילות (proposed). שבוצעו חיות בזיכרונות, שבוטלו
 // לא מוצגות בכלל (שלומי, 25.9: "כפל מיותר"). הדף שלהן עדיין נגיש בקישור ישיר.
-// (היסטוריה:) כל התוכניות של המרחב. סדר וקיבוץ (מוצעות/מאושרות/עבר,
-// מועד לא נקבע בסוף) נעשים ברכיב התצוגה על סמך status/isConfirmedByBoth.
 export async function listPlans(): Promise<PlanDto[]> {
   const userId = await getVerifiedUserId();
   if (!userId) return [];
@@ -149,7 +103,7 @@ export async function listPlans(): Promise<PlanDto[]> {
     .order("starts_at", { ascending: true, nullsFirst: false })
     .returns<PlanRow[]>();
 
-  return attachConfirmations(plans ?? [], userId);
+  return attachIdeaDetails(plans ?? []);
 }
 
 export async function getPlan(planId: string): Promise<PlanDetailDto | null> {
@@ -164,9 +118,9 @@ export async function getPlan(planId: string): Promise<PlanDetailDto | null> {
     .maybeSingle<PlanRow>();
   if (!plan) return null;
 
-  // הקישורים מהשיחה נשלפים במקביל לאישורים — idea_id כבר ידוע מהשורה.
+  // הקישורים מהשיחה נשלפים במקביל לפרטי הרעיון — idea_id כבר ידוע מהשורה.
   const [[dto], { data: comments }] = await Promise.all([
-    attachConfirmations([plan], userId),
+    attachIdeaDetails([plan]),
     supabase
       .from("idea_comments")
       .select("body")
@@ -197,9 +151,6 @@ function mapPlanRpcError(errorMessage: string | undefined, fallback: string, tra
   }
   if (errorMessage?.includes("VERSION_CONFLICT")) {
     return fail("VERSION_CONFLICT", "התוכנית השתנתה בינתיים — רעננו ונסו שוב", traceId);
-  }
-  if (errorMessage?.includes("NOT_ENOUGH_MEMBERS")) {
-    return fail("INVALID_INPUT", "אי אפשר לאשר בלי בן/בת זוג פעיל/ה במרחב", traceId);
   }
   if (errorMessage?.includes("INVALID_INPUT")) {
     return fail("INVALID_INPUT", "יש שגיאה בנתוני התוכנית", traceId);
@@ -253,41 +204,6 @@ export async function updatePlan(input: UpdatePlanInput): Promise<Result<{ versi
     return mapPlanRpcError(error?.message, "עדכון התוכנית נכשל, נסו שוב", traceId);
   }
   return ok({ version: (data as { version: number }).version }, traceId);
-}
-
-async function callPlanTransitionRpc(
-  fnName: "confirm_plan" | "unconfirm_plan",
-  planId: string,
-  expectedVersion: number,
-): Promise<Result<{ isConfirmedByBoth: boolean; version: number }>> {
-  const traceId = crypto.randomUUID();
-  const userId = await getVerifiedUserId();
-  if (!userId) return fail("UNAUTHENTICATED", "צריך להתחבר קודם", traceId);
-
-  const service = createSupabaseServiceClient();
-  const { data, error } = await service.rpc(fnName, {
-    p_actor: userId,
-    p_id: planId,
-    p_expected_version: expectedVersion,
-  });
-
-  if (error || !data || !Array.isArray(data) || data.length === 0) {
-    return mapPlanRpcError(
-      error?.message,
-      fnName === "confirm_plan" ? "האישור נכשל, נסו שוב" : "ביטול האישור נכשל, נסו שוב",
-      traceId,
-    );
-  }
-  const row = data[0] as { version: number; is_confirmed_by_both: boolean };
-  return ok({ version: row.version, isConfirmedByBoth: row.is_confirmed_by_both }, traceId);
-}
-
-export function confirmPlan(planId: string, expectedVersion: number) {
-  return callPlanTransitionRpc("confirm_plan", planId, expectedVersion);
-}
-
-export function unconfirmPlan(planId: string, expectedVersion: number) {
-  return callPlanTransitionRpc("unconfirm_plan", planId, expectedVersion);
 }
 
 export async function cancelPlan(planId: string, expectedVersion: number): Promise<Result<{ version: number }>> {

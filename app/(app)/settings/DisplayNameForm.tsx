@@ -5,7 +5,7 @@ import { updateDisplayNameAction } from "./actions";
 
 // עריכת השם שלי בהגדרות. "נשמר" מוצג רק אחרי תשובה מוצלחת מהשרת —
 // לא הצלחה מדומה (spec סעיף 6, "שגיאת סגירה אינה מוחקת UI בהצלחה מדומה").
-export function DisplayNameForm({ initialName }: { initialName: string }) {
+export function DisplayNameForm({ initialName, partnerName }: { initialName: string; partnerName: string | null }) {
   const [name, setName] = useState(initialName);
   const [saved, setSaved] = useState(initialName);
   const [pending, startTransition] = useTransition();
@@ -50,7 +50,7 @@ export function DisplayNameForm({ initialName }: { initialName: string }) {
         />
       </div>
       <p id="displayName-hint" className="status-msg" style={{ margin: "0 0 10px", fontSize: 12.5 }}>
-        כך השם שלך מופיע אצל בן/בת הזוג באפליקציה.
+        כך השם שלך מופיע אצל {partnerName ?? "בן/בת הזוג"} באפליקציה.
       </p>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <button type="submit" className="btn btn-primary" disabled={pending || unchanged || invalid}>

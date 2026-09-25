@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getVerifiedUserId } from "@/lib/supabase/server";
 import { getMySpaceState } from "@/lib/dal/account";
+import { getPartnerName } from "@/lib/dal/profile";
 import { ExportButton } from "@/components/ExportButton";
 import { GRACE_DAYS, formatPurgeDate } from "@/lib/validation/account";
 import { DeleteAccountForm } from "./DeleteAccountForm";
@@ -9,7 +10,7 @@ import { DeleteAccountForm } from "./DeleteAccountForm";
 // מחיקת חשבון — מחוץ לקבוצת (app) (בלי ניווט תחתון), כי מגיעים אליה גם
 // ממסך "המרחב נסגר". ההסבר משתנה לפי המצב — ראו deleteAccount ב-lib/dal/account.ts.
 export default async function DeleteAccountPage() {
-  const [userId, state] = await Promise.all([getVerifiedUserId(), getMySpaceState()]);
+  const [userId, state, partnerName] = await Promise.all([getVerifiedUserId(), getMySpaceState(), getPartnerName()]);
   if (!userId) redirect("/login");
   if (state?.status === "closed" && state.deletionRequested) redirect("/space-closed");
 
@@ -38,12 +39,16 @@ export default async function DeleteAccountPage() {
         <ul className="plain-list">
           {mode === "with-partner" && (
             <>
-              <li>המרחב המשותף נסגר מיד — גם לבן/בת הזוג.</li>
+              <li>המרחב המשותף נסגר מיד — גם ל{partnerName ?? "בן/בת הזוג"}.</li>
               <li>
                 במשך {GRACE_DAYS} יום אפשר להתחרט (מתחברים ומבטלים את הסגירה). אחר כך החשבון והמרחב נמחקים
                 לצמיתות, כולל התמונות.
               </li>
-              <li>בן/בת הזוג יכולים להוריד את הזיכרונות עד המחיקה, והחשבון שלהם נשאר.</li>
+              <li>
+                {partnerName
+                  ? `ל${partnerName} תהיה אפשרות להוריד את הזיכרונות עד המחיקה, והחשבון של ${partnerName} נשאר.`
+                  : "בן/בת הזוג יכולים להוריד את הזיכרונות עד המחיקה, והחשבון שלהם נשאר."}
+              </li>
             </>
           )}
           {mode === "alone" && (

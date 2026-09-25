@@ -108,7 +108,15 @@ function CameraIcon() {
   );
 }
 
-export function MemoryPhotos({ memoryId, photos }: { memoryId: string; photos: PhotoDto[] }) {
+export function MemoryPhotos({
+  memoryId,
+  photos,
+  partnerName,
+}: {
+  memoryId: string;
+  photos: PhotoDto[];
+  partnerName: string | null;
+}) {
   const router = useRouter();
   const [queue, setQueue] = useState<QueueItem[]>([]);
   const [busy, setBusy] = useState(false);
@@ -229,7 +237,7 @@ export function MemoryPhotos({ memoryId, photos }: { memoryId: string; photos: P
       {editing && (
         <p className="status-msg" style={{ margin: "-4px 0 10px", fontSize: 12.5 }}>
           לוחצים על ה-X כדי למחוק תמונה.
-          {photos.some((p) => !p.isMine) && " תמונות שהעלה/תה בן/בת הזוג (המעומעמות) — רק הם יכולים למחוק."}
+          {photos.some((p) => !p.isMine) && ` התמונות המעומעמות הן של ${partnerName ?? "בן/בת הזוג"} — אפשר למחוק רק תמונות שלך.`}
         </p>
       )}
 

@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import { createSupabaseServerClient, getVerifiedUserId } from "@/lib/supabase/server";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { ok, fail, type Result } from "@/lib/errors/result";
@@ -24,7 +25,8 @@ export async function getMyProfile(): Promise<{ id: string; displayName: string 
 
 // שם התצוגה של בן/בת הזוג (null אם עוד אין, או בלי שם). RLS (can_read_profile)
 // מחזיר רק אותי ואת בן/בת הזוג במרחב פתוח — אז "מי שאינו אני" הוא בן/בת הזוג.
-export async function getPartnerName(): Promise<string | null> {
+// ב-cache לבקשה: כמה רכיבים באותו דף שואלים את אותה שאלה.
+export const getPartnerName = cache(async (): Promise<string | null> => {
   const userId = await getVerifiedUserId();
   if (!userId) return null;
   const supabase = await createSupabaseServerClient();
@@ -35,7 +37,7 @@ export async function getPartnerName(): Promise<string | null> {
     .limit(1)
     .maybeSingle<{ id: string; display_name: string }>();
   return data?.display_name?.trim() || null;
-}
+});
 
 // updateMyProfile — spec סעיף 13.2. actor בלבד; profile נוצרת/מתעדכנת
 // אחרי Auth, לעולם לא ממשתמש שרירותי מהטופס.

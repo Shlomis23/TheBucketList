@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getVerifiedUserId } from "@/lib/supabase/server";
 import { getMySpaceId, hasPartner } from "@/lib/dal/space";
 import { getInvitationStatus } from "@/lib/dal/invitations";
-import { getMyProfile } from "@/lib/dal/profile";
+import { getMyProfile, getPartnerName } from "@/lib/dal/profile";
 import { InvitationPanel } from "./InvitationPanel";
 import { DisplayNameForm } from "./DisplayNameForm";
 import { signOutAction } from "./actions";
@@ -20,7 +20,7 @@ export default async function SettingsPage() {
 
   // getMyProfile משתמש שוב ב-getVerifiedUserId, אבל הוא ב-cache לבקשה —
   // אין קריאת Auth נוספת.
-  const [partnerPresent, profile] = await Promise.all([hasPartner(spaceId), getMyProfile()]);
+  const [partnerPresent, profile, partnerName] = await Promise.all([hasPartner(spaceId), getMyProfile(), getPartnerName()]);
 
   return (
     <div className="page">
@@ -30,16 +30,16 @@ export default async function SettingsPage() {
         <p id="me" className="page-eyebrow" style={{ marginBottom: 8 }}>
           השם שלי
         </p>
-        <DisplayNameForm initialName={profile?.displayName ?? ""} />
+        <DisplayNameForm initialName={profile?.displayName ?? ""} partnerName={partnerName} />
       </section>
 
       <section id="invite" className="card" style={{ marginTop: 12 }}>
         <p className="page-eyebrow" style={{ marginBottom: 4 }}>
-          בן/בת הזוג
+          {partnerPresent && partnerName ? partnerName : "בן/בת הזוג"}
         </p>
         {partnerPresent ? (
           <p className="status-msg" style={{ margin: 0 }}>
-            כבר הצטרפו אליכם — המרחב מלא.
+            {partnerName ? "במרחב איתך — המרחב מלא." : "כבר הצטרפו אליכם — המרחב מלא."}
           </p>
         ) : (
           <InvitationPanel initialStatus={await getInvitationStatus()} />
@@ -50,7 +50,7 @@ export default async function SettingsPage() {
         <p id="notifications" className="page-eyebrow" style={{ marginBottom: 8 }}>
           התראות
         </p>
-        <PushSettings publicKey={process.env.VAPID_PUBLIC_KEY ?? null} />
+        <PushSettings publicKey={process.env.VAPID_PUBLIC_KEY ?? null} partnerName={partnerName} />
       </section>
 
       <section className="card" aria-labelledby="export" style={{ marginTop: 12 }}>

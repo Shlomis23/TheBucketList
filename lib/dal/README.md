@@ -13,9 +13,9 @@
 createIdea, setReaction, archiveIdea, restoreIdea — RPC שירות ב-
 `0007_idea_rpcs.sql`/`0010_idea_archive_rpcs.sql`; ארכוב חסום כל עוד יש
 תוכנית proposed לרעיון), `choose.ts` (chooseExperience — קריאה בלבד,
-אלגוריתם סעיף 8), `plans.ts` (listPlans, getPlan — קריאה בלבד, כולל
-אישורים ו-isConfirmedByBoth הנגזר; createPlan, updatePlan, confirmPlan,
-unconfirmPlan, cancelPlan, completePlan — RPC שירות ב-`0009_plan_rpcs.sql`;
+אלגוריתם סעיף 8), `plans.ts` (listPlans, getPlan — קריאה בלבד, עם
+פרטי הרעיון; createPlan, updatePlan, cancelPlan, completePlan — RPC שירות
+ב-`0009_plan_rpcs.sql`; שלב האישור בוטל ב-25.9 ונמחק מה-DB ב-`0028`;
 completePlan כותב גם שורת memories בטרנזקציה אחת, לקראת F7). completePlanAction
 (app/(app)/plans/actions.ts) יכולה גם לארכב את הרעיון best-effort אחרי
 השלמה מוצלחת, אם המשתמש סימן זאת בטופס.

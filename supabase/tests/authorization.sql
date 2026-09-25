@@ -96,6 +96,18 @@ begin
   checks := checks + 1;
   if not pg_temp.must_fail('select public.close_space(null::uuid, false, 0)') then failures := failures || 'close_space null actor'::text; end if;
 
+  -- מחיקה סופית בסוף החרטה: לא נשאר כלום ממרחב 1, ומרחב 2 לא נפגע
+  update public.spaces set purge_after = now() - interval '1 minute' where id = s1;
+  perform public.purge_space(s1);
+  checks := checks + 1;
+  if exists (select 1 from public.spaces where id = s1)
+     or exists (select 1 from public.plans where space_id = s1)
+     or exists (select 1 from public.memory_photos where space_id = s1) then
+    failures := failures || 'purge_space incomplete'::text;
+  end if;
+  checks := checks + 1;
+  if not exists (select 1 from public.spaces where id = s2) then failures := failures || 'purge_space hit other space'::text; end if;
+
   -- ---------- אין פונקציית שירות פתוחה ל-anon/authenticated ----------
   for r in
     select p.oid::regprocedure::text as fn, p.proname::text as name,

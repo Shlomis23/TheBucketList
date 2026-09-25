@@ -34,7 +34,7 @@ async function getRegistration() {
   return (await navigator.serviceWorker.getRegistration("/")) ?? navigator.serviceWorker.register("/sw.js", { scope: "/", updateViaCache: "none" });
 }
 
-export function PushSettings({ publicKey }: { publicKey: string | null }) {
+export function PushSettings({ publicKey, partnerName }: { publicKey: string | null; partnerName: string | null }) {
   const [state, setState] = useState<State>("loading");
   const [subscription, setSubscription] = useState<PushSubscription | null>(null);
   const [message, setMessage] = useState("");
@@ -149,7 +149,7 @@ export function PushSettings({ publicKey }: { publicKey: string | null }) {
       {state === "off" && (
         <>
           <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13.5 }}>
-            נקבל התראה כשבן/בת הזוג מוסיפים רעיון, כותבים בשיחה, מציעים או מאשרים תוכנית, או שומרים זיכרון.
+            התראה על כל דבר חדש {partnerName ? `מ${partnerName}` : "מבן/בת הזוג"} — רעיון, הודעה בשיחה, תוכנית או זיכרון — וגם על מאצ&apos; ותזכורת יום לפני תוכנית.
           </p>
           <button type="button" className="btn btn-primary btn-block" onClick={enable} disabled={pending}>
             {pending ? "מפעיל…" : "הפעלת התראות במכשיר הזה"}

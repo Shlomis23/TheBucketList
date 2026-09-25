@@ -2,13 +2,14 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getVerifiedUserId } from "@/lib/supabase/server";
 import { getMySpaceState } from "@/lib/dal/account";
+import { getPartnerName } from "@/lib/dal/profile";
 import { ExportButton } from "@/components/ExportButton";
 import { GRACE_DAYS } from "@/lib/validation/account";
 import { CloseSpaceForm } from "./CloseSpaceForm";
 
 // סגירת המרחב — הסבר מלא לפני, ZIP, ואישור בהקלדה (החלטות 25.9, 0020).
 export default async function CloseSpacePage() {
-  const [userId, state] = await Promise.all([getVerifiedUserId(), getMySpaceState()]);
+  const [userId, state, partnerName] = await Promise.all([getVerifiedUserId(), getMySpaceState(), getPartnerName()]);
   if (!userId) redirect("/login");
   if (!state) redirect("/onboarding");
   if (state.status === "closed") redirect("/space-closed");
@@ -29,8 +30,8 @@ export default async function CloseSpacePage() {
           מה יקרה
         </p>
         <ul className="plain-list">
-          <li>המרחב ננעל מיד{withPartner ? " — לך ולבן/בת הזוג" : ""}. אי אפשר יהיה לראות או להוסיף רעיונות, תוכניות וזיכרונות.</li>
-          {withPartner && <li>בן/בת הזוג יראו מסך &quot;המרחב נסגר&quot;, עם השם שלך והתאריך.</li>}
+          <li>המרחב ננעל מיד{withPartner ? ` — לך ול${partnerName ?? "בן/בת הזוג"}` : ""}. אי אפשר יהיה לראות או להוסיף רעיונות, תוכניות וזיכרונות.</li>
+          {withPartner && <li>אצל {partnerName ?? "בן/בת הזוג"} יופיע מסך &quot;המרחב נסגר&quot;, עם השם שלך והתאריך.</li>}
           <li>
             במשך {GRACE_DAYS} יום אפשר להתחרט: רק את/ה יכולים לבטל את הסגירה, והכול חוזר בדיוק כמו שהיה.
           </li>
