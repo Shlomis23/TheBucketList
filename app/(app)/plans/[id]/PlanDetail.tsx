@@ -413,11 +413,11 @@ function CompletePlanForm({
           checked={archiveIdea}
           onChange={(e) => setArchiveIdea(e.target.checked)}
         />
-        האם להעביר את הרעיון לארכיון?
+        להעביר את הרעיון לארכיון
       </label>
       <div style={{ display: "flex", gap: 10 }}>
         <button type="submit" className="btn btn-primary btn-block" disabled={status === "busy"}>
-          {status === "busy" ? "שומר..." : "שמירה לארכיון הזיכרונות"}
+          {status === "busy" ? "שומר..." : "שמירה בזיכרונות"}
         </button>
         <button
           type="button"
