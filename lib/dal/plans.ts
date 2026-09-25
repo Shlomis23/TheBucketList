@@ -9,6 +9,7 @@ import type {
   CompletePlanInput,
 } from "@/lib/validation/plan";
 import type { IdeaCategory } from "@/lib/validation/idea";
+import { extractHttpsLinks } from "@/lib/validation/comment";
 
 export type PlanStatus = "proposed" | "completed" | "cancelled";
 
@@ -35,7 +36,14 @@ export type PlanDto = {
   confirmations: PlanConfirmationDto[];
   isConfirmedByBoth: boolean;
   myConfirmation: boolean;
+  // מהרעיון המקורי — לכרטיס "מהרעיון" בדף התוכנית (25.9): קישור ומיקום
+  // יושבים ברעיון, ובלי זה היה צריך לעבור דרך לשונית הרעיונות כדי להגיע אליהם.
+  ideaSourceUrl: string | null;
+  ideaLocationText: string | null;
 };
+
+// getPlan בלבד: קישורים שהודבקו בשיחה על הרעיון (החדשים קודם, עד 3, בלי כפילות).
+export type PlanDetailDto = PlanDto & { conversationLinks: string[] };
 
 type PlanRow = {
   id: string;
@@ -67,29 +75,24 @@ async function attachConfirmations(
 
   const planIds = plans.map((p) => p.id);
   const ideaIds = Array.from(new Set(plans.map((p) => p.idea_id)));
-  const [{ data: confirmations }, { data: ideas }] = await Promise.all([
+  const [{ data: confirmations }, { data: ideas }, { data: profiles }] = await Promise.all([
     supabase
       .from("plan_confirmations")
       .select("plan_id, user_id, plan_version, confirmed_at")
       .in("plan_id", planIds)
       .returns<ConfirmationRow[]>(),
-    // רק לתמונת עטיפה לפי קטגוריה (lib/covers.ts) — לא נתון עסקי של התוכנית.
+    // קטגוריה (תמונת עטיפה, lib/covers.ts) + קישור ומיקום לכרטיס "מהרעיון".
     supabase
       .from("ideas")
-      .select("id, category")
+      .select("id, category, source_url, location_text")
       .in("id", ideaIds)
-      .returns<{ id: string; category: IdeaCategory }[]>(),
+      .returns<{ id: string; category: IdeaCategory; source_url: string | null; location_text: string | null }[]>(),
+    // שמות המאשרים: בלי .in(userIds) — RLS (can_read_profile) מחזיר ממילא רק
+    // אותי ואת בן/בת הזוג, וכך זה רץ במקביל ולא כקפיצת רשת נוספת אחרי האישורים.
+    supabase.from("profiles").select("id, display_name").returns<{ id: string; display_name: string }[]>(),
   ]);
-  const categoryByIdea = new Map((ideas ?? []).map((i) => [i.id, i.category]));
+  const ideaById = new Map((ideas ?? []).map((i) => [i.id, i]));
 
-  const userIds = Array.from(new Set((confirmations ?? []).map((c) => c.user_id)));
-  const { data: profiles } = userIds.length
-    ? await supabase
-        .from("profiles")
-        .select("id, display_name")
-        .in("id", userIds)
-        .returns<{ id: string; display_name: string }[]>()
-    : { data: [] as { id: string; display_name: string }[] };
   const nameByUser = new Map((profiles ?? []).map((p) => [p.id, p.display_name]));
 
   const confirmationsByPlan = new Map<string, ConfirmationRow[]>();
@@ -104,7 +107,9 @@ async function attachConfirmations(
     return {
       id: p.id,
       ideaId: p.idea_id,
-      ideaCategory: categoryByIdea.get(p.idea_id) ?? null,
+      ideaCategory: ideaById.get(p.idea_id)?.category ?? null,
+      ideaSourceUrl: ideaById.get(p.idea_id)?.source_url ?? null,
+      ideaLocationText: ideaById.get(p.idea_id)?.location_text ?? null,
       title: p.title,
       status: p.status,
       startsAt: p.starts_at,
@@ -142,7 +147,7 @@ export async function listPlans(): Promise<PlanDto[]> {
   return attachConfirmations(plans ?? [], userId);
 }
 
-export async function getPlan(planId: string): Promise<PlanDto | null> {
+export async function getPlan(planId: string): Promise<PlanDetailDto | null> {
   const userId = await getVerifiedUserId();
   if (!userId) return null;
 
@@ -154,8 +159,28 @@ export async function getPlan(planId: string): Promise<PlanDto | null> {
     .maybeSingle<PlanRow>();
   if (!plan) return null;
 
-  const [dto] = await attachConfirmations([plan], userId);
-  return dto ?? null;
+  // הקישורים מהשיחה נשלפים במקביל לאישורים — idea_id כבר ידוע מהשורה.
+  const [[dto], { data: comments }] = await Promise.all([
+    attachConfirmations([plan], userId),
+    supabase
+      .from("idea_comments")
+      .select("body")
+      .eq("idea_id", plan.idea_id)
+      .order("created_at", { ascending: false })
+      .returns<{ body: string }[]>(),
+  ]);
+  if (!dto) return null;
+
+  const seen = new Set<string>(dto.ideaSourceUrl ? [dto.ideaSourceUrl] : []);
+  const conversationLinks: string[] = [];
+  for (const c of comments ?? []) {
+    for (const url of extractHttpsLinks(c.body)) {
+      if (seen.has(url)) continue;
+      seen.add(url);
+      conversationLinks.push(url);
+    }
+  }
+  return { ...dto, conversationLinks: conversationLinks.slice(0, 3) };
 }
 
 function mapPlanRpcError(errorMessage: string | undefined, fallback: string, traceId: string): Result<never> {

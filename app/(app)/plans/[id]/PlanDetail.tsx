@@ -13,7 +13,8 @@ import {
 import { DEFAULT_PLAN_TIMEZONE, formatBudgetMinor, formatPlanWhen } from "@/lib/validation/plan";
 import { getIdeaCoverImage } from "@/lib/covers";
 import { DateTimeRangeFields, endPartsToIso, isoToParts, partsToIso, type DateTimeParts } from "@/components/DateTimeRangeFields";
-import type { PlanDto } from "@/lib/dal/plans";
+import type { PlanDetailDto, PlanDto } from "@/lib/dal/plans";
+import { FromIdeaCard } from "@/components/FromIdeaCard";
 
 type Mode = "view" | "edit" | "complete";
 
@@ -28,7 +29,7 @@ function todayDateInput(): string {
 // (במקום לתחזק state אופטימי משלנו) — כך "גרסה השתנתה" תמיד מוצג נכון,
 // כי אנחנו תמיד רואים את מה ששרת ה-RSC מחזיר, לא ניחוש מקומי (spec סעיף 7).
 // memoryId — רק לתוכנית שהושלמה (ראו getMemoryIdForPlan), לכפתור "לזיכרון".
-export function PlanDetail({ plan, memoryId }: { plan: PlanDto; memoryId: string | null }) {
+export function PlanDetail({ plan, memoryId }: { plan: PlanDetailDto; memoryId: string | null }) {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("view");
   const [isPending, startTransition] = useTransition();
@@ -81,6 +82,13 @@ export function PlanDetail({ plan, memoryId }: { plan: PlanDto; memoryId: string
         />
       ) : (
         <>
+          <FromIdeaCard
+            ideaId={plan.ideaId}
+            sourceUrl={plan.ideaSourceUrl}
+            locationText={plan.ideaLocationText}
+            conversationLinks={plan.conversationLinks}
+          />
+
           {(budget || plan.notes) && (
             <div className="card" style={{ marginBottom: 16 }}>
               {budget && (

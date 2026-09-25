@@ -51,3 +51,23 @@ export function formatCommentTime(iso: string, now: Date = new Date()): string {
   const date = new Intl.DateTimeFormat("he-IL", { timeZone: tz, day: "numeric", month: "short" }).format(d);
   return `${date} ${time}`;
 }
+
+// קישורים בטקסט — https בלבד (החלטה מ-25.9). משותף ל-IdeaConversation
+// (הפיכה ללחיצים) ולדף התוכנית ("קישורים מהשיחה"), כדי שיהיה כלל אחד.
+export const HTTPS_LINK_RE = /(https:\/\/[^\s<>"']+)/g;
+
+// מפריד סימני פיסוק שנדבקו לסוף קישור ("...co.il." / "(ראו https://x)").
+export function splitTrailingPunctuation(raw: string): { url: string; trailing: string } {
+  const trailing = raw.match(/[.,!?;:)\]]+$/)?.[0] ?? "";
+  return { url: trailing ? raw.slice(0, -trailing.length) : raw, trailing };
+}
+
+export function extractHttpsLinks(text: string): string[] {
+  return (text.match(HTTPS_LINK_RE) ?? []).map((raw) => splitTrailingPunctuation(raw).url);
+}
+
+// תווית קצרה לקישור: בלי https://, בלי / בסוף, עד ~38 תווים.
+export function shortLinkLabel(url: string, max = 38): string {
+  const label = url.replace(/^https:\/\//, "").replace(/\/$/, "");
+  return label.length > max ? `${label.slice(0, max - 2)}…` : label;
+}

@@ -2,7 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { addCommentAction, deleteCommentAction, editCommentAction } from "@/app/(app)/ideas/actions";
-import { COMMENT_MAX } from "@/lib/validation/comment";
+import { COMMENT_MAX, HTTPS_LINK_RE, shortLinkLabel, splitTrailingPunctuation } from "@/lib/validation/comment";
 import type { CommentDto } from "@/lib/dal/comments";
 
 // "שיחה על הרעיון" — תגובות טקסט (spec 6.1: 1–1,000 תווים, גלוי לשניהם,
@@ -15,15 +15,11 @@ const COUNTER_FROM = 800; // המונה מופיע רק כשמתקרבים לג�
 
 // קישורי https בלבד הופכים ללחיצים (החלטה מ-25.9). React מבריח את הטקסט,
 // וסכמה קבועה https:// מונעת javascript:/data: — אין כאן HTML חופשי.
-const URL_RE = /(https:\/\/[^\s<>"']+)/g;
-
 function renderBody(text: string) {
-  return text.split(URL_RE).map((part, i) => {
+  return text.split(HTTPS_LINK_RE).map((part, i) => {
     if (i % 2 === 0) return part;
-    const trailing = part.match(/[.,!?;:)\]]+$/)?.[0] ?? "";
-    const url = trailing ? part.slice(0, -trailing.length) : part;
-    let label = url.replace(/^https:\/\//, "").replace(/\/$/, "");
-    if (label.length > 38) label = `${label.slice(0, 36)}…`;
+    const { url, trailing } = splitTrailingPunctuation(part);
+    const label = shortLinkLabel(url);
     return (
       <span key={i}>
         <a href={url} target="_blank" rel="noopener noreferrer nofollow" dir="ltr" className="msg-link">
