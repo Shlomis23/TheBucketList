@@ -28,6 +28,7 @@ export type MemoryDto = {
   createdByName: string;
   coverPhotoId: string | null; // הראשונה לפי הסדר — מוצגת במקום איור הקטגוריה
   photoCount: number;
+  place: string | null; // מקום המפגש בתוכנית, או המיקום של הרעיון — לחיפוש
 };
 
 type MemoryRow = {
@@ -48,10 +49,13 @@ async function loadContext() {
     context: Promise.all([
       supabase
         .from("plans")
-        .select("id, title, idea_id")
+        .select("id, title, idea_id, meeting_place")
         .eq("status", "completed")
-        .returns<{ id: string; title: string; idea_id: string }[]>(),
-      supabase.from("ideas").select("id, category").returns<{ id: string; category: IdeaCategory }[]>(),
+        .returns<{ id: string; title: string; idea_id: string; meeting_place: string | null }[]>(),
+      supabase
+        .from("ideas")
+        .select("id, category, location_text")
+        .returns<{ id: string; category: IdeaCategory; location_text: string | null }[]>(),
       // RLS (can_read_profile) מחזיר רק אותי ואת בן/בת הזוג.
       supabase.from("profiles").select("id, display_name").returns<{ id: string; display_name: string }[]>(),
       supabase
@@ -69,7 +73,7 @@ function toDtos(
   [plansRes, ideasRes, profilesRes, photosRes]: Awaited<Awaited<ReturnType<typeof loadContext>>["context"]>,
 ): MemoryDto[] {
   const planById = new Map((plansRes.data ?? []).map((p) => [p.id, p]));
-  const categoryByIdea = new Map((ideasRes.data ?? []).map((i) => [i.id, i.category]));
+  const ideaById = new Map((ideasRes.data ?? []).map((i) => [i.id, i]));
   const nameById = new Map((profilesRes.data ?? []).map((p) => [p.id, p.display_name]));
   const photosByMemory = new Map<string, { coverId: string; count: number }>();
   for (const p of photosRes.data ?? []) {
@@ -80,17 +84,19 @@ function toDtos(
 
   return rows.map((m) => {
     const plan = planById.get(m.plan_id);
+    const idea = plan ? ideaById.get(plan.idea_id) : undefined;
     return {
       id: m.id,
       planId: m.plan_id,
       title: plan?.title ?? "זיכרון",
-      category: plan ? (categoryByIdea.get(plan.idea_id) ?? null) : null,
+      category: idea?.category ?? null,
       happenedOn: m.happened_on,
       story: m.story,
       version: m.version,
       createdByName: nameById.get(m.created_by)?.trim() ?? "",
       coverPhotoId: photosByMemory.get(m.id)?.coverId ?? null,
       photoCount: photosByMemory.get(m.id)?.count ?? 0,
+      place: plan?.meeting_place?.trim() || idea?.location_text?.trim() || null,
     };
   });
 }

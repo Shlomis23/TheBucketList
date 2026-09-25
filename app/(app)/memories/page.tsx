@@ -1,14 +1,23 @@
 import Link from "next/link";
 import { EmptyState } from "@/components/EmptyState";
-import { listMemories, type MemoryDto } from "@/lib/dal/memories";
-import { formatMemoryMonth } from "@/lib/validation/memory";
-import { MemoryCard } from "@/components/MemoryCard";
+import { listMemories } from "@/lib/dal/memories";
+import { MemoriesBrowser } from "@/components/MemoriesBrowser";
+import { ideaCategories, type IdeaCategory } from "@/lib/validation/idea";
+import { MEMORY_SEARCH_MAX } from "@/lib/validation/memory";
 
 // ארכיון `/memories` — F7, spec סעיף 6: ציר זמן, מקובץ לפי חודש, החדש למעלה.
-// חיפוש נדחה בכוונה (החלטה מ-25.9) עד שיהיו עשרות זיכרונות; תמונה ראשית
-// תגיע עם שלב התמונות — בינתיים תמונת העיצוב של הקטגוריה.
-export default async function MemoriesPage() {
-  const memories = await listMemories();
+// חיפוש וסינון לפי קטגוריה (26.9) — בדפדפן, ראו components/MemoriesBrowser.
+// ?q= ו-?category= רק לשחזור אחרי "אחורה"; הסינון עצמו לא עובר בשרת.
+export default async function MemoriesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string | string[]; category?: string | string[] }>;
+}) {
+  const [memories, params] = await Promise.all([listMemories(), searchParams]);
+  const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
+  const q = (first(params.q) ?? "").slice(0, MEMORY_SEARCH_MAX);
+  const rawCategory = first(params.category);
+  const category = ideaCategories.includes(rawCategory as IdeaCategory) ? (rawCategory as IdeaCategory) : null;
 
   if (memories.length === 0) {
     return (
@@ -26,32 +35,10 @@ export default async function MemoriesPage() {
     );
   }
 
-  // קיבוץ לפי חודש, תוך שמירה על הסדר שכבר הגיע מה-DAL (happened_on יורד).
-  const groups: { month: string; items: MemoryDto[] }[] = [];
-  for (const m of memories) {
-    const month = formatMemoryMonth(m.happenedOn);
-    const last = groups[groups.length - 1];
-    if (last && last.month === month) last.items.push(m);
-    else groups.push({ month, items: [m] });
-  }
-
   return (
     <div className="page">
       <h1 className="page-title">זיכרונות</h1>
-      <p className="page-subtitle" style={{ marginBottom: 14 }}>
-        {memories.length === 1 ? "חוויה אחת שעשיתם יחד" : `${memories.length} חוויות שעשיתם יחד`}
-      </p>
-
-      {groups.map((g) => (
-        <section key={g.month} aria-label={g.month} style={{ marginBottom: 8 }}>
-          <p className="page-eyebrow" style={{ color: "var(--color-muted)", margin: "4px 0 8px" }}>
-            {g.month}
-          </p>
-          {g.items.map((m) => (
-            <MemoryCard key={m.id} memory={m} />
-          ))}
-        </section>
-      ))}
+      <MemoriesBrowser memories={memories} initialQuery={q} initialCategory={category} />
     </div>
   );
 }
