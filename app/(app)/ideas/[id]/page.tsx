@@ -10,7 +10,8 @@ import { CoverImg } from "@/components/CoverImg";
 import { BackButton } from "@/components/BackButton";
 import { linkHost } from "@/lib/validation/comment";
 import { NavigateTile } from "@/components/NavigateTile";
-import { markIdeaRead } from "@/lib/dal/conversations";
+import { getUnreadConversations, markIdeaRead } from "@/lib/dal/conversations";
+import { RefreshAfterRead } from "@/components/RefreshAfterRead";
 
 // פרטי רעיון `/ideas/[id]` — F4, spec סעיף 6.
 // תגובות טקסט: IdeaConversation (0017). בארכיון — קריאה בלבד.
@@ -25,9 +26,13 @@ export default async function IdeaDetailPage({
   const { id } = await params;
   // השיחה נטענת במקביל לרעיון (לא תלויה בו) — בלי קפיצת רשת נוספת.
   // אם הרעיון זר/חסר, RLS מחזיר רשימה ריקה ו-notFound() קורה ממילא.
-  // markIdeaRead — "לא נקרא" (0026): הכניסה לדף מסמנת את השיחה כנקראה.
-  const [idea, comments] = await Promise.all([getIdea(id), listComments(id), markIdeaRead(id).catch(() => {})]);
+  // "לא נקרא" (0026): הכניסה לדף מסמנת את השיחה כנקראה — רק אם באמת היה
+  // בה משהו חדש (unread נקרא במקביל, בלי קפיצת רשת נוספת). ואז גם מנקים את
+  // המסכים השמורים בטלפון (RefreshAfterRead), אחרת "הודעה חדשה" נשארת בבית.
+  const [idea, comments, unread] = await Promise.all([getIdea(id), listComments(id), getUnreadConversations()]);
   if (!idea) notFound();
+  const hadUnread = unread.some((u) => u.ideaId === id);
+  if (hadUnread) await markIdeaRead(id).catch(() => {});
 
   const cost = formatCostMinor(idea.costMinor);
   const duration = formatDurationMinutes(idea.durationMinutes);
@@ -35,6 +40,7 @@ export default async function IdeaDetailPage({
 
   return (
     <div className="page">
+      {hadUnread && <RefreshAfterRead />}
       <div className="hero-wrap">
         <CoverImg category={idea.category} className="hero-banner" />
         <BackButton fallback="/ideas" />

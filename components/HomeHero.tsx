@@ -74,6 +74,11 @@ export function HeroCard({
           <p className="hero-sub">{categoryLabels[idea.category]} · עוד לא ענית</p>
         </Link>
         <ReactionControl ideaId={idea.id} initialReaction={null} />
+        {home.partnerNewIdeasTotal > 1 && (
+          <Link href={`/ideas/review?first=${idea.id}`} className="hero-deck-link">
+            או לעבור על כל ה-{home.partnerNewIdeasTotal} בסבב &larr;
+          </Link>
+        )}
       </section>
     );
   }

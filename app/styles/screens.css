@@ -1112,3 +1112,14 @@
   font-weight: 700;
   font-size: var(--fs-xs);
 }
+
+/* בכרטיס "חדש מ..." בבית, כשיש כמה רעיונות חדשים — כניסה לסבב (26.9). */
+.hero-deck-link {
+  display: block;
+  margin-top: var(--sp-3);
+  text-align: center;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+}

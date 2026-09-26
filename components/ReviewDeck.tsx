@@ -199,23 +199,9 @@ export function ReviewDeck({ cards, partnerName }: { cards: ReviewCard[]; partne
         </p>
       )}
 
+      {/* סדר מימין לשמאל: כן (ימין) · אולי · לא (שמאל) — כמו כיוון ההחלקה
+          (ימינה = כן), וכמו שורת התגובה בשאר האפליקציה. */}
       <div className="review-actions">
-        <button type="button" className="review-btn no" onClick={() => answer("no")} disabled={!!flying}>
-          <i aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
-              <path d="M6 6l12 12M18 6 6 18" />
-            </svg>
-          </i>
-          לא
-        </button>
-        <button type="button" className="review-btn maybe" onClick={() => answer("maybe")} disabled={!!flying}>
-          <i aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
-              <path d="M4 13c2.5-3 5-3 8 0s5.5 3 8 0" />
-            </svg>
-          </i>
-          אולי
-        </button>
         <button type="button" className="review-btn yes" onClick={() => answer("yes")} disabled={!!flying}>
           <i aria-hidden="true">
             <svg width="26" height="26" viewBox="0 0 24 24">
@@ -226,6 +212,22 @@ export function ReviewDeck({ cards, partnerName }: { cards: ReviewCard[]; partne
             </svg>
           </i>
           כן
+        </button>
+        <button type="button" className="review-btn maybe" onClick={() => answer("maybe")} disabled={!!flying}>
+          <i aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
+              <path d="M4 13c2.5-3 5-3 8 0s5.5 3 8 0" />
+            </svg>
+          </i>
+          אולי
+        </button>
+        <button type="button" className="review-btn no" onClick={() => answer("no")} disabled={!!flying}>
+          <i aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
+              <path d="M6 6l12 12M18 6 6 18" />
+            </svg>
+          </i>
+          לא
         </button>
       </div>
       <p className="review-hint">אפשר גם להחליק: ימינה = כן, שמאלה = לא</p>
