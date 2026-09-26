@@ -25,7 +25,7 @@ export function OnboardingForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div className="field">
         <label htmlFor="displayName">השם שלי</label>
         <input

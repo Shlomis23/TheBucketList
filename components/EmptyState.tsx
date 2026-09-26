@@ -14,7 +14,7 @@ export function EmptyState({
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: 14,
+        gap: 16,
         padding: "40px 16px",
         textAlign: "center",
       }}

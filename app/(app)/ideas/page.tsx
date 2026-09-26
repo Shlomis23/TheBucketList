@@ -71,7 +71,7 @@ export default async function IdeasPage({
         <>
           <IdeaSearch filters={filters} />
 
-          <div className="chip-scroll" role="group" aria-label="סינון רעיונות" style={{ marginBottom: 6 }}>
+          <div className="chip-scroll" role="group" aria-label="סינון רעיונות" style={{ marginBottom: 8 }}>
             {!archived && <ViewChips filters={filters} counts={counts} partner={partner} />}
             <CategorySelect filters={filters} />
           </div>

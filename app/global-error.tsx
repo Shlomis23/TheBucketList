@@ -21,7 +21,7 @@ export default function GlobalError({ retry }: { error: Error & { digest?: strin
       >
         <main style={{ maxWidth: 380, width: "100%" }}>
           <h1 style={{ margin: "0 0 8px", fontSize: 24 }}>משהו השתבש</h1>
-          <p style={{ margin: "0 0 22px", color: "#6e6584", lineHeight: 1.6 }}>
+          <p style={{ margin: "0 0 24px", color: "#6e6584", lineHeight: 1.6 }}>
             זו תקלה אצלנו, לא משהו שעשיתם. בדרך כלל ניסיון נוסף מספיק.
           </p>
           <button

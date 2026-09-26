@@ -49,7 +49,7 @@ function PlanSection({ title, plans }: { title: string; plans: PlanDto[] }) {
           {title}
         </p>
       )}
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {plans.map((plan) => (
           <PlanCard key={plan.id} plan={plan} />
         ))}

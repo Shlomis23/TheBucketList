@@ -108,11 +108,11 @@ export function InvitationPanel({ initialStatus }: { initialStatus: InvitationSt
   // עדיין לא הונפקה הזמנה, או שהאחרונה בוטלה — טופס יצירה.
   if (!status || status.status === "revoked") {
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <p className="status-msg" style={{ margin: 0 }}>
           מזמינים את בן/בת הזוג להצטרף למרחב המשותף. הקישור תקף ל-48 שעות.
         </p>
-        <form onSubmit={submitCreate} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        <form onSubmit={submitCreate} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div className="field">
             <label htmlFor="targetEmail">האימייל של בן/בת הזוג</label>
             <input
@@ -140,7 +140,7 @@ export function InvitationPanel({ initialStatus }: { initialStatus: InvitationSt
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <p className="status-msg" style={{ margin: 0 }}>
         הזמנה ל-{status.maskedEmail} — {maskedStatusLabel(status.status)}
         {status.status === "pending" && ` · בתוקף עד ${formatExpiry(status.expiresAt)}`}
@@ -148,7 +148,7 @@ export function InvitationPanel({ initialStatus }: { initialStatus: InvitationSt
 
       {freshLink && (
         <div className="card" style={{ background: "var(--color-primary-soft)", padding: 14 }}>
-          <p className="status-msg" style={{ margin: "0 0 10px", fontSize: 13 }}>
+          <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13.5 }}>
             הקישור מוצג רק עכשיו — לא נשמור אותו כדי להראות שוב. אפשר להעתיק או לשתף עכשיו.
           </p>
           <div style={{ display: "flex", gap: 8 }}>
@@ -183,7 +183,7 @@ export function InvitationPanel({ initialStatus }: { initialStatus: InvitationSt
             </button>
           ) : (
             <div style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: "center" }}>
-              <span className="status-msg" style={{ fontSize: 13 }}>לבטל את ההזמנה?</span>
+              <span className="status-msg" style={{ fontSize: 13.5 }}>לבטל את ההזמנה?</span>
               <button type="button" className="link-plain" disabled={pending} onClick={runRevoke}>
                 כן
               </button>

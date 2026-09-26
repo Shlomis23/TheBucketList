@@ -38,7 +38,7 @@ export function FromIdeaCard({
         <p id="from-idea" className="page-eyebrow" style={{ margin: 0 }}>
           מהרעיון
         </p>
-        <Link href={`/ideas/${ideaId}`} className="link-plain" style={{ fontSize: 13 }}>
+        <Link href={`/ideas/${ideaId}`} className="link-plain" style={{ fontSize: 13.5 }}>
           לרעיון המלא &larr;
         </Link>
       </div>
@@ -52,7 +52,7 @@ export function FromIdeaCard({
             <span>קישור מהרעיון</span>
             <span
               dir="ltr"
-              style={{ textAlign: "right", fontSize: 12, fontWeight: 600, color: "var(--color-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+              style={{ textAlign: "right", fontSize: 12.5, fontWeight: 600, color: "var(--color-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
             >
               {linkHost(sourceUrl)}
             </span>
@@ -64,7 +64,7 @@ export function FromIdeaCard({
 
       {conversationLinks.length > 0 && (
         <>
-          <p className="status-msg" style={{ margin: "4px 0 6px", fontSize: 12 }}>
+          <p className="status-msg" style={{ margin: "4px 0 8px", fontSize: 12.5 }}>
             קישורים מהשיחה
           </p>
           {conversationLinks.map((url) => (

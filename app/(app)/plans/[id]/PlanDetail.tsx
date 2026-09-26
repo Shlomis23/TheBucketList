@@ -97,7 +97,7 @@ export function PlanDetail({
           {past && (
             <div className="card" style={{ marginBottom: 16, background: "var(--color-primary-soft)", borderColor: "transparent" }}>
               <p style={{ margin: "0 0 4px", fontWeight: 800, color: "var(--color-primary)" }}>המועד עבר — איך היה?</p>
-              <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13 }}>
+              <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13.5 }}>
                 {plan.startsAt ? `זה היה ${pastWhenLabel(plan.startsAt)}. ` : ""}עשיתם את זה? שומרים כזיכרון. לא יצא? אפשר
                 לדחות או לבטל.
               </p>
@@ -168,7 +168,7 @@ export function PlanDetail({
           )}
 
           {isProposed && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {/* כשהמועד עבר, הכפתור הזה כבר בבאנר "איך היה?" למעלה. */}
               {!past && (
                 <button
@@ -244,7 +244,7 @@ function CancelPlanButton({
 
   return (
     <div style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: "center" }}>
-      <span className="status-msg" style={{ fontSize: 13 }}>לבטל סופית את &quot;{plan.title}&quot;?</span>
+      <span className="status-msg" style={{ fontSize: 13.5 }}>לבטל סופית את &quot;{plan.title}&quot;?</span>
       <button type="button" className="link-plain" disabled={disabled} onClick={onCancel}>
         כן, לבטל
       </button>
@@ -308,7 +308,7 @@ function EditPlanForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+    <form onSubmit={handleSubmit} className="card" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <DateTimeRangeFields
         idPrefix="edit-plan"
         start={start}
@@ -354,7 +354,7 @@ function EditPlanForm({
         />
       </div>
 
-      <div style={{ display: "flex", gap: 10 }}>
+      <div style={{ display: "flex", gap: 12 }}>
         <button type="submit" className="btn btn-primary btn-block" disabled={status === "busy"}>
           {status === "busy" ? "שומר..." : "שמירת שינויים"}
         </button>
@@ -418,7 +418,7 @@ function CompletePlanForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+    <form onSubmit={handleSubmit} className="card" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <p style={{ margin: 0, fontWeight: 700 }}>איזה כיף — ספרו לנו על זה</p>
       <div className="field">
         <label htmlFor="happenedOn">מתי זה קרה</label>
@@ -441,7 +441,7 @@ function CompletePlanForm({
           className="textarea"
         />
       </div>
-      <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14 }}>
+      <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14.5 }}>
         <input
           type="checkbox"
           checked={archiveIdea}
@@ -449,7 +449,7 @@ function CompletePlanForm({
         />
         להעביר את הרעיון לארכיון
       </label>
-      <div style={{ display: "flex", gap: 10 }}>
+      <div style={{ display: "flex", gap: 12 }}>
         <button type="submit" className="btn btn-primary btn-block" disabled={status === "busy"}>
           {status === "busy" ? "שומר..." : "שמירה בזיכרונות"}
         </button>

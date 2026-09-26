@@ -59,7 +59,7 @@ export function ArchiveIdeaButton({
         </button>
       ) : (
         <div style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: "center" }}>
-          <span className="status-msg" style={{ fontSize: 13 }}>
+          <span className="status-msg" style={{ fontSize: 13.5 }}>
             {mode === "archive" ? "להעביר את הרעיון לארכיון?" : "לשחזר את הרעיון מהארכיון?"}
           </span>
           <button type="button" className="link-plain" disabled={isPending} onClick={run}>

@@ -159,7 +159,7 @@ export function PushSettings({ publicKey, partnerName }: { publicKey: string | n
 
       {state === "on" && (
         <>
-          <p style={{ margin: "0 0 12px", fontSize: 14, fontWeight: 700, color: "var(--color-primary)" }}>
+          <p style={{ margin: "0 0 12px", fontSize: 14.5, fontWeight: 700, color: "var(--color-primary)" }}>
             ההתראות פעילות במכשיר הזה
           </p>
           <div style={{ display: "flex", gap: 8 }}>
@@ -186,12 +186,12 @@ export function PushSettings({ publicKey, partnerName }: { publicKey: string | n
       )}
 
       {message && (
-        <p role="status" className="status-msg" style={{ margin: "10px 0 0", fontSize: 13 }}>
+        <p role="status" className="status-msg" style={{ margin: "12px 0 0", fontSize: 13.5 }}>
           {message}
         </p>
       )}
       {error && (
-        <p role="alert" className="alert-error" style={{ marginTop: 10 }}>
+        <p role="alert" className="alert-error" style={{ marginTop: 12 }}>
           {error}
         </p>
       )}

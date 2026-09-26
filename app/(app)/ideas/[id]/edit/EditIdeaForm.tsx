@@ -64,7 +64,7 @@ export function EditIdeaForm({ idea }: { idea: IdeaDetailDto }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div className="field">
         <label htmlFor="title">כותרת</label>
         <input
@@ -141,7 +141,7 @@ export function EditIdeaForm({ idea }: { idea: IdeaDetailDto }) {
         )}
       </div>
 
-      <div style={{ display: "flex", gap: 10 }}>
+      <div style={{ display: "flex", gap: 12 }}>
         <div className="field" style={{ flex: 1 }}>
           <label htmlFor="cost">עלות משוערת (₪)</label>
           <input
@@ -172,7 +172,7 @@ export function EditIdeaForm({ idea }: { idea: IdeaDetailDto }) {
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: 10 }}>
+      <div style={{ display: "flex", gap: 12 }}>
         <button type="submit" className="btn btn-primary btn-block" disabled={status === "busy"}>
           {status === "busy" ? "שומר..." : "שמירת שינויים"}
         </button>

@@ -33,7 +33,7 @@ export function DisplayNameForm({ initialName, partnerName }: { initialName: str
 
   return (
     <form onSubmit={handleSubmit} noValidate>
-      <div className="field" style={{ marginBottom: 10 }}>
+      <div className="field" style={{ marginBottom: 12 }}>
         <label htmlFor="displayName">איך לקרוא לך</label>
         <input
           id="displayName"
@@ -49,7 +49,7 @@ export function DisplayNameForm({ initialName, partnerName }: { initialName: str
           aria-describedby="displayName-hint"
         />
       </div>
-      <p id="displayName-hint" className="status-msg" style={{ margin: "0 0 10px", fontSize: 12.5 }}>
+      <p id="displayName-hint" className="status-msg" style={{ margin: "0 0 12px", fontSize: 12.5 }}>
         כך השם שלך מופיע אצל {partnerName ?? "בן/בת הזוג"} באפליקציה.
       </p>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>

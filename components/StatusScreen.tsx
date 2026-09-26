@@ -31,10 +31,10 @@ export function StatusScreen({
       <h1 className="page-title" style={{ marginBottom: 8 }}>
         {title}
       </h1>
-      <p className="page-subtitle" style={{ marginBottom: 22 }}>
+      <p className="page-subtitle" style={{ marginBottom: 24 }}>
         {text}
       </p>
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>{children}</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>{children}</div>
     </div>
   );
 }

@@ -25,9 +25,9 @@ export default async function MemoryDetailPage({ params }: { params: Promise<{ i
         title={memory.title}
         dateLabel={formatMemoryDate(memory.happenedOn)}
       />
-      <p className="status-msg" style={{ margin: "0 0 14px", fontSize: 13 }}>
+      <p className="status-msg" style={{ margin: "0 0 16px", fontSize: 13.5 }}>
         מתוך{" "}
-        <Link href={`/plans/${memory.planId}`} className="link-plain" style={{ fontSize: 13 }}>
+        <Link href={`/plans/${memory.planId}`} className="link-plain" style={{ fontSize: 13.5 }}>
           התוכנית המקורית &larr;
         </Link>
       </p>
@@ -38,7 +38,7 @@ export default async function MemoryDetailPage({ params }: { params: Promise<{ i
           <p className="page-eyebrow" style={{ margin: 0 }}>
             איך היה
           </p>
-          <Link href={`/memories/${memory.id}/edit`} className="link-plain" style={{ fontSize: 13 }}>
+          <Link href={`/memories/${memory.id}/edit`} className="link-plain" style={{ fontSize: 13.5 }}>
             {memory.story ? "עריכה" : "הוספה"}
           </Link>
         </div>
@@ -49,13 +49,13 @@ export default async function MemoryDetailPage({ params }: { params: Promise<{ i
         ) : (
           <p className="status-msg" style={{ margin: 0 }}>
             עוד לא כתבתם איך היה.{" "}
-            <Link href={`/memories/${memory.id}/edit`} className="link-plain" style={{ fontSize: 14 }}>
+            <Link href={`/memories/${memory.id}/edit`} className="link-plain" style={{ fontSize: 14.5 }}>
               לכתוב עכשיו &larr;
             </Link>
           </p>
         )}
         {memory.createdByName && (
-          <p className="status-msg" style={{ margin: "10px 0 0", fontSize: 12 }}>
+          <p className="status-msg" style={{ margin: "12px 0 0", fontSize: 12.5 }}>
             נשמר ע״י {memory.createdByName}
           </p>
         )}

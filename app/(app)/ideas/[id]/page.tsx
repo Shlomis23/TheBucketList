@@ -68,7 +68,7 @@ export default async function IdeaDetailPage({
             <span>פתיחת הקישור</span>
             <span
               dir="ltr"
-              style={{ textAlign: "right", fontSize: 12, fontWeight: 600, color: "var(--color-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+              style={{ textAlign: "right", fontSize: 12.5, fontWeight: 600, color: "var(--color-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
             >
               {linkHost(idea.sourceUrl)}
             </span>
@@ -106,7 +106,7 @@ export default async function IdeaDetailPage({
               <p className="page-eyebrow" style={{ marginBottom: 8 }}>
                 התגובות של שנינו
               </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {idea.reactions.map((r) => (
                   <div
                     key={r.userId}

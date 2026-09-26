@@ -42,7 +42,7 @@ export default function ErrorPage({ error, retry }: { error: Error & { digest?: 
         לדף הבית
       </Link>
       {error.digest && (
-        <p className="status-msg" style={{ margin: "6px 0 0", fontSize: 11.5 }} dir="ltr">
+        <p className="status-msg" style={{ margin: "8px 0 0", fontSize: 11 }} dir="ltr">
           {error.digest}
         </p>
       )}

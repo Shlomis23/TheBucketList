@@ -95,12 +95,12 @@ export function IdeaConversation({
 
   return (
     <section className="card" aria-labelledby="conversation" style={{ marginBottom: 16 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
         <p id="conversation" className="page-eyebrow" style={{ margin: 0 }}>
           שיחה על הרעיון
         </p>
         {comments.length > 0 && (
-          <span className="status-msg" style={{ fontSize: 12 }}>
+          <span className="status-msg" style={{ fontSize: 12.5 }}>
             {comments.length === 1 ? "הודעה אחת" : `${comments.length} הודעות`}
           </span>
         )}
@@ -127,7 +127,7 @@ export function IdeaConversation({
                     style={{ minHeight: 70 }}
                     autoFocus
                   />
-                  <div className="msg-meta" style={{ marginTop: 6 }}>
+                  <div className="msg-meta" style={{ marginTop: 8 }}>
                     <button type="button" className="link-plain msg-action" disabled={pending} onClick={() => saveEdit(c)}>
                       שמירה
                     </button>
@@ -193,7 +193,7 @@ export function IdeaConversation({
       )}
 
       {error && (
-        <p role="alert" className="alert-error" style={{ marginTop: 10 }}>
+        <p role="alert" className="alert-error" style={{ marginTop: 12 }}>
           {error}
         </p>
       )}
@@ -241,7 +241,7 @@ export function IdeaConversation({
       {canPost && trimmed.length > COUNTER_FROM && (
         <p
           className="status-msg"
-          style={{ margin: "4px 0 0", fontSize: 12, color: trimmed.length > COMMENT_MAX ? "var(--color-danger)" : undefined }}
+          style={{ margin: "4px 0 0", fontSize: 12.5, color: trimmed.length > COMMENT_MAX ? "var(--color-danger)" : undefined }}
         >
           {trimmed.length}/{COMMENT_MAX}
         </p>

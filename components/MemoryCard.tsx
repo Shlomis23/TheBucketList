@@ -10,7 +10,7 @@ export function MemoryCard({ memory, eyebrow }: { memory: MemoryDto; eyebrow?: s
     <Link
       href={`/memories/${memory.id}`}
       className="card"
-      style={{ display: "block", textDecoration: "none", color: "inherit", marginBottom: 10 }}
+      style={{ display: "block", textDecoration: "none", color: "inherit", marginBottom: 12 }}
     >
       {memory.coverPhotoId ? (
         // תמונה אמיתית מהיום עצמו גוברת על איור הקטגוריה. ממוזערת (480px).
@@ -38,7 +38,7 @@ export function MemoryCard({ memory, eyebrow }: { memory: MemoryDto; eyebrow?: s
       {memory.story ? (
         <p className="memory-excerpt">{memory.story}</p>
       ) : (
-        <p className="status-msg" style={{ margin: "6px 0 0", fontSize: 13 }}>
+        <p className="status-msg" style={{ margin: "8px 0 0", fontSize: 13.5 }}>
           עוד לא כתבתם איך היה ·{" "}
           <span style={{ color: "var(--color-primary)", fontWeight: 700 }}>להוסיף &larr;</span>
         </p>

@@ -83,7 +83,7 @@ export default async function SettingsPage() {
 
       {/* אזור רגיש — בנפרד, בתחתית, וכל פעולה במסך הסבר משלה. */}
       <section className="card danger-card" aria-labelledby="danger" style={{ marginTop: 24 }}>
-        <p id="danger" className="page-eyebrow" style={{ marginBottom: 10, color: "var(--color-danger)" }}>
+        <p id="danger" className="page-eyebrow" style={{ marginBottom: 12, color: "var(--color-danger)" }}>
           אזור רגיש
         </p>
         <Link href="/settings/close" className="danger-link">

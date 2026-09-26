@@ -64,7 +64,7 @@ export function NavigateTile({
       <a href={google} target="_blank" rel="noopener noreferrer" className="nav-option" onClick={() => setChoosing(false)}>
         Google Maps
       </a>
-      <button type="button" className="link-plain" style={{ fontSize: 13, minHeight: 36, minWidth: 0 }} onClick={() => setChoosing(false)}>
+      <button type="button" className="link-plain" style={{ fontSize: 13.5, minHeight: 36, minWidth: 0 }} onClick={() => setChoosing(false)}>
         ביטול
       </button>
     </div>

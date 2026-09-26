@@ -79,7 +79,7 @@ export function MemoriesBrowser({
 
   return (
     <>
-      <p className="page-subtitle" style={{ marginBottom: 14 }} aria-live="polite">
+      <p className="page-subtitle" style={{ marginBottom: 16 }} aria-live="polite">
         {isFiltering && filtered.length > 0
           ? `${filtered.length} מתוך ${memories.length} זיכרונות`
           : memories.length === 1
@@ -94,7 +94,7 @@ export function MemoriesBrowser({
             e.preventDefault();
             (document.activeElement as HTMLElement | null)?.blur(); // סוגר את המקלדת בטלפון
           }}
-          style={{ display: "flex", gap: 8, marginBottom: 14 }}
+          style={{ display: "flex", gap: 8, marginBottom: 16 }}
         >
           <input
             type="search"
@@ -138,7 +138,7 @@ export function MemoriesBrowser({
           <p style={{ margin: "0 0 4px", fontWeight: 700 }}>
             {query.trim() ? `לא מצאנו זיכרון עם "${query.trim()}"` : "אין זיכרונות בקטגוריה הזו"}
           </p>
-          <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13 }}>
+          <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13.5 }}>
             אפשר לחפש לפי מקום, מילה מהסיפור או חודש.
           </p>
           <button type="button" className="link-plain" onClick={clear}>
@@ -147,7 +147,7 @@ export function MemoriesBrowser({
         </div>
       ) : (
         groups.map((g) => (
-          <section key={g.month} aria-label={g.month} style={{ marginBottom: 14 }}>
+          <section key={g.month} aria-label={g.month} style={{ marginBottom: 16 }}>
             <p className="page-eyebrow" style={{ color: "var(--color-muted)", margin: "4px 0 8px" }}>
               {g.month}
             </p>

@@ -56,7 +56,7 @@ export function IdeaSearch({ filters }: { filters: IdeaListFilters }) {
         e.preventDefault();
         navigate(buildIdeasHref(filtersRef.current, { q: value.trim() }));
       }}
-      style={{ marginBottom: 10 }}
+      style={{ marginBottom: 12 }}
     >
       <input
         type="search"

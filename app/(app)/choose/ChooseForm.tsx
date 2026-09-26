@@ -68,7 +68,7 @@ export function ChooseForm({ waitingForPartner }: { waitingForPartner: boolean }
 
   return (
     <>
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <div className="field">
           <label>מתוך</label>
           <div className="chip-group" role="group" aria-label="scope">
@@ -111,7 +111,7 @@ export function ChooseForm({ waitingForPartner }: { waitingForPartner: boolean }
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 10 }}>
+        <div style={{ display: "flex", gap: 12 }}>
           <div className="field" style={{ flex: 1 }}>
             <label htmlFor="maxBudget">תקציב עד (₪)</label>
             <input
@@ -152,7 +152,7 @@ export function ChooseForm({ waitingForPartner }: { waitingForPartner: boolean }
           />
         </div>
 
-        <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14 }}>
+        <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14.5 }}>
           <input type="checkbox" checked={allowUnknown} onChange={(e) => setAllowUnknown(e.target.checked)} />
           לכלול גם רעיונות בלי תקציב/זמן/מקום ידוע
         </label>
@@ -202,23 +202,23 @@ function CandidateCard({
       {/* eslint-disable-next-line @next/next/no-img-element -- SVG עיצוב סטטי לפי קטגוריה, לא תוכן דינמי */}
       <img src={getIdeaCoverImage(candidate.category)} alt="" className="card-cover-img cover-lg" />
       <p className="page-eyebrow">מה דעתכם על</p>
-      <p style={{ margin: "0 0 6px", fontWeight: 800, fontSize: 19 }}>{candidate.title}</p>
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
+      <p style={{ margin: "0 0 8px", fontWeight: 800, fontSize: 19 }}>{candidate.title}</p>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
         <span className="badge badge-neutral">{categoryLabels[candidate.category]}</span>
       </div>
       {(cost || duration || candidate.locationText) && (
-        <p className="status-msg" style={{ marginBottom: 10 }}>
+        <p className="status-msg" style={{ marginBottom: 12 }}>
           {[cost, duration, candidate.locationText].filter(Boolean).join(" · ")}
         </p>
       )}
       {candidate.reasons.length > 0 && (
-        <ul style={{ margin: "0 0 14px", paddingInlineStart: 18, color: "var(--color-muted)", fontSize: 13.5 }}>
+        <ul style={{ margin: "0 0 16px", paddingInlineStart: 18, color: "var(--color-muted)", fontSize: 13.5 }}>
           {candidate.reasons.map((r) => (
             <li key={r}>{r}</li>
           ))}
         </ul>
       )}
-      <div style={{ display: "flex", gap: 10 }}>
+      <div style={{ display: "flex", gap: 12 }}>
         <Link href={`/plans/new?ideaId=${candidate.id}`} className="btn btn-primary" style={{ flex: 1 }}>
           בואו נתכנן את זה
         </Link>

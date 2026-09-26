@@ -30,14 +30,14 @@ export default async function SpaceClosedPage() {
       </p>
 
       <div className="card" style={{ marginBottom: 12 }}>
-        <p className="page-eyebrow" style={{ marginBottom: 6 }}>
+        <p className="page-eyebrow" style={{ marginBottom: 8 }}>
           מחיקה סופית
         </p>
-        <p style={{ margin: 0, fontSize: 15, fontWeight: 700 }}>
+        <p style={{ margin: 0, fontSize: 14.5, fontWeight: 700 }}>
           {left > 0 ? `בעוד ${left === 1 ? "יום אחד" : `${left} ימים`} · ` : "היום · "}
           {formatPurgeDate(purgeAfter)}
         </p>
-        <p className="status-msg" style={{ margin: "6px 0 0", fontSize: 13 }}>
+        <p className="status-msg" style={{ margin: "8px 0 0", fontSize: 13.5 }}>
           אז יימחקו לצמיתות כל הרעיונות, התוכניות, הזיכרונות והתמונות.
           {state.deletionRequested && " באותו יום יימחק גם החשבון שלך."}
         </p>
@@ -47,7 +47,7 @@ export default async function SpaceClosedPage() {
         <p className="page-eyebrow" style={{ marginBottom: 8 }}>
           הזיכרונות שלכם
         </p>
-        <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13 }}>
+        <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13.5 }}>
           אפשר להוריד עותק עד המחיקה: כל הזיכרונות, התמונות והרעיונות, בקובץ ZIP אחד.
         </p>
         <ExportButton />
@@ -58,7 +58,7 @@ export default async function SpaceClosedPage() {
           <p className="page-eyebrow" style={{ marginBottom: 8 }}>
             התחרטת?
           </p>
-          <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13 }}>
+          <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13.5 }}>
             עד המחיקה אפשר לבטל את הסגירה, והכול חוזר בדיוק כמו שהיה — לשניכם.
           </p>
           <ReopenButton />
@@ -67,9 +67,9 @@ export default async function SpaceClosedPage() {
 
       <div className="card">
         {!state.deletionRequested && (
-          <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13 }}>
+          <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13.5 }}>
             החשבון שלך נשאר גם אחרי המחיקה, ואפשר יהיה להתחיל מרחב חדש.{" "}
-            <Link href="/account/delete" className="link-plain" style={{ fontSize: 13 }}>
+            <Link href="/account/delete" className="link-plain" style={{ fontSize: 13.5 }}>
               למחוק גם את החשבון
             </Link>
           </p>

@@ -106,7 +106,7 @@ export function LoginForm({ initialError }: { initialError?: string }) {
 
   if (step === "code") {
     return (
-      <form onSubmit={verifyCode} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <form onSubmit={verifyCode} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {sentTo && (
           <div role="status" className="status-msg" style={{ margin: 0 }}>
             שלחנו מייל עם קוד לכתובת:
@@ -137,7 +137,7 @@ export function LoginForm({ initialError }: { initialError?: string }) {
         <button type="submit" className="btn btn-primary btn-block" disabled={busy || code.length < 6}>
           {busy ? "בודקים…" : "כניסה"}
         </button>
-        <p className="status-msg" style={{ margin: 0, fontSize: 13 }}>
+        <p className="status-msg" style={{ margin: 0, fontSize: 13.5 }}>
           אפשר גם ללחוץ על הקישור במייל — אבל רק אם הוא נפתח באותו דפדפן. הקוד עובד תמיד.
         </p>
         {errorMsg && (
@@ -171,7 +171,7 @@ export function LoginForm({ initialError }: { initialError?: string }) {
         e.preventDefault();
         void sendEmail();
       }}
-      style={{ display: "flex", flexDirection: "column", gap: 14 }}
+      style={{ display: "flex", flexDirection: "column", gap: 16 }}
     >
       <div className="field">
         <label htmlFor="email">אימייל</label>
@@ -192,7 +192,7 @@ export function LoginForm({ initialError }: { initialError?: string }) {
       <button type="submit" className="btn btn-primary btn-block" disabled={busy || cooldown > 0}>
         {busy ? "שולחים…" : cooldown > 0 ? `אפשר לשלוח שוב בעוד ${cooldown}` : "שליחת קוד כניסה"}
       </button>
-      <p className="status-msg" style={{ margin: 0, fontSize: 13 }}>
+      <p className="status-msg" style={{ margin: 0, fontSize: 13.5 }}>
         בכניסה הראשונה ייפתח לך חשבון אוטומטית.
       </p>
       {errorMsg && (

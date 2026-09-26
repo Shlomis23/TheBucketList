@@ -18,7 +18,7 @@ export default async function CloseSpacePage() {
 
   return (
     <div className="page">
-      <Link href="/settings" className="link-plain" style={{ fontSize: 13 }}>
+      <Link href="/settings" className="link-plain" style={{ fontSize: 13.5 }}>
         &rarr; חזרה להגדרות
       </Link>
       <h1 className="page-title" style={{ marginTop: 8 }}>

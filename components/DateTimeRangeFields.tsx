@@ -80,7 +80,7 @@ function PartsRow({
         />
       </div>
       {error && (
-        <p role="alert" className="alert-error" style={{ marginTop: 6 }}>
+        <p role="alert" className="alert-error" style={{ marginTop: 8 }}>
           {error}
         </p>
       )}

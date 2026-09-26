@@ -61,7 +61,7 @@ export function NewPlanForm({ ideaId }: { ideaId: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <DateTimeRangeFields
         idPrefix="plan"
         start={start}
@@ -109,7 +109,7 @@ export function NewPlanForm({ ideaId }: { ideaId: string }) {
         />
       </div>
 
-      <div style={{ display: "flex", gap: 10 }}>
+      <div style={{ display: "flex", gap: 12 }}>
         <button type="submit" className="btn btn-primary btn-block" disabled={status === "busy"}>
           {status === "busy" ? "שומר..." : "שמירת תוכנית"}
         </button>

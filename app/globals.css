@@ -153,13 +153,13 @@ button {
   font-size: 12.5px;
   font-weight: 700;
   color: var(--color-primary);
-  margin: 0 0 6px;
+  margin: 0 0 8px;
 }
 
 .page-title {
   font-size: 24px;
   font-weight: 800;
-  margin: 0 0 6px;
+  margin: 0 0 8px;
   text-wrap: balance;
 }
 
@@ -217,7 +217,7 @@ button {
   padding-inline: 24px;
   border-radius: var(--radius-pill);
   font-weight: 700;
-  font-size: 15px;
+  font-size: 14.5px;
   border: none;
   cursor: pointer;
   text-decoration: none; /* <Link className="btn"> — בלי קו תחתון */
@@ -246,7 +246,7 @@ button {
 .field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
   /* כאן היה overflow-x: hidden כ"רשת ביטחון" לשדות תאריך רחבים באייפון —
      בפועל הוא רק גזם את הצד השמאלי של התיבה (צילום מסך 25.9). הוסר; שדות
@@ -314,7 +314,7 @@ button {
 }
 .datetime-field legend {
   padding: 0;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   font-size: 13.5px;
   font-weight: 700;
   color: var(--color-muted);
@@ -347,7 +347,7 @@ button {
   align-items: center;
   padding: 4px 11px;
   border-radius: var(--radius-pill);
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 700;
 }
 
@@ -377,7 +377,7 @@ button {
 
 .status-msg {
   color: var(--color-muted);
-  font-size: 14px;
+  font-size: 14.5px;
   line-height: 1.6;
 }
 
@@ -393,6 +393,7 @@ button {
 }
 
 .chip {
+  text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -451,7 +452,7 @@ button {
 
 /* גרסה קומפקטית (size="sm" ב-ReactionControl) — לשורות ברשימת /ideas. */
 .reaction-group.sm {
-  gap: 6px;
+  gap: 8px;
 }
 .reaction-group.sm .reaction-btn {
   flex: 0 0 auto;
@@ -469,7 +470,7 @@ button {
   display: grid;
   grid-template-columns: 64px minmax(0, 1fr);
   column-gap: 12px;
-  row-gap: 6px;
+  row-gap: 8px;
   align-items: center;
   padding: 10px;
   margin-bottom: 8px;
@@ -499,13 +500,13 @@ button {
 .idea-row-title-line {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
 }
 .idea-row-title {
   margin: 0;
   font-weight: 800;
-  font-size: 15px;
+  font-size: 14.5px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -527,7 +528,7 @@ button {
 /* שורת צ'יפים שנגללת לרוחב (בלי לשבור את רוחב העמוד — AC12). */
 .chip-scroll {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   overflow-x: auto;
   scrollbar-width: none;
   margin-inline: -18px;
@@ -570,7 +571,7 @@ button {
 
 /* תקציר סיפור בכרטיס זיכרון — שתי שורות ואז "…". */
 .memory-excerpt {
-  margin: 6px 0 0;
+  margin: 8px 0 0;
   font-size: 13.5px;
   line-height: 1.55;
   display: -webkit-box;
@@ -589,7 +590,7 @@ button {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 .msg-row {
   display: flex;
@@ -630,13 +631,13 @@ button {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px 10px;
-  margin-top: 3px;
-  font-size: 11.5px;
+  gap: 4px 12px;
+  margin-top: 4px;
+  font-size: 11px;
   color: var(--color-muted);
 }
 .msg-action {
-  font-size: 12px;
+  font-size: 12.5px;
   min-height: 32px;
   min-width: 0;
 }
@@ -696,7 +697,7 @@ button {
   background: var(--color-surface);
   color: var(--color-primary);
   font-weight: 700;
-  font-size: 14px;
+  font-size: 14.5px;
   text-align: start;
   text-decoration: none;
   cursor: pointer;
@@ -738,9 +739,9 @@ button {
 .comment-count {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   flex: none;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 600;
   color: var(--color-muted);
 }
@@ -749,7 +750,7 @@ button {
   display: block;
   text-decoration: none;
   color: inherit;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .textarea {
@@ -789,9 +790,10 @@ button {
 }
 
 .link-plain {
+  text-decoration: none; /* גם כשזה <Link> — נראה ככפתור טקסט, לא קישור בתוך משפט */
   color: var(--color-primary);
   font-weight: 700;
-  font-size: 14px;
+  font-size: 14.5px;
   background: none;
   border: none;
   padding: 0;
@@ -828,7 +830,7 @@ button {
   height: 22px;
   width: 55%;
   border-radius: var(--radius-pill);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 /* אותה גיאומטריה בדיוק כמו .card-cover-img / .hero-banner, כדי שהדף לא
@@ -854,7 +856,7 @@ button {
   padding: 0;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
+  gap: 8px;
 }
 .photo-tile {
   position: relative;
@@ -900,7 +902,7 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 22px 12px;
   border: 1.5px dashed var(--color-primary);
   border-radius: var(--radius-md);
@@ -940,7 +942,7 @@ button {
   border-radius: var(--radius-pill);
   background: rgba(20, 14, 40, 0.62);
   color: #fff;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 700;
 }
 
@@ -962,7 +964,7 @@ button {
   padding: calc(var(--safe-area-top) + 8px) 10px 8px;
 }
 .viewer-count {
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 700;
   opacity: 0.85;
 }
@@ -978,7 +980,7 @@ button {
   background: rgba(255, 255, 255, 0.12);
   color: #fff;
   font: inherit;
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -1031,7 +1033,7 @@ button {
   border-radius: var(--radius-md);
   background: #c23a63;
   color: #fff;
-  font-size: 14px;
+  font-size: 14.5px;
   text-align: center;
 }
 
@@ -1040,7 +1042,7 @@ button {
    מעליהם; כך היא לא נחתכת בתוך כרטיס ולא מסתתרת מאחורי המקלדת. */
 .place-list {
   list-style: none;
-  margin: 6px 0 0;
+  margin: 8px 0 0;
   padding: 4px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -1074,7 +1076,7 @@ button {
 }
 .place-attribution {
   padding: 4px 10px 2px;
-  font-size: 10.5px;
+  font-size: 11px;
   color: var(--color-muted);
   text-align: left;
   direction: ltr;
@@ -1082,9 +1084,9 @@ button {
 .place-hint {
   display: flex;
   align-items: center;
-  gap: 5px;
-  margin: 6px 0 0;
-  font-size: 12px;
+  gap: 4px;
+  margin: 8px 0 0;
+  font-size: 12.5px;
   color: var(--color-muted);
 }
 .place-hint.is-linked {
@@ -1122,7 +1124,7 @@ button {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   background: rgba(20, 14, 40, 0.62);
 }
 .photo-confirm button {
@@ -1131,7 +1133,7 @@ button {
   border: 0;
   border-radius: var(--radius-pill);
   font: inherit;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -1148,11 +1150,11 @@ button {
 .plain-list {
   margin: 0;
   padding-inline-start: 18px;
-  font-size: 14px;
+  font-size: 14.5px;
   line-height: 1.6;
 }
 .plain-list li {
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 .plain-list li:last-child {
   margin-bottom: 0;
@@ -1198,7 +1200,7 @@ button {
 .status-screen-icon {
   width: 84px;
   height: 84px;
-  margin: 0 auto 18px;
+  margin: 0 auto 20px;
   border-radius: 26px;
   background: var(--color-primary-soft);
   color: var(--color-primary);
@@ -1211,7 +1213,7 @@ button {
 .check-row {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
   font-size: 14.5px;
   font-weight: 600;
   cursor: pointer;
@@ -1241,7 +1243,7 @@ button {
 .unread-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   padding: 10px 0;
   border-top: 1px solid var(--color-border);
   text-decoration: none;
@@ -1301,13 +1303,13 @@ button {
 }
 .auth-title {
   margin: 0;
-  font-size: 30px;
+  font-size: 32px;
   font-weight: 800;
   letter-spacing: 0.2px;
 }
 .auth-tagline {
   margin: 8px 0 0;
-  font-size: 15.5px;
+  font-size: 16px;
   opacity: 0.88;
 }
 .auth-sheet {
@@ -1328,7 +1330,7 @@ button {
 }
 .auth-sheet-sub {
   margin: 0 0 20px;
-  font-size: 14px;
+  font-size: 14.5px;
   color: var(--color-muted);
 }
 .auth-notice {
@@ -1337,7 +1339,7 @@ button {
   border-radius: var(--radius-md);
   background: var(--color-primary-soft);
   color: var(--color-primary);
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 600;
 }
 @media (min-width: 540px) {
@@ -1377,7 +1379,7 @@ button {
   position: relative;
   width: 196px;
   height: 100px;
-  margin-bottom: 22px;
+  margin-bottom: 24px;
 }
 .match-av {
   position: absolute;
@@ -1437,7 +1439,7 @@ button {
 .match-title { margin: 0 0 4px; font-size: 32px; font-weight: 800; animation-delay: 1.05s; }
 .match-sub { margin: 0; font-size: 16px; opacity: 0.88; animation-delay: 1.2s; }
 .match-idea {
-  margin: 12px 0 28px;
+  margin: 12px 0 32px;
   max-width: 100%;
   font-size: 19px;
   font-weight: 700;
@@ -1457,15 +1459,15 @@ button {
   text-decoration: none;
 }
 .match-btn-later {
-  margin-top: 6px;
+  margin-top: 8px;
   background: transparent;
   color: #fff;
 }
 .match-more {
   display: inline-block;
-  margin-top: 10px;
+  margin-top: 12px;
   color: #fef1cf;
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 600;
 }
 .match-confetti {
@@ -1519,7 +1521,7 @@ button {
   border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.94);
   color: #5b3e9e;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 800;
 }
 .otd-meta {
@@ -1535,7 +1537,7 @@ button {
   font-weight: 800;
 }
 .otd-quote {
-  font-size: 13px;
+  font-size: 13.5px;
   opacity: 0.92;
   white-space: nowrap;
   overflow: hidden;
@@ -1548,7 +1550,7 @@ button {
 .album-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
 }
 .album-tile {
   display: flex;
@@ -1600,7 +1602,7 @@ button {
   border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.92);
   color: #5b3e9e;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 700;
   text-align: center;
   white-space: nowrap;
@@ -1621,10 +1623,10 @@ button {
   text-overflow: ellipsis;
 }
 .album-tile.wide .album-title {
-  font-size: 15.5px;
+  font-size: 16px;
 }
 .album-date {
-  font-size: 11.5px;
+  font-size: 11px;
   color: var(--color-muted);
 }
 
@@ -1634,7 +1636,7 @@ button {
 .mhero {
   position: relative;
   height: clamp(260px, 46dvh, 380px);
-  margin: -20px -18px 28px;
+  margin: -20px -18px 32px;
   background: linear-gradient(135deg, #46307d, #5b3e9e);
   color: #fff;
 }
@@ -1701,13 +1703,13 @@ button {
 }
 .mhero-date {
   margin: 0;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 600;
   opacity: 0.92;
 }
 .mhero-title {
   margin: 2px 0 0;
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 800;
   line-height: 1.2;
   overflow-wrap: anywhere;
@@ -1752,8 +1754,8 @@ button {
 .home-stats {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin: 4px 0 14px;
+  gap: 8px;
+  margin: 4px 0 16px;
 }
 .home-stats a {
   padding: 5px 11px;
@@ -1768,7 +1770,7 @@ button {
 .hero-card {
   position: relative;
   overflow: hidden;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   padding: 18px;
   border-radius: 22px;
   color: #fff;
@@ -1814,7 +1816,7 @@ button {
   padding: 3px 11px;
   border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.18);
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 800;
 }
 .hero-kicker.yellow {
@@ -1833,7 +1835,7 @@ button {
   overflow-wrap: anywhere;
 }
 .hero-sub {
-  margin: 0 0 14px;
+  margin: 0 0 16px;
   font-size: 13.5px;
   line-height: 1.45;
   opacity: 0.9;
@@ -1921,7 +1923,7 @@ button {
   flex-direction: column;
 }
 .home-row-title {
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;

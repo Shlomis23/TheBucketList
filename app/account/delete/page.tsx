@@ -25,7 +25,7 @@ export default async function DeleteAccountPage() {
 
   return (
     <div className="page" style={{ paddingTop: "calc(24px + var(--safe-area-top))" }}>
-      <Link href={back} className="link-plain" style={{ fontSize: 13 }}>
+      <Link href={back} className="link-plain" style={{ fontSize: 13.5 }}>
         &rarr; חזרה
       </Link>
       <h1 className="page-title" style={{ marginTop: 8 }}>

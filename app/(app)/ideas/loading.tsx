@@ -9,8 +9,8 @@ export default function Loading() {
         <div className="skeleton" style={{ width: 84, height: 40, borderRadius: "var(--radius-pill)" }} />
       </div>
 
-      <div className="skeleton" style={{ height: 42, marginBottom: 10 }} />
-      <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+      <div className="skeleton" style={{ height: 42, marginBottom: 12 }} />
+      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
         {[48, 104, 76, 112].map((w, i) => (
           <div key={i} className="skeleton" style={{ width: w, height: 36, borderRadius: "var(--radius-pill)" }} />
         ))}
@@ -20,10 +20,10 @@ export default function Loading() {
         <div key={i} className="card idea-row">
           <div className="skeleton idea-row-thumb-link" style={{ width: 64, height: 64 }} />
           <div>
-            <div className="skeleton skeleton-line" style={{ width: "60%", height: 15, marginBottom: 6 }} />
+            <div className="skeleton skeleton-line" style={{ width: "60%", height: 15, marginBottom: 8 }} />
             <div className="skeleton skeleton-line" style={{ width: "45%", height: 11 }} />
           </div>
-          <div style={{ display: "flex", gap: 6 }}>
+          <div style={{ display: "flex", gap: 8 }}>
             {[0, 1, 2].map((j) => (
               <div key={j} className="skeleton" style={{ width: 52, height: 36, borderRadius: "var(--radius-pill)" }} />
             ))}

@@ -34,7 +34,7 @@ export function CloseSpaceForm() {
         />
       </div>
       {error && (
-        <p role="alert" className="alert-error" style={{ marginTop: 10 }}>
+        <p role="alert" className="alert-error" style={{ marginTop: 12 }}>
           {error}
         </p>
       )}

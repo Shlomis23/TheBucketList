@@ -8,12 +8,12 @@ export default function Loading() {
         <div className="skeleton" style={{ width: 32, height: 32, borderRadius: "var(--radius-pill)" }} />
       </div>
       <div className="skeleton skeleton-title" style={{ width: "55%", height: 26 }} />
-      <div style={{ display: "flex", gap: 6, margin: "4px 0 14px" }}>
+      <div style={{ display: "flex", gap: 8, margin: "4px 0 16px" }}>
         <div className="skeleton" style={{ width: 78, height: 28, borderRadius: 999 }} />
         <div className="skeleton" style={{ width: 86, height: 28, borderRadius: 999 }} />
       </div>
-      <div className="skeleton" style={{ height: 190, borderRadius: 22, marginBottom: 14 }} />
-      <div className="skeleton skeleton-line" style={{ width: 80, height: 11, marginBottom: 10 }} />
+      <div className="skeleton" style={{ height: 190, borderRadius: 22, marginBottom: 16 }} />
+      <div className="skeleton skeleton-line" style={{ width: 80, height: 11, marginBottom: 12 }} />
       {[0, 1].map((i) => (
         <div key={i} className="skeleton" style={{ height: 60, borderRadius: 16, marginBottom: 8 }} />
       ))}

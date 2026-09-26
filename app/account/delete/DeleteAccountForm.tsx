@@ -32,7 +32,7 @@ export function DeleteAccountForm({ immediate }: { immediate: boolean }) {
           כדי לוודא שזה באמת את/ה, נשלח קוד למייל של החשבון.
         </p>
         {error && (
-          <p role="alert" className="alert-error" style={{ marginBottom: 10 }}>
+          <p role="alert" className="alert-error" style={{ marginBottom: 12 }}>
             {error}
           </p>
         )}
@@ -65,20 +65,20 @@ export function DeleteAccountForm({ immediate }: { immediate: boolean }) {
           autoComplete="one-time-code"
           maxLength={10}
           dir="ltr"
-          style={{ textAlign: "center", letterSpacing: 4, fontSize: 20 }}
+          style={{ textAlign: "center", letterSpacing: 4, fontSize: 19 }}
           value={code}
           onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
         />
       </div>
       {error && (
-        <p role="alert" className="alert-error" style={{ marginTop: 10 }}>
+        <p role="alert" className="alert-error" style={{ marginTop: 12 }}>
           {error}
         </p>
       )}
       <button type="submit" className="btn btn-block btn-danger" disabled={!valid || pending} style={{ marginTop: 12 }}>
         {pending ? "מוחק…" : immediate ? "מחיקת החשבון לצמיתות" : "מחיקת החשבון"}
       </button>
-      <button type="button" className="link-plain" style={{ marginTop: 10, fontSize: 13 }} onClick={sendCode} disabled={pending}>
+      <button type="button" className="link-plain" style={{ marginTop: 12, fontSize: 13.5 }} onClick={sendCode} disabled={pending}>
         לא הגיע? שליחה מחדש
       </button>
     </form>

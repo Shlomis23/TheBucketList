@@ -62,7 +62,7 @@ export function NewIdeaForm({ partnerName = null }: { partnerName?: string | nul
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div className="field">
         <label htmlFor="title">מה בא לכם לעשות?</label>
         <input
@@ -85,7 +85,7 @@ export function NewIdeaForm({ partnerName = null }: { partnerName?: string | nul
         <input type="checkbox" checked={selfYes} onChange={(e) => setSelfYes(e.target.checked)} />
         <span>
           גם אני רוצה את זה
-          <span className="status-msg" style={{ display: "block", fontSize: 12, margin: 0 }}>
+          <span className="status-msg" style={{ display: "block", fontSize: 12.5, margin: 0 }}>
             {selfYes
               ? `יסומן אצלך "כן". "כן" ${partnerName ? `מ${partnerName}` : "גם מבן/בת הזוג"} = מאצ'.`
               : "רק מציעים — בלי תגובה שלך בינתיים."}
@@ -165,7 +165,7 @@ export function NewIdeaForm({ partnerName = null }: { partnerName?: string | nul
             )}
           </div>
 
-          <div style={{ display: "flex", gap: 10 }}>
+          <div style={{ display: "flex", gap: 12 }}>
             <div className="field" style={{ flex: 1 }}>
               <label htmlFor="cost">עלות משוערת (₪)</label>
               <input
@@ -198,7 +198,7 @@ export function NewIdeaForm({ partnerName = null }: { partnerName?: string | nul
         </>
       )}
 
-      <div style={{ display: "flex", gap: 10 }}>
+      <div style={{ display: "flex", gap: 12 }}>
         <button type="submit" className="btn btn-primary btn-block" disabled={status === "busy"}>
           {status === "busy" ? "שומר..." : "שמירת רעיון"}
         </button>

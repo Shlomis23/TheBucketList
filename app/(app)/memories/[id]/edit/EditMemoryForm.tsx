@@ -48,7 +48,7 @@ export function EditMemoryForm({ memory }: { memory: MemoryDto }) {
 
   return (
     <form onSubmit={handleSubmit} noValidate>
-      <div className="field" style={{ marginBottom: 14 }}>
+      <div className="field" style={{ marginBottom: 16 }}>
         <label htmlFor="happenedOn">מתי זה קרה</label>
         <input
           id="happenedOn"
@@ -79,7 +79,7 @@ export function EditMemoryForm({ memory }: { memory: MemoryDto }) {
       <p
         id="story-count"
         className="status-msg"
-        style={{ margin: "0 0 14px", fontSize: 12, textAlign: "left", color: over ? "var(--color-danger)" : undefined }}
+        style={{ margin: "0 0 16px", fontSize: 12.5, textAlign: "left", color: over ? "var(--color-danger)" : undefined }}
       >
         {story.length.toLocaleString("he-IL")} / {MEMORY_STORY_MAX.toLocaleString("he-IL")}
       </p>
