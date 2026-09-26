@@ -33,7 +33,9 @@ function sendErrorMessage(error: SendError): { text: string; waitSeconds: number
   return { text: "לא הצלחנו לשלוח את המייל. בדקו את הכתובת ונסו שוב.", waitSeconds: 0 };
 }
 
-export function LoginForm({ initialError }: { initialError?: string }) {
+// next — חזרה לדף שממנו הגיעו (/open, קישור מהיומן ב-Safari); כבר עבר
+// safeNextPath בשרת.
+export function LoginForm({ initialError, next = null }: { initialError?: string; next?: string | null }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [step, setStep] = useState<"email" | "code">("email");
@@ -100,7 +102,7 @@ export function LoginForm({ initialError }: { initialError?: string }) {
     // כמו ב-/auth/callback: /onboarding כבר מנתב ל-"/" כשיש מרחב, ול-
     // /invite/continue כשיש cookie הזמנה. ה-session כבר ב-cookies (הלקוח
     // כתב אותם), אז הבקשה הבאה לשרת מגיעה מחוברת. busy נשאר true עד המעבר.
-    router.replace("/onboarding");
+    router.replace(next ?? "/onboarding");
     router.refresh();
   }
 

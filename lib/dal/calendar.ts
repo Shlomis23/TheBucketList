@@ -24,6 +24,10 @@ export type FeedPlanRow = {
   meeting_place: string | null;
   notes: string;
   updated_at: string;
+  budget_minor: number | null;
+  idea_location_text: string | null;
+  idea_place_id: string | null;
+  idea_source_url: string | null;
 };
 
 // לנתיב /api/calendar/<token>.ics — בלי התחברות (אפליקציית היומן מושכת

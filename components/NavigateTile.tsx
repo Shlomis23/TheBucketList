@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { googleMapsUrl, wazeUrl } from "@/lib/navLinks";
 
 // "ניווט" למקום של רעיון — לחיצה שואלת Waze או Google Maps (בחירה של שלומי).
 // שני הקישורים הם universal links: נפתחים באפליקציה אם מותקנת, אחרת בדפדפן.
@@ -46,12 +47,8 @@ export function NavigateTile({
     }
   }
 
-  const waze = coords
-    ? `https://waze.com/ul?ll=${coords.lat},${coords.lng}&navigate=yes`
-    : `https://waze.com/ul?q=${encodeURIComponent(place)}&navigate=yes`;
-  const google =
-    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place)}` +
-    (placeId ? `&query_place_id=${encodeURIComponent(placeId)}` : "");
+  const waze = wazeUrl(place, coords);
+  const google = googleMapsUrl(place, placeId);
 
   return choosing ? (
     <div className={`link-tile nav-choice${className ? ` ${className}` : ""}`} role="group" aria-label={`ניווט אל ${place}`}>

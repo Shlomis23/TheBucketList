@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getVerifiedUserId } from "@/lib/supabase/server";
 import { getPlan } from "@/lib/dal/plans";
 import { getMemoryIdForPlan } from "@/lib/dal/memories";
@@ -18,7 +18,9 @@ export default async function PlanDetailPage({
   // getMemoryIdForPlan במקביל (בלי קפיצת רשת נוספת) — null אם התוכנית עוד
   // לא הושלמה; אחרת כפתור "לזיכרון".
   const [plan, userId, memoryId] = await Promise.all([getPlan(id), getVerifiedUserId(), getMemoryIdForPlan(id)]);
-  if (!plan || !userId) notFound();
+  // לא מחובר (קישור מהיומן נפתח ב-Safari) — דף נחיתה, לא "לא מצאנו".
+  if (!userId) redirect(`/open?next=/plans/${id}`);
+  if (!plan) notFound();
 
   return (
     <div className="page">

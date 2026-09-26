@@ -1,3 +1,5 @@
+import { googleMapsUrl, wazeUrl } from "@/lib/navLinks";
+
 // יומן (26.9). פונקציות טהורות (לבדיקות):
 //   buildCalendar — יומן .ics (RFC 5545) עם כל התוכניות — היומן במינוי
 //     (/api/calendar/<token>.ics, 0037). buildIcs — אירוע בודד.
@@ -13,6 +15,11 @@ export type CalendarEvent = {
   notes: string;
   url: string; // קישור לתוכנית באפליקציה
   updatedAt?: string; // LAST-MODIFIED — היומן יודע שהתוכנית השתנתה
+  // אירוע שעומד בפני עצמו (26.9): באייפון הקישור מהיומן לא פותח את
+  // האפליקציה המותקנת, אז ניווט, תקציב וקישור מהרעיון — בתוך האירוע.
+  placeId?: string | null; // Google place_id — רק כשהמקום הוא המקום של הרעיון
+  budget?: string | null; // מפורמט ("₪380")
+  sourceUrl?: string | null; // הקישור מהרעיון
 };
 
 const DEFAULT_DURATION_MS = 2 * 60 * 60 * 1000;
@@ -53,8 +60,26 @@ export function foldLine(line: string): string {
   return out.join("\r\n ");
 }
 
-function description(e: CalendarEvent): string {
-  return [e.notes.trim(), `בתוכנית ב-The Bucket List: ${e.url}`].filter(Boolean).join("\n\n");
+// מקום לאירוע: נקודת המפגש של התוכנית, ואם אין — המקום של הרעיון (ואז גם
+// ה-place_id שלו לניווט מדויק; לנקודת מפגש אחרת אין place_id).
+export function planCalendarPlace(
+  meetingPlace: string | null,
+  ideaLocation: string | null,
+  ideaPlaceId: string | null,
+): { location: string | null; placeId: string | null } {
+  if (meetingPlace && meetingPlace !== ideaLocation) return { location: meetingPlace, placeId: null };
+  const location = meetingPlace ?? ideaLocation;
+  return { location, placeId: location ? ideaPlaceId : null };
+}
+
+export function eventDescription(e: CalendarEvent): string {
+  const details = [
+    e.location ? `ניווט ב-Waze: ${wazeUrl(e.location)}` : "",
+    e.location ? `מפות גוגל: ${googleMapsUrl(e.location, e.placeId)}` : "",
+    e.budget ? `תקציב: ${e.budget}` : "",
+    e.sourceUrl ? `קישור: ${e.sourceUrl}` : "",
+  ].filter(Boolean);
+  return [e.notes.trim(), details.join("\n"), `ב-The Bucket List: ${e.url}`].filter(Boolean).join("\n\n");
 }
 
 function veventLines(e: CalendarEvent, now: Date): string[] {
@@ -67,7 +92,7 @@ function veventLines(e: CalendarEvent, now: Date): string[] {
     `DTEND:${icsDate(eventEnd(e))}`,
     `SUMMARY:${icsEscape(e.title)}`,
     ...(e.location ? [`LOCATION:${icsEscape(e.location)}`] : []),
-    `DESCRIPTION:${icsEscape(description(e))}`,
+    `DESCRIPTION:${icsEscape(eventDescription(e))}`,
     `URL:${e.url}`,
     "BEGIN:VALARM",
     "ACTION:DISPLAY",
@@ -104,7 +129,7 @@ export function googleCalendarUrl(e: CalendarEvent): string {
     action: "TEMPLATE",
     text: e.title,
     dates: `${icsDate(e.startsAt)}/${icsDate(eventEnd(e))}`,
-    details: description(e),
+    details: eventDescription(e),
   });
   if (e.location) params.set("location", e.location);
   return `https://calendar.google.com/calendar/render?${params.toString()}`;

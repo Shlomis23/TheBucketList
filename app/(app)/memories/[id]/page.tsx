@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { getVerifiedUserId } from "@/lib/supabase/server";
 import { getMemory } from "@/lib/dal/memories";
 import { listPhotos } from "@/lib/dal/photos";
 import { MemoryPhotos } from "@/components/MemoryPhotos";
@@ -12,7 +13,8 @@ import { formatMemoryDate } from "@/lib/validation/memory";
 // זר/חסר: notFound() זהה, כמו /ideas/[id] ו-/plans/[id].
 export default async function MemoryDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [memory, photos] = await Promise.all([getMemory(id), listPhotos(id)]);
+  const [memory, photos, userId] = await Promise.all([getMemory(id), listPhotos(id), getVerifiedUserId()]);
+  if (!userId) redirect(`/open?next=/memories/${id}`); // קישור חיצוני ב-Safari
   if (!memory) notFound();
 
   return (

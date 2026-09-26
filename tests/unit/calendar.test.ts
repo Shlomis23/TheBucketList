@@ -72,3 +72,18 @@ describe("יומן במינוי", () => {
     expect(new URL(u.google).searchParams.get("cid")).toBe(u.webcal);
   });
 });
+
+describe("אירוע שעומד בפני עצמו", () => {
+  it("ניווט, תקציב וקישור בתיאור; place_id רק למקום של הרעיון", async () => {
+    const { eventDescription, planCalendarPlace } = await import("@/lib/calendar");
+    expect(planCalendarPlace(null, "כנרת", "PID")).toEqual({ location: "כנרת", placeId: "PID" });
+    expect(planCalendarPlace("תחנת רכבת", "כנרת", "PID")).toEqual({ location: "תחנת רכבת", placeId: null });
+    expect(planCalendarPlace(null, null, "PID")).toEqual({ location: null, placeId: null });
+    const d = eventDescription({ ...ev, location: "כנרת", placeId: "PID", budget: "₪380", sourceUrl: "https://example.com/show" });
+    expect(d).toContain("ניווט ב-Waze: https://waze.com/ul?q=");
+    expect(d).toContain("query_place_id=PID");
+    expect(d).toContain("תקציב: ₪380");
+    expect(d).toContain("קישור: https://example.com/show");
+    expect(d.startsWith("לקחת אטמי")).toBe(true);
+  });
+});

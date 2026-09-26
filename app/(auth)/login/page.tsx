@@ -1,4 +1,5 @@
 import { LoginForm } from "./LoginForm";
+import { safeNextPath } from "@/lib/validation/nextPath";
 
 // כניסה `/login` — F1/F2, spec סעיף 5, 6, 9.1.
 // עיצוב (25.9, "אופציה א"): מסך פתיחה של אפליקציה — חלק עליון סגול עם
@@ -7,9 +8,9 @@ import { LoginForm } from "./LoginForm";
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; deleted?: string }>;
+  searchParams: Promise<{ error?: string; deleted?: string; next?: string }>;
 }) {
-  const { error, deleted } = await searchParams;
+  const { error, deleted, next } = await searchParams;
 
   return (
     <div className="auth-screen">
@@ -35,7 +36,7 @@ export default async function LoginPage({
         )}
         <h2 className="auth-sheet-title">כניסה</h2>
         <p className="auth-sheet-sub">בלי סיסמה — נשלח לך קוד למייל</p>
-        <LoginForm initialError={error} />
+        <LoginForm initialError={error} next={safeNextPath(next)} />
       </main>
     </div>
   );

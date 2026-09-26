@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { getVerifiedUserId } from "@/lib/supabase/server";
 import { ReactionControl } from "@/components/ReactionControl";
 import { ArchiveIdeaButton } from "@/components/ArchiveIdeaButton";
 import { getIdea } from "@/lib/dal/ideas";
@@ -30,7 +31,8 @@ export default async function IdeaDetailPage({
   // "לא נקרא" (0026): הכניסה לדף מסמנת את השיחה כנקראה — רק אם באמת היה
   // בה משהו חדש (unread נקרא במקביל, בלי קפיצת רשת נוספת). ואז גם מנקים את
   // המסכים השמורים בטלפון (RefreshAfterRead), אחרת "הודעה חדשה" נשארת בבית.
-  const [idea, comments, unread] = await Promise.all([getIdea(id), listComments(id), getUnreadConversations()]);
+  const [idea, comments, unread, userId] = await Promise.all([getIdea(id), listComments(id), getUnreadConversations(), getVerifiedUserId()]);
+  if (!userId) redirect(`/open?next=/ideas/${id}`); // קישור חיצוני ב-Safari
   if (!idea) notFound();
   const hadUnread = unread.some((u) => u.ideaId === id);
   if (hadUnread) await markIdeaRead(id).catch(() => {});

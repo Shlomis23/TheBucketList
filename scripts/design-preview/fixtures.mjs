@@ -132,7 +132,10 @@ export async function buildFixtures() {
       if (p_token !== "f".repeat(64)) throw new Error("NOT_FOUND");
       return plans
         .filter((x) => x.starts_at && x.status === "proposed")
-        .map((x) => ({ id: x.id, title: x.title, status: x.status, starts_at: x.starts_at, ends_at: x.ends_at, meeting_place: x.meeting_place, notes: x.notes, updated_at: x.created_at }));
+        .map((x) => {
+          const i = ideas.find((y) => y.id === x.idea_id);
+          return { id: x.id, title: x.title, status: x.status, starts_at: x.starts_at, ends_at: x.ends_at, meeting_place: x.meeting_place, notes: x.notes, updated_at: x.created_at, budget_minor: x.budget_minor, idea_location_text: i?.location_text ?? null, idea_place_id: i?.place_id ?? null, idea_source_url: i?.source_url ?? null };
+        });
     },
     // מחיקת רעיון (0035) — בלי תוכנית פעילה/שהושלמה.
     delete_idea: ({ p_id }) => {

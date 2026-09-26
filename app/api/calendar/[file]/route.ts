@@ -1,6 +1,8 @@
 import { type NextRequest } from "next/server";
 import { buildCalendar } from "@/lib/calendar";
 import { getCalendarFeedPlans } from "@/lib/dal/calendar";
+import { planCalendarPlace } from "@/lib/calendar";
+import { formatBudgetMinor } from "@/lib/validation/plan";
 
 // GET /api/calendar/<token>.ics — היומן במינוי (0037, 26.9). אפליקציית היומן
 // (אייפון/גוגל) מושכת את הכתובת הזו לבד, בלי עוגיות — הטוקן האישי והסודי הוא
@@ -21,10 +23,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       title: p.title,
       startsAt: p.starts_at,
       endsAt: p.ends_at,
-      location: p.meeting_place,
+      ...planCalendarPlace(p.meeting_place, p.idea_location_text, p.idea_place_id),
       notes: p.notes,
       url: `${origin}/plans/${p.id}`,
       updatedAt: p.updated_at,
+      budget: formatBudgetMinor(p.budget_minor),
+      sourceUrl: p.idea_source_url,
     })),
     { name: "The Bucket List" },
   );

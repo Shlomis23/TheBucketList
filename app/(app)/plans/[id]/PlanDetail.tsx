@@ -86,7 +86,7 @@ export function PlanDetail({
       {mode === "view" && plan.status === "proposed" && plan.startsAt && !past && (
         <div className="mb-16">
           <AddToCalendar
-            plan={{ id: plan.id, title: plan.title, startsAt: plan.startsAt, endsAt: plan.endsAt, meetingPlace: plan.meetingPlace, notes: plan.notes }}
+            plan={{ ...plan, startsAt: plan.startsAt }}
           />
         </div>
       )}

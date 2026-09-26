@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { googleCalendarUrl } from "@/lib/calendar";
+import { googleCalendarUrl, planCalendarPlace } from "@/lib/calendar";
+import { formatBudgetMinor } from "@/lib/validation/plan";
 import { calendarFeedUrls, isCalendarConnected, markCalendarConnected } from "@/lib/calendarFeed";
 import { calendarFeedAction } from "@/app/(app)/calendar-actions";
 
@@ -9,7 +10,18 @@ import { calendarFeedAction } from "@/app/(app)/calendar-actions";
 // האפליקציה המותקנת (מגבלה של אפל) — לכן "יומן אייפון" הוא חיבור חד-פעמי
 // ליומן במינוי (0037): כל התוכניות נכנסות ומתעדכנות לבד. "יומן גוגל" —
 // התוכנית הזו בלבד (עובד גם מהאפליקציה באנדרואיד).
-type Plan = { id: string; title: string; startsAt: string; endsAt: string | null; meetingPlace: string | null; notes: string };
+type Plan = {
+  id: string;
+  title: string;
+  startsAt: string;
+  endsAt: string | null;
+  meetingPlace: string | null;
+  notes: string;
+  budgetMinor: number | null;
+  ideaLocationText: string | null;
+  ideaPlaceId: string | null;
+  ideaSourceUrl: string | null;
+};
 
 export function AddToCalendar({ plan }: { plan: Plan }) {
   const [open, setOpen] = useState(false);
@@ -43,9 +55,11 @@ export function AddToCalendar({ plan }: { plan: Plan }) {
       title: plan.title,
       startsAt: plan.startsAt,
       endsAt: plan.endsAt,
-      location: plan.meetingPlace,
+      ...planCalendarPlace(plan.meetingPlace, plan.ideaLocationText, plan.ideaPlaceId),
       notes: plan.notes,
       url: `${window.location.origin}/plans/${plan.id}`,
+      budget: formatBudgetMinor(plan.budgetMinor),
+      sourceUrl: plan.ideaSourceUrl,
     });
     window.open(url, "_blank", "noopener");
   }
