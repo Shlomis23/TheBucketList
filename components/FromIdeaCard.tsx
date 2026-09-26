@@ -38,7 +38,7 @@ export function FromIdeaCard({
         <p id="from-idea" className="page-eyebrow m-0">
           מהרעיון
         </p>
-        <Link href={`/ideas/${ideaId}`} className="link-plain text-sm">
+        <Link transitionTypes={["nav-forward"]} href={`/ideas/${ideaId}`} className="link-plain text-sm">
           לרעיון המלא &larr;
         </Link>
       </div>

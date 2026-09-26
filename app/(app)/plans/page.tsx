@@ -3,6 +3,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { listPlans, type PlanDto } from "@/lib/dal/plans";
 import { formatPlanWhen, isPlanPast, pastWhenLabel } from "@/lib/validation/plan";
 import { CoverImg } from "@/components/CoverImg";
+import { PageTransition } from "@/components/PageTransition";
 
 // תוכניות `/plans` — רק פעילות. מה שבוצע נמצא בזיכרונות, מה שבוטל לא מוצג
 // (25.9). בלי "מוצעות/מאושרות" — אין שלב אישור (25.9). למעלה "המועד עבר",
@@ -18,7 +19,7 @@ export default async function PlansPage() {
         <EmptyState
           title="אין תוכנית פתוחה כרגע — בחרו רעיון כדי להתחיל. מה שכבר עשיתם מחכה בזיכרונות."
           action={
-            <Link href="/choose" className="btn btn-primary">
+            <Link transitionTypes={["nav-forward"]} href="/choose" className="btn btn-primary">
               מה עושים?
             </Link>
           }
@@ -32,12 +33,14 @@ export default async function PlansPage() {
   const ahead = plans.filter((p) => !past.includes(p));
 
   return (
-    <div className="page">
-      <h1 className="page-title">תוכניות</h1>
-
-      {past.length > 0 && <PlanSection title="המועד עבר — איך היה?" plans={past} />}
-      {ahead.length > 0 && <PlanSection title={past.length > 0 ? "לפנינו" : ""} plans={ahead} />}
-    </div>
+    <PageTransition kind="list">
+      <div className="page">
+        <h1 className="page-title">תוכניות</h1>
+  
+        {past.length > 0 && <PlanSection title="המועד עבר — איך היה?" plans={past} />}
+        {ahead.length > 0 && <PlanSection title={past.length > 0 ? "לפנינו" : ""} plans={ahead} />}
+      </div>
+    </PageTransition>
   );
 }
 
@@ -67,8 +70,9 @@ function PlanCard({ plan }: { plan: PlanDto }) {
   ) : null;
 
   return (
-    <Link
+    <Link transitionTypes={["nav-forward"]}
       href={`/plans/${plan.id}`}
+      data-plan-id={plan.id}
       className="card block no-underline"
     >
       {plan.ideaCategory && (

@@ -4,6 +4,7 @@ import { listMemories } from "@/lib/dal/memories";
 import { MemoriesBrowser } from "@/components/MemoriesBrowser";
 import { ideaCategories, type IdeaCategory } from "@/lib/validation/idea";
 import { MEMORY_SEARCH_MAX } from "@/lib/validation/memory";
+import { PageTransition } from "@/components/PageTransition";
 
 // ארכיון `/memories` — F7, spec סעיף 6: ציר זמן, מקובץ לפי חודש, החדש למעלה.
 // חיפוש וסינון לפי קטגוריה (26.9) — בדפדפן, ראו components/MemoriesBrowser.
@@ -36,9 +37,11 @@ export default async function MemoriesPage({
   }
 
   return (
-    <div className="page">
-      <h1 className="page-title">זיכרונות</h1>
-      <MemoriesBrowser memories={memories} initialQuery={q} initialCategory={category} />
-    </div>
+    <PageTransition kind="list">
+      <div className="page">
+        <h1 className="page-title">זיכרונות</h1>
+        <MemoriesBrowser memories={memories} initialQuery={q} initialCategory={category} />
+      </div>
+    </PageTransition>
   );
 }

@@ -6,6 +6,7 @@ import { getPartnerName } from "@/lib/dal/profile";
 import { ExportButton } from "@/components/ExportButton";
 import { GRACE_DAYS } from "@/lib/validation/account";
 import { CloseSpaceForm } from "./CloseSpaceForm";
+import { PageTransition } from "@/components/PageTransition";
 
 // סגירת המרחב — הסבר מלא לפני, ZIP, ואישור בהקלדה (החלטות 25.9, 0020).
 export default async function CloseSpacePage() {
@@ -17,43 +18,45 @@ export default async function CloseSpacePage() {
   const withPartner = state.memberCount > 1;
 
   return (
-    <div className="page">
-      <Link href="/settings" className="link-plain text-sm">
-        &rarr; חזרה להגדרות
-      </Link>
-      <h1 className="page-title mt-8">
-        סגירת המרחב
-      </h1>
-
-      <div className="card mb-12">
-        <p className="page-eyebrow mb-8">
-          מה יקרה
-        </p>
-        <ul className="plain-list">
-          <li>המרחב ננעל מיד{withPartner ? ` — לך ול${partnerName ?? "בן/בת הזוג"}` : ""}. אי אפשר יהיה לראות או להוסיף רעיונות, תוכניות וזיכרונות.</li>
-          {withPartner && <li>אצל {partnerName ?? "בן/בת הזוג"} יופיע מסך &quot;המרחב נסגר&quot;, עם השם שלך והתאריך.</li>}
-          <li>
-            במשך {GRACE_DAYS} יום אפשר להתחרט: רק את/ה יכולים לבטל את הסגירה, והכול חוזר בדיוק כמו שהיה.
-          </li>
-          <li>אחרי {GRACE_DAYS} יום הכול נמחק לצמיתות — כולל התמונות. אי אפשר לשחזר.</li>
-          <li>
-            {withPartner ? "שניכם יכולים" : "אפשר"} להוריד את הזיכרונות כקובץ ZIP עד המחיקה — עכשיו, או ממסך
-            הסגירה.
-          </li>
-          <li>החשבון שלך נשאר. אחרי המחיקה אפשר להתחיל מרחב חדש.</li>
-        </ul>
+    <PageTransition kind="detail">
+      <div className="page">
+        <Link href="/settings" className="link-plain text-sm">
+          &rarr; חזרה להגדרות
+        </Link>
+        <h1 className="page-title mt-8">
+          סגירת המרחב
+        </h1>
+  
+        <div className="card mb-12">
+          <p className="page-eyebrow mb-8">
+            מה יקרה
+          </p>
+          <ul className="plain-list">
+            <li>המרחב ננעל מיד{withPartner ? ` — לך ול${partnerName ?? "בן/בת הזוג"}` : ""}. אי אפשר יהיה לראות או להוסיף רעיונות, תוכניות וזיכרונות.</li>
+            {withPartner && <li>אצל {partnerName ?? "בן/בת הזוג"} יופיע מסך &quot;המרחב נסגר&quot;, עם השם שלך והתאריך.</li>}
+            <li>
+              במשך {GRACE_DAYS} יום אפשר להתחרט: רק את/ה יכולים לבטל את הסגירה, והכול חוזר בדיוק כמו שהיה.
+            </li>
+            <li>אחרי {GRACE_DAYS} יום הכול נמחק לצמיתות — כולל התמונות. אי אפשר לשחזר.</li>
+            <li>
+              {withPartner ? "שניכם יכולים" : "אפשר"} להוריד את הזיכרונות כקובץ ZIP עד המחיקה — עכשיו, או ממסך
+              הסגירה.
+            </li>
+            <li>החשבון שלך נשאר. אחרי המחיקה אפשר להתחיל מרחב חדש.</li>
+          </ul>
+        </div>
+  
+        <div className="card mb-12">
+          <p className="page-eyebrow mb-8">
+            לפני הכול
+          </p>
+          <ExportButton />
+        </div>
+  
+        <div className="card danger-card">
+          <CloseSpaceForm />
+        </div>
       </div>
-
-      <div className="card mb-12">
-        <p className="page-eyebrow mb-8">
-          לפני הכול
-        </p>
-        <ExportButton />
-      </div>
-
-      <div className="card danger-card">
-        <CloseSpaceForm />
-      </div>
-    </div>
+    </PageTransition>
   );
 }

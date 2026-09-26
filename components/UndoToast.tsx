@@ -3,87 +3,106 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { deleteIdeaAction } from "@/app/(app)/ideas/actions";
 
-// מחיקת רעיון עם "ביטול" (26.9). הכפתור בדף הרעיון לא מוחק מיד: הוא מתזמן
-// מחיקה (scheduleIdeaDelete) וחוזר לרשימה. כאן — הודעה בתחתית המסך עם
-// "ביטול" ל-5 שניות, והרעיון מוסתר מהרשימה בינתיים ([data-idea-id]). אחרי 5
-// שניות (או כשהאפליקציה יורדת לרקע) — המחיקה עצמה בשרת. יושב ב-(app)/layout.
-const EVENT = "bucket:pending-delete";
+// הודעה בתחתית המסך עם "ביטול" (26.9). שני סוגים:
+//   onCommit — הפעולה עוד לא בוצעה (מחיקת רעיון, ביטול תוכנית): הפריט
+//     מוסתר מהמסך (hideSelector), ואחרי 5 שניות — או כשהאפליקציה יורדת
+//     לרקע — היא יוצאת לפועל בשרת. "ביטול" = כלום לא קרה.
+//   onUndo — הפעולה כבר בוצעה והיא הפיכה (העברה לארכיון): "ביטול" מחזיר.
+// יושב ב-(app)/layout; קוראים לו דרך showToast מכל מקום.
+const EVENT = "bucket:toast";
 const UNDO_MS = 5000;
 
-type Pending = { id: string; title: string; version: number };
+type Outcome = { ok: boolean; error?: { message: string } } | void;
+export type ToastRequest = {
+  message: string;
+  hideSelector?: string;
+  onCommit?: () => Promise<Outcome>;
+  onUndo?: () => unknown;
+  failMessage?: string; // כשהפעולה נכשלה בשרת
+};
 
-export function scheduleIdeaDelete(p: Pending) {
-  window.dispatchEvent(new CustomEvent<Pending>(EVENT, { detail: p }));
+export function showToast(req: ToastRequest) {
+  window.dispatchEvent(new CustomEvent<ToastRequest>(EVENT, { detail: req }));
 }
 
-function hideStyleId(id: string) {
-  return `pending-delete-${id}`;
+export function scheduleIdeaDelete(p: { id: string; title: string; version: number }) {
+  showToast({
+    message: `"${p.title}" נמחק`,
+    hideSelector: `[data-idea-id="${p.id}"]`,
+    onCommit: () => deleteIdeaAction(p.id, p.version),
+    failMessage: `"${p.title}" לא נמחק`,
+  });
 }
-function hideIdea(id: string) {
+
+let styleSeq = 0;
+function hide(selector: string): () => void {
   const el = document.createElement("style");
-  el.id = hideStyleId(id);
-  el.textContent = `[data-idea-id="${CSS.escape(id)}"]{display:none !important}`;
+  el.id = `toast-hide-${++styleSeq}`;
+  el.textContent = `${selector}{display:none !important}`;
   document.head.appendChild(el);
+  return () => el.remove();
 }
-function unhideIdea(id: string) {
-  document.getElementById(hideStyleId(id))?.remove();
-}
+
+type Active = ToastRequest & { unhide: () => void };
 
 export function UndoToast() {
-  const [pending, setPending] = useState<Pending | null>(null);
+  const [active, setActive] = useState<Active | null>(null);
   const [error, setError] = useState("");
-  const pendingRef = useRef<Pending | null>(null);
+  const ref = useRef<Active | null>(null);
   const timer = useRef(0);
 
-  const commit = useCallback(() => {
-    const p = pendingRef.current;
-    if (!p) return;
+  const finish = useCallback((commit: boolean) => {
+    const a = ref.current;
+    if (!a) return;
     window.clearTimeout(timer.current);
-    pendingRef.current = null;
-    setPending(null);
-    deleteIdeaAction(p.id, p.version)
+    ref.current = null;
+    setActive(null);
+    if (!commit || !a.onCommit) {
+      a.unhide();
+      return;
+    }
+    a.onCommit()
       .then((res) => {
-        unhideIdea(p.id);
-        if (!res.ok) setError(`"${p.title}" לא נמחק: ${res.error.message}`);
+        a.unhide();
+        if (res && !res.ok) setError(`${a.failMessage ?? "הפעולה נכשלה"}: ${res.error?.message ?? "נסו שוב"}`);
       })
       .catch(() => {
-        unhideIdea(p.id);
-        setError(`"${p.title}" לא נמחק — נסו שוב`);
+        a.unhide();
+        setError(`${a.failMessage ?? "הפעולה נכשלה"} — נסו שוב`);
       });
   }, []);
 
   const undo = useCallback(() => {
-    const p = pendingRef.current;
-    if (!p) return;
-    window.clearTimeout(timer.current);
-    pendingRef.current = null;
-    setPending(null);
-    unhideIdea(p.id);
-  }, []);
+    const a = ref.current;
+    if (!a) return;
+    finish(false); // בלי commit
+    if (a.onUndo) Promise.resolve(a.onUndo()).catch(() => setError("הביטול נכשל — נסו שוב"));
+  }, [finish]);
 
   useEffect(() => {
-    const onPending = (e: Event) => {
-      const next = (e as CustomEvent<Pending>).detail;
-      if (!next?.id) return;
-      commit(); // מחיקה קודמת שעוד חיכתה — יוצאת לפועל עכשיו
+    const onToast = (e: Event) => {
+      const req = (e as CustomEvent<ToastRequest>).detail;
+      if (!req?.message) return;
+      finish(true); // הודעה קודמת שעוד חיכתה — הפעולה שלה יוצאת לפועל עכשיו
       setError("");
-      pendingRef.current = next;
-      setPending(next);
-      hideIdea(next.id);
-      timer.current = window.setTimeout(commit, UNDO_MS);
+      const next: Active = { ...req, unhide: req.hideSelector ? hide(req.hideSelector) : () => {} };
+      ref.current = next;
+      setActive(next);
+      timer.current = window.setTimeout(() => finish(true), UNDO_MS);
     };
     const onHide = () => {
-      if (document.visibilityState === "hidden") commit();
+      if (document.visibilityState === "hidden") finish(true);
     };
-    window.addEventListener(EVENT, onPending);
+    const onPageHide = () => finish(true);
+    window.addEventListener(EVENT, onToast);
     document.addEventListener("visibilitychange", onHide);
-    window.addEventListener("pagehide", commit);
+    window.addEventListener("pagehide", onPageHide);
     return () => {
-      window.removeEventListener(EVENT, onPending);
+      window.removeEventListener(EVENT, onToast);
       document.removeEventListener("visibilitychange", onHide);
-      window.removeEventListener("pagehide", commit);
+      window.removeEventListener("pagehide", onPageHide);
     };
-  }, [commit]);
+  }, [finish]);
 
   useEffect(() => {
     if (!error) return;
@@ -91,15 +110,17 @@ export function UndoToast() {
     return () => window.clearTimeout(t);
   }, [error]);
 
-  if (!pending && !error) return null;
+  if (!active && !error) return null;
   return (
     <div className="toast" role="status" aria-live="polite">
-      {pending ? (
+      {active ? (
         <>
-          <span className="toast-text">&quot;{pending.title}&quot; נמחק</span>
-          <button type="button" className="toast-action" onClick={undo}>
-            ביטול
-          </button>
+          <span className="toast-text">{active.message}</span>
+          {(active.onUndo || active.onCommit) && (
+            <button type="button" className="toast-action" onClick={undo}>
+              ביטול
+            </button>
+          )}
         </>
       ) : (
         <span className="toast-text">{error}</span>

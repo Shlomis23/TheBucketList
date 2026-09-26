@@ -1112,3 +1112,59 @@
   font-weight: 700;
   font-size: var(--fs-xs);
 }
+
+/* ---------------------------------------------------------------------------
+   מעברים בין מסכים (26.9, components/PageTransition.tsx). מימין לשמאל: פריט
+   חדש נכנס משמאל (כמו באייפון בעברית), וחוזר החוצה שמאלה. הניווט התחתון
+   נשאר במקום. בלי תמיכה בדפדפן — מעבר מיידי.
+   --------------------------------------------------------------------------- */
+::view-transition {
+  pointer-events: none;
+}
+::view-transition-old(.nav-forward) {
+  --slide-offset: 48px;
+  animation:
+    140ms ease-in both vt-fade reverse,
+    320ms ease-in-out both vt-slide reverse;
+}
+::view-transition-new(.nav-forward) {
+  --slide-offset: -48px;
+  animation:
+    200ms ease-out 100ms both vt-fade,
+    320ms ease-in-out both vt-slide;
+}
+::view-transition-old(.nav-back) {
+  --slide-offset: -48px;
+  animation:
+    160ms ease-in both vt-fade reverse,
+    300ms ease-in-out both vt-slide reverse;
+}
+::view-transition-old(.nav-tab),
+::view-transition-new(.nav-tab) {
+  animation-duration: 160ms;
+}
+@keyframes vt-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes vt-slide {
+  from {
+    translate: var(--slide-offset);
+  }
+  to {
+    translate: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
+

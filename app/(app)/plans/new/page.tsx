@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getIdea } from "@/lib/dal/ideas";
 import { CoverImg } from "@/components/CoverImg";
 import { NewPlanForm } from "./NewPlanForm";
+import { PageTransition } from "@/components/PageTransition";
 
 // תכנון חדש `/plans/new?ideaId=...` — F6, spec סעיף 5-6.
 // מגיעים לכאן מ-/ideas/[id] ("תכננו את זה") או מ-/choose ("בואו נתכנן את זה").
@@ -26,14 +27,16 @@ export default async function NewPlanPage({
   }
 
   return (
-    <div className="page">
-      <CoverImg category={idea.category} className="hero-banner" />
-      <p className="page-eyebrow">תכנון</p>
-      <h1 className="page-title">{idea.title}</h1>
-      <p className="page-subtitle">כל השדות כאן אופציונליים — אפשר לשמור בלי לקבוע כלום ולמלא אחר כך.</p>
-      <div className="card">
-        <NewPlanForm ideaId={idea.id} />
+    <PageTransition kind="detail">
+      <div className="page">
+        <CoverImg category={idea.category} className="hero-banner" />
+        <p className="page-eyebrow">תכנון</p>
+        <h1 className="page-title">{idea.title}</h1>
+        <p className="page-subtitle">כל השדות כאן אופציונליים — אפשר לשמור בלי לקבוע כלום ולמלא אחר כך.</p>
+        <div className="card">
+          <NewPlanForm ideaId={idea.id} />
+        </div>
       </div>
-    </div>
+    </PageTransition>
   );
 }

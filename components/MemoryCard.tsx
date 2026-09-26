@@ -7,7 +7,7 @@ import { CoverImg } from "@/components/CoverImg";
 // eyebrow מאפשר לבית להציג "הזיכרון האחרון" במקום התאריך.
 export function MemoryCard({ memory, eyebrow }: { memory: MemoryDto; eyebrow?: string }) {
   return (
-    <Link
+    <Link transitionTypes={["nav-forward"]}
       href={`/memories/${memory.id}`}
       className="card block no-underline c-inherit mb-12"
     >

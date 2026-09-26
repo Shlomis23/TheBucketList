@@ -1204,3 +1204,34 @@
   font-weight: 500;
   color: var(--color-muted);
 }
+
+/* משיכה לרענון (26.9, components/PullToRefresh.tsx). */
+.ptr {
+  position: fixed;
+  top: calc(var(--safe-area-top) + 8px);
+  left: 50%;
+  z-index: 55;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface);
+  color: var(--color-muted);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 6px 16px -8px rgba(var(--shadow-rgb), 0.5);
+  pointer-events: none;
+}
+.ptr.is-ready,
+.ptr.is-refreshing {
+  color: var(--color-primary);
+}
+.ptr.is-refreshing svg {
+  animation: ptr-spin 0.8s linear infinite;
+}
+@keyframes ptr-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

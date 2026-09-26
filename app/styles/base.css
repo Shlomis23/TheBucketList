@@ -8,6 +8,8 @@ html,
 body {
   min-width: 320px;
   overflow-x: hidden; /* אין גלילה אופקית ב-320px (AC12) */
+  /* משיכה לרענון שלנו (PullToRefresh) — בלי רענון הדפדפן בכרום במקביל. */
+  overscroll-behavior-y: contain;
 }
 
 body {

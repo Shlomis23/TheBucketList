@@ -19,7 +19,7 @@ export function BottomNav() {
   const router = useRouter();
 
   return (
-    <nav className="flex gap-4 bg-surface"
+    <nav className="flex gap-4 bg-surface bottom-nav"
       aria-label="ניווט ראשי"
       // fixed ולא sticky: overflow-x: hidden על html/body (AC12, app/styles/base.css)
       // הופך את body לקונטיינר גלילה, ובמצב הזה sticky לא נצמד ל-viewport
@@ -38,6 +38,8 @@ export function BottomNav() {
             // טעינה מראש מלאה (לא רק שלד הטעינה) — הלשוניות נפתחות מיד.
             // נשמר בטלפון 60 שניות (staleTimes.static ב-next.config.ts).
             prefetch={true}
+            // מעבר בין לשוניות — הצלבה קצרה (PageTransition); הניווט עצמו לא זז.
+            transitionTypes={["nav-tab"]}
             // כמו באפליקציות אייפון: ברשימה — לראש הרשימה; בתוך רעיון — חזרה
             // לרשימה לנקודה שבה עצרנו (lib/nav/memory.ts).
             onClick={(e) => {

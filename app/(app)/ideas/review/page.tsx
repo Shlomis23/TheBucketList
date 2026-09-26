@@ -4,6 +4,7 @@ import { parseIdeaListParams } from "@/lib/validation/ideaList";
 import { categoryLabels, formatCostMinor, formatDurationMinutes } from "@/lib/validation/idea";
 import { orderForReview } from "@/lib/validation/review";
 import { ReviewDeck, type ReviewCard } from "@/components/ReviewDeck";
+import { PageTransition } from "@/components/PageTransition";
 
 // /ideas/review — "סבב החלטות" (26.9, אפשרות א). כל הרעיונות הפעילים שעוד לא
 // הגבתי עליהם, בכרטיסים אחד-אחד. נכנסים מהבאנר ברשימה, מהבית ומהתראה על
@@ -34,5 +35,9 @@ export default async function ReviewPage({
     firstId,
   );
 
-  return <ReviewDeck cards={cards} partnerName={partnerName} />;
+  return (
+    <PageTransition kind="detail">
+      <ReviewDeck cards={cards} partnerName={partnerName} />
+    </PageTransition>
+  );
 }

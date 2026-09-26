@@ -14,6 +14,7 @@ import { getPartnerName } from "@/lib/dal/profile";
 import { getMySpaceId, hasPartner } from "@/lib/dal/space";
 import { CoverImg } from "@/components/CoverImg";
 import { pendingPreview } from "@/lib/validation/review";
+import { PageTransition } from "@/components/PageTransition";
 
 const PREF_LABEL = { yes: "כן", maybe: "אולי", no: "לא" } as const;
 
@@ -37,80 +38,82 @@ export default async function IdeasPage({
   const nothingAtAll = counts.all === 0 && !narrowed && ideas.length === 0;
 
   return (
-    <div className="page">
-      <div className="flex items-center justify-between mb-12">
-        <h1 className="page-title mb-0">
-          {archived ? "ארכיון רעיונות" : "רעיונות"}
-        </h1>
-        {!archived && (
-          <Link href="/ideas/new" className="btn btn-primary" style={{ padding: "0 18px", minHeight: 40 }}>
-            + רעיון
-          </Link>
-        )}
-      </div>
-
-      {nothingAtAll ? (
-        archived ? (
-          <>
-            <EmptyState title="עוד אין רעיונות בארכיון." />
-            <p className="text-center m-0">
-              <Link href="/ideas" className="link-plain">
-                חזרה לרעיונות הפעילים &larr;
-              </Link>
-            </p>
-          </>
-        ) : (
-          <EmptyState
-            title="מה הדבר הראשון שבא לכם לעשות?"
-            action={
-              <Link href="/ideas/new" className="btn btn-primary">
-                הוספת רעיון
-              </Link>
-            }
-          />
-        )
-      ) : (
-        <>
-          <IdeaSearch filters={filters} />
-
-          {!archived && !narrowed && counts.unreacted > 0 && (
-            <ReviewBanner count={counts.unreacted} titles={ideas.filter((i) => i.myReaction === null).map((i) => i.title)} />
+    <PageTransition kind="list">
+      <div className="page">
+        <div className="flex items-center justify-between mb-12">
+          <h1 className="page-title mb-0">
+            {archived ? "ארכיון רעיונות" : "רעיונות"}
+          </h1>
+          {!archived && (
+            <Link transitionTypes={["nav-forward"]} href="/ideas/new" className="btn btn-primary" style={{ padding: "0 18px", minHeight: 40 }}>
+              + רעיון
+            </Link>
           )}
-
-          <div className="chip-scroll mb-8" role="group" aria-label="סינון רעיונות">
-            {!archived && <ViewChips filters={filters} counts={counts} partner={partner} />}
-            <CategorySelect filters={filters} />
-          </div>
-
-          <div className="flex items-center justify-between gap-8 mb-8"
-          >
-            <p className="status-msg m-0 text-xs">
-              {ideas.length === 1 ? "רעיון אחד" : `${ideas.length} רעיונות`}
-              {" · "}
-              <Link className="c-inherit"
-                href={archived ? "/ideas" : buildIdeasHref(filters, { status: "archived", view: "all" })}
-              >
-                {archived ? "לפעילים" : "לארכיון"}
-              </Link>
-            </p>
-            <SortSelect filters={filters} />
-          </div>
-
-          {ideas.length === 0 ? (
+        </div>
+  
+        {nothingAtAll ? (
+          archived ? (
+            <>
+              <EmptyState title="עוד אין רעיונות בארכיון." />
+              <p className="text-center m-0">
+                <Link href="/ideas" className="link-plain">
+                  חזרה לרעיונות הפעילים &larr;
+                </Link>
+              </p>
+            </>
+          ) : (
             <EmptyState
-              title="אין רעיונות שמתאימים לסינון הזה."
+              title="מה הדבר הראשון שבא לכם לעשות?"
               action={
-                <Link href={buildIdeasHref(filters, { q: "", view: "all", category: null })} className="btn btn-primary">
-                  איפוס סינון
+                <Link transitionTypes={["nav-forward"]} href="/ideas/new" className="btn btn-primary">
+                  הוספת רעיון
                 </Link>
               }
             />
-          ) : (
-            ideas.map((idea) => <IdeaRow key={idea.id} idea={idea} archived={archived} partner={partner} />)
-          )}
-        </>
-      )}
-    </div>
+          )
+        ) : (
+          <>
+            <IdeaSearch filters={filters} />
+  
+            {!archived && !narrowed && counts.unreacted > 0 && (
+              <ReviewBanner count={counts.unreacted} titles={ideas.filter((i) => i.myReaction === null).map((i) => i.title)} />
+            )}
+  
+            <div className="chip-scroll mb-8" role="group" aria-label="סינון רעיונות">
+              {!archived && <ViewChips filters={filters} counts={counts} partner={partner} />}
+              <CategorySelect filters={filters} />
+            </div>
+  
+            <div className="flex items-center justify-between gap-8 mb-8"
+            >
+              <p className="status-msg m-0 text-xs">
+                {ideas.length === 1 ? "רעיון אחד" : `${ideas.length} רעיונות`}
+                {" · "}
+                <Link className="c-inherit"
+                  href={archived ? "/ideas" : buildIdeasHref(filters, { status: "archived", view: "all" })}
+                >
+                  {archived ? "לפעילים" : "לארכיון"}
+                </Link>
+              </p>
+              <SortSelect filters={filters} />
+            </div>
+  
+            {ideas.length === 0 ? (
+              <EmptyState
+                title="אין רעיונות שמתאימים לסינון הזה."
+                action={
+                  <Link href={buildIdeasHref(filters, { q: "", view: "all", category: null })} className="btn btn-primary">
+                    איפוס סינון
+                  </Link>
+                }
+              />
+            ) : (
+              ideas.map((idea) => <IdeaRow key={idea.id} idea={idea} archived={archived} partner={partner} />)
+            )}
+          </>
+        )}
+      </div>
+    </PageTransition>
   );
 }
 
@@ -120,7 +123,7 @@ type PartnerInfo = { present: boolean; name: string | null };
 // קטגוריה, כדי שהמספר יתאים למה שיופיע בסבב (כל מה שעוד לא הגבתי עליו).
 function ReviewBanner({ count, titles }: { count: number; titles: string[] }) {
   return (
-    <Link href="/ideas/review" className="review-banner">
+    <Link transitionTypes={["nav-forward"]} href="/ideas/review" className="review-banner">
       <span className="review-banner-count">{count}</span>
       <span className="review-banner-text">
         <b>{count === 1 ? "רעיון מחכה לתגובה שלך" : "מחכים לתגובה שלך"}</b>
@@ -172,10 +175,10 @@ function IdeaRow({ idea, archived, partner }: { idea: IdeaListItemDto; archived:
 
   return (
     <div className="card idea-row" data-idea-id={idea.id}>
-      <Link href={href} className="idea-row-thumb-link" tabIndex={-1} aria-hidden="true">
+      <Link href={href} transitionTypes={["nav-forward"]} className="idea-row-thumb-link" tabIndex={-1} aria-hidden="true">
         <CoverImg category={idea.category} className="idea-row-thumb" />
       </Link>
-      <Link href={href} className="idea-row-text">
+      <Link href={href} transitionTypes={["nav-forward"]} className="idea-row-text">
         <div className="idea-row-title-line">
           <p className="idea-row-title">{idea.title}</p>
           {tag && <span className={`status-tag ${tag.kind}`}>{tag.label}</span>}

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { archiveIdeaAction, restoreIdeaAction } from "@/app/(app)/ideas/actions";
+import { showToast } from "@/components/UndoToast";
 
 // כפתור ארכוב/שחזור ידני לרעיון — spec סעיף 13.2 (archiveIdea/restoreIdea).
 // "ארכוב" חסום כל עוד יש תוכנית proposed לרעיון (blockedByActivePlan) —
@@ -23,6 +24,7 @@ export function ArchiveIdeaButton({
   const [isPending, startTransition] = useTransition();
   const [errorMsg, setErrorMsg] = useState("");
 
+  // בלי שאלת "בטוח?" (26.9): העברה לארכיון הפיכה — הודעה עם "ביטול" במקום.
   function run() {
     setErrorMsg("");
     startTransition(async () => {
@@ -32,6 +34,17 @@ export function ArchiveIdeaButton({
         setErrorMsg(result.error.message);
         setConfirming(false);
         return;
+      }
+      if (mode === "archive") {
+        const archivedVersion = result.data.version;
+        showToast({
+          message: "הרעיון הועבר לארכיון",
+          onUndo: async () => {
+            const back = await restoreIdeaAction(ideaId, archivedVersion);
+            if (!back.ok) throw new Error(back.error.message);
+            router.refresh();
+          },
+        });
       }
       router.refresh();
     });
@@ -52,7 +65,7 @@ export function ArchiveIdeaButton({
           type="button"
           className="link-plain text-center"
           disabled={isPending}
-          onClick={() => setConfirming(true)}
+          onClick={run}
         >
           {mode === "archive" ? "העברה לארכיון" : "שחזור מהארכיון"}
         </button>

@@ -137,6 +137,25 @@ export async function buildFixtures() {
           return { id: x.id, title: x.title, status: x.status, starts_at: x.starts_at, ends_at: x.ends_at, meeting_place: x.meeting_place, notes: x.notes, updated_at: x.created_at, budget_minor: x.budget_minor, idea_location_text: i?.location_text ?? null, idea_place_id: i?.place_id ?? null, idea_source_url: i?.source_url ?? null };
         });
     },
+    // ארכיון/שחזור וביטול תוכנית — לבדיקות ה"ביטול" בהודעה (26.9).
+    archive_idea: ({ p_id }) => {
+      const i = ideas.find((x) => x.id === p_id);
+      if (!i) throw new Error("NOT_FOUND");
+      Object.assign(i, { status: "archived", version: i.version + 1 });
+      return i;
+    },
+    restore_idea: ({ p_id }) => {
+      const i = ideas.find((x) => x.id === p_id);
+      if (!i) throw new Error("NOT_FOUND");
+      Object.assign(i, { status: "active", version: i.version + 1 });
+      return i;
+    },
+    cancel_plan: ({ p_id }) => {
+      const pl = plans.find((x) => x.id === p_id);
+      if (!pl) throw new Error("NOT_FOUND");
+      Object.assign(pl, { status: "cancelled", version: pl.version + 1 });
+      return pl;
+    },
     // מחיקת רעיון (0035) — בלי תוכנית פעילה/שהושלמה.
     delete_idea: ({ p_id }) => {
       if (plans.some((x) => x.idea_id === p_id && x.status !== "cancelled")) throw new Error("HAS_PLAN");

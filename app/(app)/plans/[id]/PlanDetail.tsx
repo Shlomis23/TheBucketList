@@ -13,6 +13,7 @@ import { DEFAULT_PLAN_TIMEZONE, formatBudgetMinor, formatPlanWhen, isPlanPast, p
 import { CoverImg } from "@/components/CoverImg";
 import { BackButton } from "@/components/BackButton";
 import { AddToCalendar } from "@/components/AddToCalendar";
+import { showToast } from "@/components/UndoToast";
 import { DateTimeRangeFields, endPartsToIso, isoToParts, partsToIso, type DateTimeParts } from "@/components/DateTimeRangeFields";
 import type { PlanDetailDto, PlanDto } from "@/lib/dal/plans";
 import { FromIdeaCard } from "@/components/FromIdeaCard";
@@ -174,7 +175,7 @@ export function PlanDetail({
           )}
 
           {memoryId && (
-            <Link href={`/memories/${memoryId}`} className="btn btn-primary btn-block mb-12">
+            <Link transitionTypes={["nav-forward"]} href={`/memories/${memoryId}`} className="btn btn-primary btn-block mb-12">
               לזיכרון &larr;
             </Link>
           )}
@@ -205,13 +206,17 @@ export function PlanDetail({
                 </button>
               )}
 
-              <CancelPlanButton plan={plan} disabled={isPending} onCancel={() =>
-                  runAction(
-                    () => cancelPlanAction({ id: plan.id, expectedVersion: plan.version }),
-                    // תוכנית שבוטלה כבר לא מופיעה בלשונית — חוזרים אליה (25.9).
-                    () => router.replace("/plans"),
-                  )
-                } />
+              <CancelPlanButton plan={plan} disabled={isPending} onCancel={() => {
+                  // "ביטול" ל-5 שניות (26.9): חוזרים לתוכניות, התוכנית מוסתרת, ורק
+                  // אחרי זה הביטול בשרת (וההתראה לבן/בת הזוג). UndoToast.
+                  showToast({
+                    message: `"${plan.title}" בוטלה`,
+                    hideSelector: `[data-plan-id="${plan.id}"]`,
+                    onCommit: () => cancelPlanAction({ id: plan.id, expectedVersion: plan.version }),
+                    failMessage: "התוכנית לא בוטלה",
+                  });
+                  router.replace("/plans");
+                }} />
             </div>
           )}
         </>

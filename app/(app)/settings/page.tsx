@@ -11,6 +11,7 @@ import { ExportButton } from "@/components/ExportButton";
 import { PushSettings } from "@/components/PushSettings";
 import { ColorThemePicker } from "@/components/ColorThemePicker";
 import { CalendarFeedSettings } from "@/components/CalendarFeedSettings";
+import { PageTransition } from "@/components/PageTransition";
 
 // הגדרות `/settings` — F8, spec סעיף 6, 11.1: השם שלי, ניהול הזמנה, הורדת
 // הזיכרונות, יציאה, ובתחתית — סגירת מרחב ומחיקת חשבון (החלטות 25.9, 0020).
@@ -25,99 +26,101 @@ export default async function SettingsPage() {
   const [partnerPresent, profile, partnerName] = await Promise.all([hasPartner(spaceId), getMyProfile(), getPartnerName()]);
 
   return (
-    <div className="page">
-      <h1 className="page-title">הגדרות</h1>
-
-      <section className="card mt-12" aria-labelledby="me">
-        <p id="me" className="page-eyebrow mb-8">
-          השם שלי
-        </p>
-        <DisplayNameForm initialName={profile?.displayName ?? ""} partnerName={partnerName} />
-      </section>
-
-      <section id="invite" className="card mt-12">
-        <p className="page-eyebrow mb-4">
-          {partnerPresent && partnerName ? partnerName : "בן/בת הזוג"}
-        </p>
-        {partnerPresent ? (
-          <p className="status-msg m-0">
-            {partnerName ? "במרחב איתך — המרחב מלא." : "כבר הצטרפו אליכם — המרחב מלא."}
+    <PageTransition kind="list">
+      <div className="page">
+        <h1 className="page-title">הגדרות</h1>
+  
+        <section className="card mt-12" aria-labelledby="me">
+          <p id="me" className="page-eyebrow mb-8">
+            השם שלי
           </p>
-        ) : (
-          <InvitationPanel initialStatus={await getInvitationStatus()} />
-        )}
-      </section>
-
-      <section className="card mt-12" aria-labelledby="color">
-        <p id="color" className="page-eyebrow mb-4">
-          צבע האפליקציה
-        </p>
-        <p className="status-msg m-0 mb-12 text-sm">רק אצלך — לכל אחד הצבע שלו.</p>
-        <ColorThemePicker current={profile?.colorTheme ?? "purple"} />
-      </section>
-
-      <section className="card mt-12" aria-labelledby="notifications">
-        <p id="notifications" className="page-eyebrow mb-8">
-          התראות
-        </p>
-        <PushSettings publicKey={process.env.VAPID_PUBLIC_KEY ?? null} partnerName={partnerName} />
-      </section>
-
-      <section id="calendar" className="card mt-12" aria-labelledby="calendar-title">
-        <p id="calendar-title" className="page-eyebrow mb-4">
-          יומן
-        </p>
-        <p className="status-msg m-0 mb-12 text-sm">
-          כל התוכניות שלכם ביומן של הטלפון — חיבור פעם אחת, והן נכנסות ומתעדכנות לבד (שינוי מועד, ביטול).
-        </p>
-        <CalendarFeedSettings />
-      </section>
-
-      <section className="card mt-12" aria-labelledby="export">
-        <p id="export" className="page-eyebrow mb-4">
-          גיבוי
-        </p>
-        <p className="status-msg m-0 mb-12 text-sm">
-          כל הזיכרונות, התמונות והרעיונות בקובץ ZIP אחד — עם דף שנפתח בכל דפדפן.
-        </p>
-        <ExportButton />
-      </section>
-
-      <section className="card mt-12" aria-labelledby="signout">
-        <p id="signout" className="page-eyebrow mb-4">
-          יציאה
-        </p>
-        <p className="status-msg m-0 mb-12 text-sm">
-          מתנתק רק במכשיר הזה. כדי לחזור צריך להתחבר שוב עם קוד במייל.
-        </p>
-        <form action={signOutAction}>
-          <button
-            type="submit"
-            className="btn btn-block btn-outline c-danger"
-          >
-            התנתקות
-          </button>
-        </form>
-      </section>
-
-      {/* אזור רגיש — בנפרד, בתחתית, וכל פעולה במסך הסבר משלה. */}
-      <section className="card danger-card mt-24" aria-labelledby="danger">
-        <p id="danger" className="page-eyebrow mb-12 c-danger">
-          אזור רגיש
-        </p>
-        <Link href="/settings/close" className="danger-link">
-          <span>סגירת המרחב</span>
-          <span className="status-msg text-xs m-0">
-            נועל לשניכם ונמחק אחרי 14 יום. אפשר להתחרט עד אז.
-          </span>
-        </Link>
-        <Link href="/account/delete" className="danger-link">
-          <span>מחיקת החשבון</span>
-          <span className="status-msg text-xs m-0">
-            {partnerPresent ? "סוגר גם את המרחב המשותף." : "מוחק את החשבון ואת המרחב מיד."}
-          </span>
-        </Link>
-      </section>
-    </div>
+          <DisplayNameForm initialName={profile?.displayName ?? ""} partnerName={partnerName} />
+        </section>
+  
+        <section id="invite" className="card mt-12">
+          <p className="page-eyebrow mb-4">
+            {partnerPresent && partnerName ? partnerName : "בן/בת הזוג"}
+          </p>
+          {partnerPresent ? (
+            <p className="status-msg m-0">
+              {partnerName ? "במרחב איתך — המרחב מלא." : "כבר הצטרפו אליכם — המרחב מלא."}
+            </p>
+          ) : (
+            <InvitationPanel initialStatus={await getInvitationStatus()} />
+          )}
+        </section>
+  
+        <section className="card mt-12" aria-labelledby="color">
+          <p id="color" className="page-eyebrow mb-4">
+            צבע האפליקציה
+          </p>
+          <p className="status-msg m-0 mb-12 text-sm">רק אצלך — לכל אחד הצבע שלו.</p>
+          <ColorThemePicker current={profile?.colorTheme ?? "purple"} />
+        </section>
+  
+        <section className="card mt-12" aria-labelledby="notifications">
+          <p id="notifications" className="page-eyebrow mb-8">
+            התראות
+          </p>
+          <PushSettings publicKey={process.env.VAPID_PUBLIC_KEY ?? null} partnerName={partnerName} />
+        </section>
+  
+        <section id="calendar" className="card mt-12" aria-labelledby="calendar-title">
+          <p id="calendar-title" className="page-eyebrow mb-4">
+            יומן
+          </p>
+          <p className="status-msg m-0 mb-12 text-sm">
+            כל התוכניות שלכם ביומן של הטלפון — חיבור פעם אחת, והן נכנסות ומתעדכנות לבד (שינוי מועד, ביטול).
+          </p>
+          <CalendarFeedSettings />
+        </section>
+  
+        <section className="card mt-12" aria-labelledby="export">
+          <p id="export" className="page-eyebrow mb-4">
+            גיבוי
+          </p>
+          <p className="status-msg m-0 mb-12 text-sm">
+            כל הזיכרונות, התמונות והרעיונות בקובץ ZIP אחד — עם דף שנפתח בכל דפדפן.
+          </p>
+          <ExportButton />
+        </section>
+  
+        <section className="card mt-12" aria-labelledby="signout">
+          <p id="signout" className="page-eyebrow mb-4">
+            יציאה
+          </p>
+          <p className="status-msg m-0 mb-12 text-sm">
+            מתנתק רק במכשיר הזה. כדי לחזור צריך להתחבר שוב עם קוד במייל.
+          </p>
+          <form action={signOutAction}>
+            <button
+              type="submit"
+              className="btn btn-block btn-outline c-danger"
+            >
+              התנתקות
+            </button>
+          </form>
+        </section>
+  
+        {/* אזור רגיש — בנפרד, בתחתית, וכל פעולה במסך הסבר משלה. */}
+        <section className="card danger-card mt-24" aria-labelledby="danger">
+          <p id="danger" className="page-eyebrow mb-12 c-danger">
+            אזור רגיש
+          </p>
+          <Link href="/settings/close" className="danger-link">
+            <span>סגירת המרחב</span>
+            <span className="status-msg text-xs m-0">
+              נועל לשניכם ונמחק אחרי 14 יום. אפשר להתחרט עד אז.
+            </span>
+          </Link>
+          <Link href="/account/delete" className="danger-link">
+            <span>מחיקת החשבון</span>
+            <span className="status-msg text-xs m-0">
+              {partnerPresent ? "סוגר גם את המרחב המשותף." : "מוחק את החשבון ואת המרחב מיד."}
+            </span>
+          </Link>
+        </section>
+      </div>
+    </PageTransition>
   );
 }
