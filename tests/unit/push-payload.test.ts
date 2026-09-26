@@ -16,7 +16,7 @@ describe("ניסוחי התראות", () => {
     expect(buildPayload({ kind: "idea_created", ideaId: "i1" }, ctx())).toMatchObject({
       title: "רעיון חדש מנועה",
       body: "טיול לגולן",
-      url: "/ideas/i1",
+      url: "/ideas/review?first=i1", // סבב ההחלטות, הרעיון מההתראה ראשון
     });
   });
   it("מאצ' — בלי אימוג'י", () => {

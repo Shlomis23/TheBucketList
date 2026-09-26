@@ -5,7 +5,7 @@ const base = { myReaction: null, partnerReaction: null, isMatch: false, hasPlan:
 const p = { present: true, name: "גואל" };
 
 describe("ideaStatusTag", () => {
-  it("בלי תגית כששניכם לא עניתם", () => expect(ideaStatusTag(base, p)).toBeNull());
+  it("שניכם עוד לא עניתם — מחכה לך (הכפתורים ירדו מהשורה)", () => expect(ideaStatusTag(base, p)?.label).toBe("מחכה לך"));
   it("מחכה לך / מחכה לגואל", () => {
     expect(ideaStatusTag({ ...base, partnerReaction: "yes" }, p)?.label).toBe("מחכה לך");
     expect(ideaStatusTag({ ...base, myReaction: "yes" }, p)?.label).toBe("מחכה לגואל");

@@ -119,6 +119,15 @@ export async function buildFixtures() {
     has_pending_invitation_for_me: () => false,
     mark_idea_read: () => true,
     check_rate_limit: () => true,
+    // סבב ההחלטות (26.9): תגובה + מאצ' כשגם בן/בת הזוג אמרו כן.
+    set_reaction: ({ p_actor, p_idea_id, p_preference }) => {
+      const i = idea_reactions.findIndex((x) => x.idea_id === p_idea_id && x.user_id === p_actor);
+      if (i >= 0) idea_reactions.splice(i, 1);
+      if (p_preference) idea_reactions.push({ space_id: SPACE, idea_id: p_idea_id, user_id: p_actor, preference: p_preference, updated_at: new Date().toISOString() });
+      return [{ preference: p_preference ?? null, is_match: bothYes(p_idea_id) }];
+    },
+    mark_matches_seen: ({ p_idea_ids }) =>
+      ideas.filter((i) => (p_idea_ids ?? []).includes(i.id)).map((i) => ({ id: i.id, title: i.title })),
     set_color_theme: ({ p_actor, p_theme }) => {
       const me = profiles.find((x) => x.id === p_actor);
       if (me) me.color_theme = p_theme;

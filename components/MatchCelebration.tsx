@@ -13,7 +13,8 @@ import { markMatchesSeenAction } from "@/app/(app)/match-actions";
 
 export const MATCH_EVENT = "bucket:match";
 
-type Match = { id: string; title: string };
+// laterLabel — הכפתור השני; בסבב ההחלטות: "ממשיכים בסבב" (ReviewDeck).
+type Match = { id: string; title: string; laterLabel?: string };
 type Shown = Match & { more: number };
 
 function initial(name: string) {
@@ -115,7 +116,7 @@ export function MatchCelebration({
           בואו נתחיל לתכנן את זה
         </Link>
         <button type="button" className="btn btn-block match-btn-later" onClick={close}>
-          אחר כך
+          {shown.laterLabel ?? "אחר כך"}
         </button>
         {shown.more > 0 && (
           <Link href="/ideas?view=matches" className="match-more" onClick={close}>

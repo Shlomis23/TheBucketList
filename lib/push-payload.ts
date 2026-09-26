@@ -40,7 +40,7 @@ export function buildPayload(e: PushEvent, c: PushContext): Payload | null {
   switch (e.kind) {
     case "idea_created":
       if (!c.ideaTitle) return null;
-      return { title: `רעיון חדש ${from}`, body: c.ideaTitle, url: `/ideas/${e.ideaId}`, tag: `idea-${e.ideaId}` };
+      return { title: `רעיון חדש ${from}`, body: c.ideaTitle, url: `/ideas/review?first=${e.ideaId}`, tag: `idea-${e.ideaId}` };
     // מאצ' — לבן/בת הזוג. מי שענה "כן" עכשיו רואה מסך חגיגה באפליקציה (0030).
     case "match":
       if (!c.ideaTitle) return null;

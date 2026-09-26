@@ -51,12 +51,13 @@ export default async function HomePage() {
     const first = home.partnerNewIdeas[hero === "partner_idea" ? 1 : 0];
     rows.push({
       key: "partner-ideas",
-      href: ideasLeft === 1 && first ? `/ideas/${first.id}` : "/ideas?view=unreacted",
+      // כמה רעיונות — ישר לסבב ההחלטות (26.9).
+      href: ideasLeft === 1 && first ? `/ideas/${first.id}` : "/ideas/review",
       icon: "idea",
       title: hero === "partner_idea"
         ? ideasLeft === 1 ? `עוד רעיון חדש ${from}` : `עוד ${ideasLeft} רעיונות חדשים ${from}`
         : ideasLeft === 1 ? `רעיון חדש ${from}` : `${ideasLeft} רעיונות חדשים ${from}`,
-      sub: ideasLeft === 1 && first ? `${first.title} · עוד לא ענית` : "עוד לא ענית עליהם",
+      sub: ideasLeft === 1 && first ? `${first.title} · עוד לא ענית` : "סבב קצר — עוד לא ענית עליהם",
     });
   }
   for (const c of unread.slice(hero === "unread" ? 1 : 0, 3)) {

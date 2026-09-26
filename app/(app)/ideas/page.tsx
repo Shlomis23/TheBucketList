@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { EmptyState } from "@/components/EmptyState";
-import { ReactionControl } from "@/components/ReactionControl";
 import { CategorySelect, IdeaSearch, SortSelect } from "@/components/IdeaFilterControls";
 import { listIdeas, type IdeaListItemDto, type IdeaListCounts } from "@/lib/dal/ideas";
 import { categoryLabels, formatCostMinor, formatDurationMinutes } from "@/lib/validation/idea";
@@ -14,13 +13,16 @@ import {
 import { getPartnerName } from "@/lib/dal/profile";
 import { getMySpaceId, hasPartner } from "@/lib/dal/space";
 import { CoverImg } from "@/components/CoverImg";
+import { pendingPreview } from "@/lib/validation/review";
+
+const PREF_LABEL = { yes: "כן", maybe: "אולי", no: "לא" } as const;
 
 // מאגר `/ideas` — spec סעיף 6: חיפוש, פילטר קטגוריה/מאצ'ים/תגובה שלי, מיון.
 // כל הסינון ב-URL (ראו lib/validation/ideaList.ts) ומבוצע בשרת ב-listIdeas.
 // `?status=archived` מציג את הארכיון — קישור בשורת הסיכום, לא טאב נפרד,
 // כדי שהניווט התחתון יישאר 4 טאבים כמו שהוחלט.
-// שורה קומפקטית במקום כרטיס גדול (אופציה א' שאושרה): בערך פי 2 רעיונות
-// במסך, והתגובה המהירה נשארת ברשימה.
+// שורה אחת לכל רעיון (26.9, אפשרות א): התגובה עברה לסבב ההחלטות (הבאנר
+// למעלה) ולדף הרעיון; ברשימה רק "שלך: כן" ותגית המצב.
 export default async function IdeasPage({
   searchParams,
 }: {
@@ -71,6 +73,10 @@ export default async function IdeasPage({
         <>
           <IdeaSearch filters={filters} />
 
+          {!archived && !narrowed && counts.unreacted > 0 && (
+            <ReviewBanner count={counts.unreacted} titles={ideas.filter((i) => i.myReaction === null).map((i) => i.title)} />
+          )}
+
           <div className="chip-scroll mb-8" role="group" aria-label="סינון רעיונות">
             {!archived && <ViewChips filters={filters} counts={counts} partner={partner} />}
             <CategorySelect filters={filters} />
@@ -109,6 +115,21 @@ export default async function IdeasPage({
 }
 
 type PartnerInfo = { present: boolean; name: string | null };
+
+// "מחכים לתגובה שלך" (26.9, אפשרות א) — כניסה לסבב ההחלטות. רק בלי חיפוש/
+// קטגוריה, כדי שהמספר יתאים למה שיופיע בסבב (כל מה שעוד לא הגבתי עליו).
+function ReviewBanner({ count, titles }: { count: number; titles: string[] }) {
+  return (
+    <Link href="/ideas/review" className="review-banner">
+      <span className="review-banner-count">{count}</span>
+      <span className="review-banner-text">
+        <b>{count === 1 ? "רעיון מחכה לתגובה שלך" : "מחכים לתגובה שלך"}</b>
+        {titles.length > 0 && <span>{pendingPreview(titles)}</span>}
+      </span>
+      <span className="review-banner-go">לסבב</span>
+    </Link>
+  );
+}
 
 function ViewChips({ filters, counts, partner }: { filters: IdeaListFilters; counts: IdeaListCounts; partner: PartnerInfo }) {
   // "מחכה לי" / "מחכה ל[שם]" (26.9) — שני הצדדים באותו ניסוח.
@@ -150,7 +171,7 @@ function IdeaRow({ idea, archived, partner }: { idea: IdeaListItemDto; archived:
     .join(" · ");
 
   return (
-    <div className={archived ? "card idea-row is-static" : "card idea-row"}>
+    <div className="card idea-row">
       <Link href={href} className="idea-row-thumb-link" tabIndex={-1} aria-hidden="true">
         <CoverImg category={idea.category} className="idea-row-thumb" />
       </Link>
@@ -178,9 +199,11 @@ function IdeaRow({ idea, archived, partner }: { idea: IdeaListItemDto; archived:
             </span>
           )}
         </div>
-        <p className="idea-row-meta">{meta}</p>
+        <p className="idea-row-meta">
+          {!archived && idea.myReaction && <span className="idea-row-mine">שלך: {PREF_LABEL[idea.myReaction]} · </span>}
+          {meta}
+        </p>
       </Link>
-      {!archived && <ReactionControl ideaId={idea.id} initialReaction={idea.myReaction} size="sm" />}
     </div>
   );
 }

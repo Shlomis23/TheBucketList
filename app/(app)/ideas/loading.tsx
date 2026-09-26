@@ -1,6 +1,6 @@
-// שלד טעינה ל-`/ideas` — אותה גיאומטריה כמו השורה הקומפקטית (IdeaRow):
-// תמונה 64px בצד, כותרת + פרטים, ושורת גלולות תגובה — כדי שלא תהיה קפיצת
-// layout כשהדאטה האמיתית נכנסת.
+// שלד טעינה ל-`/ideas` — אותה גיאומטריה כמו השורה (IdeaRow, 26.9: שורה
+// אחת, תמונה 56px, בלי גלולות תגובה) — כדי שלא תהיה קפיצת layout כשהדאטה
+// האמיתית נכנסת.
 export default function Loading() {
   return (
     <div className="page">
@@ -16,17 +16,12 @@ export default function Loading() {
         ))}
       </div>
 
-      {[0, 1, 2, 3, 4].map((i) => (
+      {[0, 1, 2, 3, 4, 5, 6].map((i) => (
         <div key={i} className="card idea-row">
-          <div className="skeleton idea-row-thumb-link" style={{ width: 64, height: 64 }} />
+          <div className="skeleton idea-row-thumb-link" style={{ width: 56, height: 56 }} />
           <div>
             <div className="skeleton skeleton-line mb-8" style={{ width: "60%", height: 15 }} />
             <div className="skeleton skeleton-line" style={{ width: "45%", height: 11 }} />
-          </div>
-          <div className="flex gap-8">
-            {[0, 1, 2].map((j) => (
-              <div key={j} className="skeleton rounded-pill" style={{ width: 52, height: 36 }} />
-            ))}
           </div>
         </div>
       ))}

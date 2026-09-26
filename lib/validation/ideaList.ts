@@ -79,8 +79,7 @@ export function hasNarrowingFilter(f: IdeaListFilters): boolean {
 // ---------------------------------------------------------------------------
 // מצב הרעיון ברשימה (26.9, אפשרות א) — תגית אחת ליד השם. סדר: כבר בתוכנית >
 // מאצ' > מחכה לך (בן/בת הזוג ענו, אני לא) > מחכה לבן/בת הזוג (עניתי, הם לא)
-// > שניכם ענו בלי מאצ' ("גואל: אולי"). בלי תגית כששניכם עוד לא עניתם, או כשאין
-// עדיין בן/בת זוג במרחב.
+// > שניכם ענו בלי מאצ' ("גואל: אולי"). בלי תגית כשאין עדיין בן/בת זוג במרחב.
 // ---------------------------------------------------------------------------
 type Pref = "yes" | "maybe" | "no";
 export type IdeaStatusTag = { kind: "plan" | "match" | "you" | "partner" | "answered"; label: string };
@@ -99,7 +98,9 @@ export function ideaStatusTag(
   if (i.isMatch) return { kind: "match", label: "מאצ'!" };
   if (!partner.present) return null;
   const who = partner.name ?? "בן/בת הזוג";
-  if (!i.myReaction && i.partnerReaction) return { kind: "you", label: "מחכה לך" };
+  // עוד לא הגבתי — "מחכה לך", גם כששניכם עוד לא עניתם (26.9: הכפתורים
+  // ירדו מהשורה, התגית היא הסימן שיש כאן תגובה לתת; הסבב אוסף את כולם).
+  if (!i.myReaction) return { kind: "you", label: "מחכה לך" };
   if (i.myReaction && !i.partnerReaction) return { kind: "partner", label: `מחכה ל${who}` };
   if (i.myReaction && i.partnerReaction) return { kind: "answered", label: `${who}: ${PREF_LABEL[i.partnerReaction]}` };
   return null;
