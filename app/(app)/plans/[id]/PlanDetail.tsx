@@ -11,6 +11,7 @@ import {
 } from "../actions";
 import { DEFAULT_PLAN_TIMEZONE, formatBudgetMinor, formatPlanWhen, isPlanPast, pastWhenLabel } from "@/lib/validation/plan";
 import { CoverImg } from "@/components/CoverImg";
+import { BackButton } from "@/components/BackButton";
 import { DateTimeRangeFields, endPartsToIso, isoToParts, partsToIso, type DateTimeParts } from "@/components/DateTimeRangeFields";
 import type { PlanDetailDto, PlanDto } from "@/lib/dal/plans";
 import { FromIdeaCard } from "@/components/FromIdeaCard";
@@ -64,8 +65,13 @@ export function PlanDetail({
 
   return (
     <>
-      {plan.ideaCategory && (
-        <CoverImg category={plan.ideaCategory} className="hero-banner" />
+      {plan.ideaCategory ? (
+        <div className="hero-wrap">
+          <CoverImg category={plan.ideaCategory} className="hero-banner" />
+          <BackButton fallback="/plans" />
+        </div>
+      ) : (
+        <BackButton fallback="/plans" className="hero-back is-inline" />
       )}
       <div className="flex gap-8 items-center mb-8">
         <StatusBadge plan={plan} />

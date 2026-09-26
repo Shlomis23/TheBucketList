@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { onTabTap } from "@/lib/nav/memory";
 
 // ניווט תחתון — בית / רעיונות / תוכניות / זיכרונות.
 // כפתור "מה עושים?" ו-"+" הגלובליים חיים במסך הבית עצמו, לא כאן.
@@ -15,6 +16,7 @@ const TABS = [
 
 export function BottomNav() {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <nav className="flex gap-4 bg-surface"
@@ -36,6 +38,11 @@ export function BottomNav() {
             // טעינה מראש מלאה (לא רק שלד הטעינה) — הלשוניות נפתחות מיד.
             // נשמר בטלפון 60 שניות (staleTimes.static ב-next.config.ts).
             prefetch={true}
+            // כמו באפליקציות אייפון: ברשימה — לראש הרשימה; בתוך רעיון — חזרה
+            // לרשימה לנקודה שבה עצרנו (lib/nav/memory.ts).
+            onClick={(e) => {
+              if (onTabTap(router, tab.href, pathname)) e.preventDefault();
+            }}
             aria-current={active ? "page" : undefined}
             style={{ minHeight: "var(--touch-target-min)", padding: "6px 4px", fontWeight: active ? 700 : 500, color: active ? "var(--color-primary)" : "var(--color-muted)", background: active ? "var(--color-primary-soft)" : "transparent" }}
           >

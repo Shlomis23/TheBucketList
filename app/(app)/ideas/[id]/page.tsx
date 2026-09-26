@@ -7,6 +7,7 @@ import { listComments } from "@/lib/dal/comments";
 import { IdeaConversation } from "@/components/IdeaConversation";
 import { categoryLabels, formatCostMinor, formatDurationMinutes, reactionLabels, reactionBadgeClass } from "@/lib/validation/idea";
 import { CoverImg } from "@/components/CoverImg";
+import { BackButton } from "@/components/BackButton";
 import { linkHost } from "@/lib/validation/comment";
 import { NavigateTile } from "@/components/NavigateTile";
 import { markIdeaRead } from "@/lib/dal/conversations";
@@ -34,7 +35,10 @@ export default async function IdeaDetailPage({
 
   return (
     <div className="page">
-      <CoverImg category={idea.category} className="hero-banner" />
+      <div className="hero-wrap">
+        <CoverImg category={idea.category} className="hero-banner" />
+        <BackButton fallback="/ideas" />
+      </div>
       <div className="flex gap-8 items-center mb-8">
         <span className="badge badge-neutral">{categoryLabels[idea.category]}</span>
         {idea.isMatch && <span className="badge badge-green">מאצ&apos;!</span>}

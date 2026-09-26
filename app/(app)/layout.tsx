@@ -4,6 +4,8 @@ import { MatchCelebration } from "@/components/MatchCelebration";
 import { getMatchCelebrationState } from "@/lib/dal/matches";
 import { getMyProfile } from "@/lib/dal/profile";
 import { ThemeSync } from "@/components/ThemeSync";
+import { NavMemory } from "@/components/NavMemory";
+import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { parseTheme, THEME_COOKIE } from "@/lib/themes";
 
@@ -31,6 +33,10 @@ export default async function AppLayout({
       </main>
       <BottomNav />
       <AppLifecycle />
+      {/* useSearchParams — בתוך Suspense לפי כללי Next. */}
+      <Suspense fallback={null}>
+        <NavMemory />
+      </Suspense>
       {themeMismatch && profile && <ThemeSync theme={profile.colorTheme} />}
       {match && <MatchCelebration me={match.me} partner={match.partner} unseen={match.unseen} />}
     </div>

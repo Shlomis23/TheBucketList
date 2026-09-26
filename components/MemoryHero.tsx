@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { OPEN_PHOTO_EVENT } from "@/components/MemoryPhotos";
 import { CoverImg } from "@/components/CoverImg";
+import { goBack } from "@/lib/nav/memory";
 import type { IdeaCategory } from "@/lib/validation/idea";
 
 // באנר עליון בדף זיכרון (26.9): התמונה היא הגיבורה. כל התמונות בגלילה
@@ -37,9 +38,9 @@ export function MemoryHero({
     el.scrollTo({ left: -i * el.clientWidth, behavior: "smooth" });
   }
 
+  // מסך קודם באפליקציה (מדלג על טפסים) ולנקודה שבה עצרנו; אחרת לרשימה.
   function back() {
-    if (window.history.length > 1) router.back();
-    else router.push("/memories");
+    goBack(router, "/memories");
   }
 
   return (
