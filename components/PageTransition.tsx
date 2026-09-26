@@ -1,28 +1,29 @@
-import { ViewTransition } from "react";
+"use client";
 
-// מעברים חלקים בין מסכים (26.9) — React <ViewTransition> + View Transitions
-// API של הדפדפן (בלי תמיכה: המעבר פשוט מיידי, כמו קודם).
-//   list   — בית/רעיונות/תוכניות/זיכרונות/הגדרות: יוצא בהחלקה כשנכנסים
-//            לפריט (nav-forward), ובהחלפת לשונית — הצלבה קצרה (nav-tab).
-//   detail — רעיון/תוכנית/זיכרון/טפסים/סבב: נכנס בהחלקה (nav-forward), ויוצא
-//            בהחלקה חזרה בכל מעבר אחר (כפתור חזרה, "אחורה", לשונית מתוך האזור).
-// בכניסה בלי סוג: כלום — כדי שטעינה (שלד -> תוכן) לא תחליק לשום כיוון.
-// הסוגים: transitionTypes על הקישורים (nav-forward בכניסה לפריט, nav-tab
-// בניווט התחתון). CSS: app/styles/screens.css ("מעברים").
-const LIST = {
-  enter: { "nav-tab": "nav-tab", default: "none" },
-  exit: { "nav-forward": "nav-forward", "nav-tab": "nav-tab", default: "none" },
-};
-const DETAIL = {
-  enter: { "nav-forward": "nav-forward", default: "none" },
-  exit: { "nav-forward": "nav-forward", "nav-tab": "nav-tab", default: "nav-back" },
-};
+import { useLayoutEffect, useRef } from "react";
 
-export function PageTransition({ kind, children }: { kind: "list" | "detail"; children: React.ReactNode }) {
-  const t = kind === "list" ? LIST : DETAIL;
+// מעבר חלק בכניסה למסך (26.9, גרסה 2). הגרסה הראשונה (React ViewTransition)
+// לא נראתה בפועל: מסך שנטען מהשרת מגיע אחרי שלד הטעינה, והאנימציה רצה על
+// השלד ולא על התוכן. כאן — אנימציית CSS רגילה ברגע שהמסך עצמו עולה (אחרי
+// השלד), בכל דפדפן. הכיוון נקבע ב-NavMemory ברגע הלחיצה (data-nav על <html>):
+//   forward — נכנסים לפריט: מחליק פנימה משמאל (כמו באייפון בעברית)
+//   back    — חוזרים: מחליק פנימה מימין
+//   tab     — לשונית אחרת: דהייה קצרה
+// טעינה ראשונה / רענון — בלי אנימציה. kind נשמר לתאימות (לא בשימוש).
+export function PageTransition({ children }: { kind?: "list" | "detail"; children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    const nav = root.getAttribute("data-nav");
+    const at = Number(root.getAttribute("data-nav-at") ?? 0);
+    root.removeAttribute("data-nav"); // נצרך — מסך אחד מקבל אנימציה אחת
+    // עד 4 שניות מהלחיצה (כולל טעינה); מעבר ישן יותר — בלי אנימציה.
+    if (!nav || Date.now() - at > 4000) return;
+    ref.current?.setAttribute("data-enter", nav);
+  }, []);
   return (
-    <ViewTransition enter={t.enter} exit={t.exit} default="none">
+    <div ref={ref} className="page-anim">
       {children}
-    </ViewTransition>
+    </div>
   );
 }

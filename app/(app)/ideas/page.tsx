@@ -45,7 +45,7 @@ export default async function IdeasPage({
             {archived ? "ארכיון רעיונות" : "רעיונות"}
           </h1>
           {!archived && (
-            <Link transitionTypes={["nav-forward"]} href="/ideas/new" className="btn btn-primary" style={{ padding: "0 18px", minHeight: 40 }}>
+            <Link href="/ideas/new" className="btn btn-primary" style={{ padding: "0 18px", minHeight: 40 }}>
               + רעיון
             </Link>
           )}
@@ -65,7 +65,7 @@ export default async function IdeasPage({
             <EmptyState
               title="מה הדבר הראשון שבא לכם לעשות?"
               action={
-                <Link transitionTypes={["nav-forward"]} href="/ideas/new" className="btn btn-primary">
+                <Link href="/ideas/new" className="btn btn-primary">
                   הוספת רעיון
                 </Link>
               }
@@ -123,7 +123,7 @@ type PartnerInfo = { present: boolean; name: string | null };
 // קטגוריה, כדי שהמספר יתאים למה שיופיע בסבב (כל מה שעוד לא הגבתי עליו).
 function ReviewBanner({ count, titles }: { count: number; titles: string[] }) {
   return (
-    <Link transitionTypes={["nav-forward"]} href="/ideas/review" className="review-banner">
+    <Link href="/ideas/review" className="review-banner">
       <span className="review-banner-count">{count}</span>
       <span className="review-banner-text">
         <b>{count === 1 ? "רעיון מחכה לתגובה שלך" : "מחכים לתגובה שלך"}</b>
@@ -175,10 +175,10 @@ function IdeaRow({ idea, archived, partner }: { idea: IdeaListItemDto; archived:
 
   return (
     <div className="card idea-row" data-idea-id={idea.id}>
-      <Link href={href} transitionTypes={["nav-forward"]} className="idea-row-thumb-link" tabIndex={-1} aria-hidden="true">
+      <Link href={href} className="idea-row-thumb-link" tabIndex={-1} aria-hidden="true">
         <CoverImg category={idea.category} className="idea-row-thumb" />
       </Link>
-      <Link href={href} transitionTypes={["nav-forward"]} className="idea-row-text">
+      <Link href={href} className="idea-row-text">
         <div className="idea-row-title-line">
           <p className="idea-row-title">{idea.title}</p>
           {tag && <span className={`status-tag ${tag.kind}`}>{tag.label}</span>}

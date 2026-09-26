@@ -17,7 +17,7 @@ export function MemoryTile({ memory, wide = false }: { memory: MemoryDto; wide?:
     ? `/api/photos/${memory.coverPhotoId}/content${wide ? "" : "?v=thumb"}`
     : null;
   return (
-    <Link transitionTypes={["nav-forward"]} href={`/memories/${memory.id}`} className={wide ? "album-tile wide" : "album-tile"}>
+    <Link href={`/memories/${memory.id}`} className={wide ? "album-tile wide" : "album-tile"}>
       <span className="album-img-wrap">
         {photo ? (
           // eslint-disable-next-line @next/next/no-img-element -- תמונה פרטית דרך route מאומת, לא next/image

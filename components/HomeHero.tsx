@@ -39,7 +39,7 @@ export function HeroCard({
           {plan.meetingPlace ? ` · ${plan.meetingPlace}` : ""}
         </p>
         {plan.navPlace && <NavigateTile place={plan.navPlace} placeId={plan.navPlaceId} className="mb-8" />}
-        <Link transitionTypes={["nav-forward"]} href={`/plans/${plan.id}`} className="btn btn-block hero-btn-glass">
+        <Link href={`/plans/${plan.id}`} className="btn btn-block hero-btn-glass">
           לתוכנית
         </Link>
       </section>
@@ -54,10 +54,10 @@ export function HeroCard({
         <h2 className="hero-title">איך היה: {past.title}?</h2>
         <p className="hero-sub">שומרים כזיכרון, עם תמונות?</p>
         <div className="hero-actions">
-          <Link transitionTypes={["nav-forward"]} href={`/plans/${past.id}?complete=1`} className="btn hero-btn-white">
+          <Link href={`/plans/${past.id}?complete=1`} className="btn hero-btn-white">
             עשינו את זה!
           </Link>
-          <Link transitionTypes={["nav-forward"]} href={`/plans/${past.id}`} className="btn hero-btn-glass">
+          <Link href={`/plans/${past.id}`} className="btn hero-btn-glass">
             לא יצא
           </Link>
         </div>
@@ -76,7 +76,7 @@ export function HeroCard({
           <span className="hero-kicker yellow">חדש {from}</span>
           <h2 className="hero-title">{total} רעיונות חדשים</h2>
           <p className="hero-sub">{pendingPreview(home.partnerNewIdeas.map((i) => i.title), total)}</p>
-          <Link transitionTypes={["nav-forward"]} href={`/ideas/review?first=${idea.id}`} className="btn btn-primary btn-block">
+          <Link href={`/ideas/review?first=${idea.id}`} className="btn btn-primary btn-block">
             לסבב החלטות
           </Link>
         </section>
@@ -85,7 +85,7 @@ export function HeroCard({
     return (
       <section className="hero-card light" aria-label={`רעיון חדש ${from}`}>
         <span className="hero-kicker yellow">חדש {from}</span>
-        <Link transitionTypes={["nav-forward"]} href={`/ideas/${idea.id}`} className="hero-link">
+        <Link href={`/ideas/${idea.id}`} className="hero-link">
           <h2 className="hero-title">{idea.title}</h2>
           <p className="hero-sub">{categoryLabels[idea.category]} · עוד לא ענית</p>
         </Link>
@@ -101,7 +101,7 @@ export function HeroCard({
         <span className="hero-kicker soft">{c.unreadCount === 1 ? "הודעה חדשה" : `${c.unreadCount} הודעות חדשות`}</span>
         <h2 className="hero-title">{c.ideaTitle}</h2>
         <p className="hero-sub">{c.lastAuthor ? `מ${c.lastAuthor}, בשיחה על הרעיון` : "בשיחה על הרעיון"}</p>
-        <Link transitionTypes={["nav-forward"]} href={`/ideas/${c.ideaId}`} className="btn btn-primary btn-block">
+        <Link href={`/ideas/${c.ideaId}`} className="btn btn-primary btn-block">
           לשיחה
         </Link>
       </section>
@@ -117,7 +117,7 @@ export function HeroCard({
           {upcomingWhenLabel(plan.startsAt)}
           {plan.meetingPlace ? ` · ${plan.meetingPlace}` : ""}
         </p>
-        <Link transitionTypes={["nav-forward"]} href={`/plans/${plan.id}`} className="btn btn-block hero-btn-glass">
+        <Link href={`/plans/${plan.id}`} className="btn btn-block hero-btn-glass">
           לתוכנית
         </Link>
       </section>
@@ -172,7 +172,7 @@ export function HomeRow({ row }: { row: Row }) {
 
 export function LatestMemoryRow({ memory }: { memory: MemoryDto }) {
   return (
-    <Link transitionTypes={["nav-forward"]} href={`/memories/${memory.id}`} className="home-row mt-4">
+    <Link href={`/memories/${memory.id}`} className="home-row mt-4">
       {memory.coverPhotoId ? (
         // eslint-disable-next-line @next/next/no-img-element -- תמונה פרטית דרך route מאומת, לא next/image
         <img src={`/api/photos/${memory.coverPhotoId}/content?v=thumb`} alt="" className="home-row-thumb" loading="lazy" />

@@ -41,6 +41,17 @@ export function newEntryId() {
   return `${SESSION}-${++counter}`;
 }
 
+// כיוון המעבר לאנימציית הכניסה (components/PageTransition): data-nav על
+// <html>, נצרך כשהמסך הבא עולה. עם חותמת זמן, כדי שלחיצה שלא הובילה לניווט
+// לא "תדלוף" למסך שייפתח הרבה אחר כך.
+export type NavDirection = "forward" | "back" | "tab";
+export function setNavDirection(dir: NavDirection) {
+  if (typeof document === "undefined") return; // בדיקות יחידה (node)
+  const root = document.documentElement;
+  root.setAttribute("data-nav", dir);
+  root.setAttribute("data-nav-at", String(Date.now()));
+}
+
 export function freezeSaving() {
   frozen = true;
   frozenSince = Date.now();
@@ -120,6 +131,7 @@ function goToList(router: Router, listPath: string) {
   const url = lastListUrl.get(listPath) ?? listPath;
   pendingRestoreUrl = url;
   freezeSaving();
+  setNavDirection("back");
   router.push(url, { scroll: false });
 }
 

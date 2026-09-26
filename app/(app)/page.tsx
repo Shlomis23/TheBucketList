@@ -124,7 +124,7 @@ export default async function HomePage() {
         )}
   
         {hero !== "idle" && (
-          <Link transitionTypes={["nav-forward"]} href="/choose" className="btn btn-block home-choose">
+          <Link href="/choose" className="btn btn-block home-choose">
             מה עושים היום?
           </Link>
         )}
@@ -132,7 +132,7 @@ export default async function HomePage() {
         {latestMemory && latestMemory.id !== onThisDay?.memory.id && <LatestMemoryRow memory={latestMemory} />}
   
         {home.ideasCount === 0 && (
-          <Link transitionTypes={["nav-forward"]}
+          <Link
             href="/ideas/new"
             className="card block no-underline mb-12"
           >

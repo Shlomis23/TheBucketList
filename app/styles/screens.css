@@ -1114,57 +1114,41 @@
 }
 
 /* ---------------------------------------------------------------------------
-   מעברים בין מסכים (26.9, components/PageTransition.tsx). מימין לשמאל: פריט
-   חדש נכנס משמאל (כמו באייפון בעברית), וחוזר החוצה שמאלה. הניווט התחתון
-   נשאר במקום. בלי תמיכה בדפדפן — מעבר מיידי.
+   מעברים בין מסכים (26.9, components/PageTransition.tsx + NavMemory). מימין
+   לשמאל: פריט חדש נכנס משמאל, חזרה — מימין. רק בעליית המסך עצמו.
+   backwards ולא both: כשהאנימציה נגמרת לא נשאר transform — אחרת רכיבים
+   ב-position: fixed בתוך המסך (סבב, צפייה בתמונה) היו זזים איתו.
    --------------------------------------------------------------------------- */
-::view-transition {
-  pointer-events: none;
+.page-anim[data-enter="forward"] {
+  animation: page-in-forward 280ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
 }
-::view-transition-old(.nav-forward) {
-  --slide-offset: 48px;
-  animation:
-    140ms ease-in both vt-fade reverse,
-    320ms ease-in-out both vt-slide reverse;
+.page-anim[data-enter="back"] {
+  animation: page-in-back 260ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
 }
-::view-transition-new(.nav-forward) {
-  --slide-offset: -48px;
-  animation:
-    200ms ease-out 100ms both vt-fade,
-    320ms ease-in-out both vt-slide;
+.page-anim[data-enter="tab"] {
+  animation: page-in-fade 180ms ease-out backwards;
 }
-::view-transition-old(.nav-back) {
-  --slide-offset: -48px;
-  animation:
-    160ms ease-in both vt-fade reverse,
-    300ms ease-in-out both vt-slide reverse;
+@keyframes page-in-forward {
+  from {
+    opacity: 0;
+    transform: translateX(-36px);
+  }
 }
-::view-transition-old(.nav-tab),
-::view-transition-new(.nav-tab) {
-  animation-duration: 160ms;
+@keyframes page-in-back {
+  from {
+    opacity: 0;
+    transform: translateX(36px);
+  }
 }
-@keyframes vt-fade {
+@keyframes page-in-fade {
   from {
     opacity: 0;
   }
-  to {
-    opacity: 1;
-  }
 }
-@keyframes vt-slide {
-  from {
-    translate: var(--slide-offset);
-  }
-  to {
-    translate: 0;
-  }
-}
+/* "הפחתת תנועה" בטלפון: בלי החלקה — רק דהייה קצרה (לא תנועה, לכן מותרת). */
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(*),
-  ::view-transition-new(*),
-  ::view-transition-group(*) {
-    animation-duration: 0s !important;
-    animation-delay: 0s !important;
+  .page-anim[data-enter] {
+    animation: page-in-fade 160ms ease-out backwards;
   }
 }
 

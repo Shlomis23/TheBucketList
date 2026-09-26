@@ -2,7 +2,16 @@
 
 import { useEffect, useLayoutEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { ENTRY_KEY, freezeSaving, newEntryId, recordNavigation, saveScroll, unfreezeSaving } from "@/lib/nav/memory";
+import {
+  ENTRY_KEY,
+  freezeSaving,
+  isListPath,
+  newEntryId,
+  recordNavigation,
+  saveScroll,
+  setNavDirection,
+  unfreezeSaving,
+} from "@/lib/nav/memory";
 
 // שומר את מיקום הגלילה בכל רשימה ומחזיר אותו בחזרה אליה (26.9) — מכפתור
 // החזרה, מלחיצה על הלשונית מתוך רעיון, ומ"אחורה" של אנדרואיד.
@@ -54,8 +63,14 @@ export function NavMemory() {
       const a = (e.target as Element | null)?.closest?.("a[href]");
       if (!a) return;
       const href = a.getAttribute("href") ?? "";
-      if (href.startsWith("/") && href !== currentUrl()) freezeSaving();
+      if (!href.startsWith("/") || href === currentUrl()) return;
+      freezeSaving();
+      // כיוון המעבר לאנימציית הכניסה (PageTransition): ניווט תחתון/רשימה —
+      // דהייה; פריט — פנימה.
+      setNavDirection(a.closest("nav.bottom-nav") || isListPath(href.split("?")[0]) ? "tab" : "forward");
     };
+    // הכיוון "back" מסומן ב-app/layout.tsx (סקריפט שנרשם לפני Next) — כאן
+    // זה כבר מאוחר מדי, והסימון היה "דולף" לניווט הבא.
     const onPopState = () => freezeSaving();
     // מזהה לכל רשומת היסטוריה: push מקבל מזהה חדש, replace שומר את המזהה של
     // הרשומה הנוכחית. Next (ו-MemoriesBrowser) קוראים ל-history ישירות, לכן

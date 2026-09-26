@@ -38,8 +38,6 @@ export function BottomNav() {
             // טעינה מראש מלאה (לא רק שלד הטעינה) — הלשוניות נפתחות מיד.
             // נשמר בטלפון 60 שניות (staleTimes.static ב-next.config.ts).
             prefetch={true}
-            // מעבר בין לשוניות — הצלבה קצרה (PageTransition); הניווט עצמו לא זז.
-            transitionTypes={["nav-tab"]}
             // כמו באפליקציות אייפון: ברשימה — לראש הרשימה; בתוך רעיון — חזרה
             // לרשימה לנקודה שבה עצרנו (lib/nav/memory.ts).
             onClick={(e) => {

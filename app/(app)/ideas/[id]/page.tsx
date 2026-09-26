@@ -151,7 +151,7 @@ export default async function IdeaDetailPage({
   
             <IdeaConversation ideaId={idea.id} comments={comments} canPost />
   
-            <Link transitionTypes={["nav-forward"]}
+            <Link
               href={`/ideas/${idea.id}/edit`}
               className="link-plain inline-block mb-16"
             >
@@ -159,11 +159,11 @@ export default async function IdeaDetailPage({
             </Link>
   
             {idea.activePlanId ? (
-              <Link transitionTypes={["nav-forward"]} href={`/plans/${idea.activePlanId}`} className="btn btn-block bg-soft c-primary mb-16">
+              <Link href={`/plans/${idea.activePlanId}`} className="btn btn-block bg-soft c-primary mb-16">
                 כבר יש תוכנית לרעיון הזה &larr;
               </Link>
             ) : (
-              <Link transitionTypes={["nav-forward"]} href={`/plans/new?ideaId=${idea.id}`} className="btn btn-primary btn-block mb-16">
+              <Link href={`/plans/new?ideaId=${idea.id}`} className="btn btn-primary btn-block mb-16">
                 תכננו את זה
               </Link>
             )}

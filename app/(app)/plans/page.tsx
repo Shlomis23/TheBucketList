@@ -19,7 +19,7 @@ export default async function PlansPage() {
         <EmptyState
           title="אין תוכנית פתוחה כרגע — בחרו רעיון כדי להתחיל. מה שכבר עשיתם מחכה בזיכרונות."
           action={
-            <Link transitionTypes={["nav-forward"]} href="/choose" className="btn btn-primary">
+            <Link href="/choose" className="btn btn-primary">
               מה עושים?
             </Link>
           }
@@ -70,7 +70,7 @@ function PlanCard({ plan }: { plan: PlanDto }) {
   ) : null;
 
   return (
-    <Link transitionTypes={["nav-forward"]}
+    <Link
       href={`/plans/${plan.id}`}
       data-plan-id={plan.id}
       className="card block no-underline"

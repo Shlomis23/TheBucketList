@@ -175,7 +175,7 @@ export function PlanDetail({
           )}
 
           {memoryId && (
-            <Link transitionTypes={["nav-forward"]} href={`/memories/${memoryId}`} className="btn btn-primary btn-block mb-12">
+            <Link href={`/memories/${memoryId}`} className="btn btn-primary btn-block mb-12">
               לזיכרון &larr;
             </Link>
           )}

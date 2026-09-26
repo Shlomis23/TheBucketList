@@ -67,6 +67,9 @@ export async function generateViewport(): Promise<Viewport> {
   };
 }
 
+const NAV_BACK_SCRIPT =
+  'addEventListener("popstate",function(){var r=document.documentElement;r.setAttribute("data-nav","back");r.setAttribute("data-nav-at",String(Date.now()))},true)';
+
 export default async function RootLayout({
   children,
 }: {
@@ -76,6 +79,13 @@ export default async function RootLayout({
   const theme = parseTheme((await cookies()).get(THEME_COOKIE)?.value);
   return (
     <html lang="he" dir="rtl" className={rubik.variable} data-color={theme === DEFAULT_THEME ? undefined : theme}>
+      <head>
+        {/* מעבר "חזרה" (26.9): React מסיים את הניווט של popstate באופן סינכרוני
+            בתוך המאזין של Next — מאזין שנרשם אחריו (NavMemory) מסמן מאוחר מדי,
+            והמסך כבר עלה בלי אנימציה. לכן נרשמים כאן, לפני ש-Next עולה.
+            נצרך ע"י components/PageTransition. */}
+        <script dangerouslySetInnerHTML={{ __html: NAV_BACK_SCRIPT }} />
+      </head>
       <body>
         <ThemeProvider initialTheme={theme}>{children}</ThemeProvider>
         <ServiceWorkerRegister />

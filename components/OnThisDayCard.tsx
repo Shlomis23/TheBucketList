@@ -7,7 +7,7 @@ import { CoverImg } from "@/components/CoverImg";
 export function OnThisDayCard({ memory, label }: { memory: MemoryDto; label: string }) {
   const firstLine = memory.story.split("\n").find((l) => l.trim())?.trim() ?? "";
   return (
-    <Link transitionTypes={["nav-forward"]} href={`/memories/${memory.id}`} className="otd-card" aria-label={`${label}: ${memory.title}`}>
+    <Link href={`/memories/${memory.id}`} className="otd-card" aria-label={`${label}: ${memory.title}`}>
       {memory.coverPhotoId ? (
         // eslint-disable-next-line @next/next/no-img-element -- תמונה פרטית דרך route מאומת
         <img src={`/api/photos/${memory.coverPhotoId}/content`} alt="" className="otd-img" decoding="async" />
