@@ -38,6 +38,10 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     startupImage: splashStartupImages,
   },
+  // מאז Next 15, capable: true מפיק רק mobile-web-app-capable (התג של
+  // אפל סומן כמיושן בכרום). אבל האייפון עדיין מציג את apple-touch-startup-image
+  // רק כשהתג הישן קיים — בלעדיו יש מסך לבן בפתיחה (vercel/next.js#74524).
+  other: { "apple-mobile-web-app-capable": "yes" },
 };
 
 // iOS בלבד: maximum-scale=1 מבטל את הזום האוטומטי של Safari כשנוגעים בשדה
