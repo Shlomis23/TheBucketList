@@ -2,11 +2,11 @@
 // אחת, תמונה 56px, בלי גלולות תגובה) — כדי שלא תהיה קפיצת layout כשהדאטה
 // האמיתית נכנסת.
 import { PageTransition } from "@/components/PageTransition";
-import { IdeaOrListSkeleton } from "@/components/IdeaSkeleton";
+import { DetailOrListSkeleton } from "@/components/DetailSkeletons";
 export default function Loading() {
-  // רעיון שנלחץ לפני שהמבנה שלו נטען מראש — שלד רעיון (IdeaOrListSkeleton).
+  // פריט שנלחץ לפני שהמבנה שלו נטען מראש — שלד הפריט (DetailOrListSkeleton).
   return (
-    <IdeaOrListSkeleton
+    <DetailOrListSkeleton
       list={
         <PageTransition skeleton="settle">
           <div className="page">

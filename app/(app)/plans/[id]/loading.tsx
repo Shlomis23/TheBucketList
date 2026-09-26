@@ -1,21 +1,8 @@
-// שלד טעינה ל-`/plans/[id]` — hero + סטטוס + כרטיס פרטים, אותה גיאומטריה
-// כמו PlanDetail.tsx.
-import { PageTransition } from "@/components/PageTransition";
-export default function Loading() {
-  return (
-    <PageTransition skeleton="settle">
-      <div className="page">
-        <div className="skeleton skeleton-cover skeleton-hero" />
-        <div className="skeleton rounded-pill mb-12" style={{ width: 90, height: 22 }} />
-        <div className="skeleton skeleton-title" style={{ width: "70%", height: 24 }} />
-        <div className="skeleton skeleton-line mb-20" style={{ width: "50%" }} />
+// שלד טעינה ל-`/plans/[id]` — אותה גיאומטריה כמו PlanDetail.tsx. כשנכנסים
+// מהרשימה או מהבית, החלק העליון (איור, סטטוס, שם, מועד) כבר ידוע ומוצג מיד
+// (components/DetailSkeletons, lib/nav/preview).
+import { PlanSkeleton } from "@/components/DetailSkeletons";
 
-        <div className="card">
-          <div className="skeleton skeleton-line mb-12" style={{ width: "40%" }} />
-          <div className="skeleton skeleton-line mb-8" style={{ width: "80%" }} />
-          <div className="skeleton skeleton-line" style={{ width: "60%" }} />
-        </div>
-      </div>
-    </PageTransition>
-  );
+export default function Loading() {
+  return <PlanSkeleton />;
 }

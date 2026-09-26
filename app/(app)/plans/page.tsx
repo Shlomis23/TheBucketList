@@ -4,6 +4,7 @@ import { listPlans, type PlanDto } from "@/lib/dal/plans";
 import { formatPlanWhen, isPlanPast, pastWhenLabel } from "@/lib/validation/plan";
 import { CoverImg } from "@/components/CoverImg";
 import { PageTransition } from "@/components/PageTransition";
+import { planPreviewAttr } from "@/lib/nav/preview";
 
 // תוכניות `/plans` — רק פעילות. מה שבוצע נמצא בזיכרונות, מה שבוטל לא מוצג
 // (25.9). בלי "מוצעות/מאושרות" — אין שלב אישור (25.9). למעלה "המועד עבר",
@@ -74,6 +75,7 @@ function PlanCard({ plan }: { plan: PlanDto }) {
       href={`/plans/${plan.id}`}
       data-plan-id={plan.id}
       className="card block no-underline"
+      {...planPreviewAttr(plan)}
     >
       {plan.ideaCategory && (
         <CoverImg category={plan.ideaCategory} className="card-cover-img cover-sm" />

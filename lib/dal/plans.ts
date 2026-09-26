@@ -55,16 +55,19 @@ type PlanRow = {
 // listPlans/getPlan — קריאה בלבד, דרך client עם JWT המשתמש (member_read,
 // 0002_rls.sql). משלים מהרעיון: קטגוריה (תמונת עטיפה, lib/covers.ts) וקישור
 // ומיקום לכרטיס "מהרעיון". (שלב האישור בוטל ב-25.9; הטבלה נמחקה ב-0028.)
-async function attachIdeaDetails(plans: PlanRow[]): Promise<PlanDto[]> {
-  if (plans.length === 0) return [];
-  const supabase = await createSupabaseServerClient();
+//
+// הרעיונות נשלפים כולם (RLS: רק של המרחב שלי — עשרות שורות) במקביל לשאילתת
+// התוכניות (27.9, מהירות), במקום שאילתה שנייה אחרי שיודעים אילו idea_id.
+type IdeaDetailsRow = { id: string; category: IdeaCategory; source_url: string | null; location_text: string | null; place_id: string | null };
 
-  const ideaIds = Array.from(new Set(plans.map((p) => p.idea_id)));
-  const { data: ideas } = await supabase
+function allIdeaDetails(supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>) {
+  return supabase
     .from("ideas")
     .select("id, category, source_url, location_text, place_id")
-    .in("id", ideaIds)
-    .returns<{ id: string; category: IdeaCategory; source_url: string | null; location_text: string | null; place_id: string | null }[]>();
+    .returns<IdeaDetailsRow[]>();
+}
+
+function attachIdeaDetails(plans: PlanRow[], ideas: IdeaDetailsRow[] | null): PlanDto[] {
   const ideaById = new Map((ideas ?? []).map((i) => [i.id, i]));
 
   return plans.map((p) => {
@@ -96,14 +99,17 @@ export async function listPlans(): Promise<PlanDto[]> {
   if (!userId) return [];
 
   const supabase = await createSupabaseServerClient();
-  const { data: plans } = await supabase
-    .from("plans")
-    .select("id, idea_id, title, status, starts_at, ends_at, timezone, meeting_place, notes, budget_minor, version, created_at")
-    .eq("status", "proposed")
-    .order("starts_at", { ascending: true, nullsFirst: false })
-    .returns<PlanRow[]>();
+  const [{ data: plans }, { data: ideas }] = await Promise.all([
+    supabase
+      .from("plans")
+      .select("id, idea_id, title, status, starts_at, ends_at, timezone, meeting_place, notes, budget_minor, version, created_at")
+      .eq("status", "proposed")
+      .order("starts_at", { ascending: true, nullsFirst: false })
+      .returns<PlanRow[]>(),
+    allIdeaDetails(supabase),
+  ]);
 
-  return attachIdeaDetails(plans ?? []);
+  return attachIdeaDetails(plans ?? [], ideas);
 }
 
 export async function getPlan(planId: string): Promise<PlanDetailDto | null> {
@@ -111,28 +117,30 @@ export async function getPlan(planId: string): Promise<PlanDetailDto | null> {
   if (!userId) return null;
 
   const supabase = await createSupabaseServerClient();
-  const { data: plan } = await supabase
-    .from("plans")
-    .select("id, idea_id, title, status, starts_at, ends_at, timezone, meeting_place, notes, budget_minor, version, created_at")
-    .eq("id", planId)
-    .maybeSingle<PlanRow>();
-  if (!plan) return null;
-
-  // הקישורים מהשיחה נשלפים במקביל לפרטי הרעיון — idea_id כבר ידוע מהשורה.
-  const [[dto], { data: comments }] = await Promise.all([
-    attachIdeaDetails([plan]),
+  // הכל במקביל (27.9, מהירות) — קפיצת רשת אחת. idea_id עוד לא ידוע, לכן
+  // הרעיונות וההודעות נשלפים לכל המרחב (RLS; בקנה המידה של זוג — מאות שורות
+  // לכל היותר) ומסוננים כאן. בלי סינון "יש קישור" ב-DB: גם "ynet.co.il" בלי
+  // https נחשב קישור (LINK_RE ב-lib/validation/comment.ts).
+  const [{ data: plan }, { data: ideas }, { data: linkComments }] = await Promise.all([
+    supabase
+      .from("plans")
+      .select("id, idea_id, title, status, starts_at, ends_at, timezone, meeting_place, notes, budget_minor, version, created_at")
+      .eq("id", planId)
+      .maybeSingle<PlanRow>(),
+    allIdeaDetails(supabase),
     supabase
       .from("idea_comments")
-      .select("body")
-      .eq("idea_id", plan.idea_id)
+      .select("idea_id, body")
       .order("created_at", { ascending: false })
-      .returns<{ body: string }[]>(),
+      .returns<{ idea_id: string; body: string }[]>(),
   ]);
-  if (!dto) return null;
+  if (!plan) return null;
+  const [dto] = attachIdeaDetails([plan], ideas);
+  const comments = (linkComments ?? []).filter((c) => c.idea_id === plan.idea_id);
 
   const seen = new Set<string>(dto.ideaSourceUrl ? [dto.ideaSourceUrl] : []);
   const conversationLinks: string[] = [];
-  for (const c of comments ?? []) {
+  for (const c of comments) {
     for (const url of extractHttpsLinks(c.body)) {
       if (seen.has(url)) continue;
       seen.add(url);

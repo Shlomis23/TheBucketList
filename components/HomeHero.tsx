@@ -9,7 +9,7 @@ import { categoryLabels } from "@/lib/validation/idea";
 import { formatMemoryDate } from "@/lib/validation/memory";
 import { ReactionControl } from "@/components/ReactionControl";
 import { NavigateTile } from "@/components/NavigateTile";
-import { previewAttr } from "@/lib/nav/preview";
+import { ideaPreviewAttr, memoryPreviewAttr, planPreviewAttr } from "@/lib/nav/preview";
 
 // רכיבי מסך הבית (26.9, אפשרות א): הכרטיס הגדול, שורות "עוד בשבילך",
 // ושורת "הזיכרון האחרון". ההחלטה מה עולה לכרטיס — lib/validation/home.ts.
@@ -40,7 +40,7 @@ export function HeroCard({
           {plan.meetingPlace ? ` · ${plan.meetingPlace}` : ""}
         </p>
         {plan.navPlace && <NavigateTile place={plan.navPlace} placeId={plan.navPlaceId} className="mb-8" />}
-        <Link href={`/plans/${plan.id}`} className="btn btn-block hero-btn-glass">
+        <Link href={`/plans/${plan.id}`} className="btn btn-block hero-btn-glass" {...planPreviewAttr(plan)}>
           לתוכנית
         </Link>
       </section>
@@ -55,10 +55,10 @@ export function HeroCard({
         <h2 className="hero-title">איך היה: {past.title}?</h2>
         <p className="hero-sub">שומרים כזיכרון, עם תמונות?</p>
         <div className="hero-actions">
-          <Link href={`/plans/${past.id}?complete=1`} className="btn hero-btn-white">
+          <Link href={`/plans/${past.id}?complete=1`} className="btn hero-btn-white" {...planPreviewAttr(past)}>
             עשינו את זה!
           </Link>
-          <Link href={`/plans/${past.id}`} className="btn hero-btn-glass">
+          <Link href={`/plans/${past.id}`} className="btn hero-btn-glass" {...planPreviewAttr(past)}>
             לא יצא
           </Link>
         </div>
@@ -86,7 +86,7 @@ export function HeroCard({
     return (
       <section className="hero-card light" aria-label={`רעיון חדש ${from}`}>
         <span className="hero-kicker yellow">חדש {from}</span>
-        <Link href={`/ideas/${idea.id}`} className="hero-link" {...previewAttr(idea)}>
+        <Link href={`/ideas/${idea.id}`} className="hero-link" {...ideaPreviewAttr(idea)}>
           <h2 className="hero-title">{idea.title}</h2>
           <p className="hero-sub">{categoryLabels[idea.category]} · עוד לא ענית</p>
         </Link>
@@ -118,7 +118,7 @@ export function HeroCard({
           {upcomingWhenLabel(plan.startsAt)}
           {plan.meetingPlace ? ` · ${plan.meetingPlace}` : ""}
         </p>
-        <Link href={`/plans/${plan.id}`} className="btn btn-block hero-btn-glass">
+        <Link href={`/plans/${plan.id}`} className="btn btn-block hero-btn-glass" {...planPreviewAttr(plan)}>
           לתוכנית
         </Link>
       </section>
@@ -173,7 +173,11 @@ export function HomeRow({ row }: { row: Row }) {
 
 export function LatestMemoryRow({ memory }: { memory: MemoryDto }) {
   return (
-    <Link href={`/memories/${memory.id}`} className="home-row mt-4">
+    <Link
+      href={`/memories/${memory.id}`}
+      className="home-row mt-4"
+      {...memoryPreviewAttr(memory, formatMemoryDate(memory.happenedOn))}
+    >
       {memory.coverPhotoId ? (
         // eslint-disable-next-line @next/next/no-img-element -- תמונה פרטית דרך route מאומת, לא next/image
         <img src={`/api/photos/${memory.coverPhotoId}/content?v=thumb`} alt="" className="home-row-thumb" loading="lazy" />

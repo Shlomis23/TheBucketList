@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { MemoryDto } from "@/lib/dal/memories";
 import { formatMemoryDate } from "@/lib/validation/memory";
 import { CoverImg } from "@/components/CoverImg";
+import { memoryPreviewAttr } from "@/lib/nav/preview";
 
 // כרטיס זיכרון — בציר הזמן (/memories) ובבית ("הזיכרון האחרון").
 // eyebrow מאפשר לבית להציג "הזיכרון האחרון" במקום התאריך.
@@ -10,6 +11,7 @@ export function MemoryCard({ memory, eyebrow }: { memory: MemoryDto; eyebrow?: s
     <Link
       href={`/memories/${memory.id}`}
       className="card block no-underline c-inherit mb-12"
+      {...memoryPreviewAttr(memory, formatMemoryDate(memory.happenedOn))}
     >
       {memory.coverPhotoId ? (
         // תמונה אמיתית מהיום עצמו גוברת על איור הקטגוריה. ממוזערת (480px).

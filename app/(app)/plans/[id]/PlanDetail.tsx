@@ -12,6 +12,7 @@ import {
 import { DEFAULT_PLAN_TIMEZONE, formatBudgetMinor, formatPlanWhen, isPlanPast, pastWhenLabel } from "@/lib/validation/plan";
 import { CoverImg } from "@/components/CoverImg";
 import { BackButton } from "@/components/BackButton";
+import { PlanStatusBadge } from "@/components/PlanStatusBadge";
 import { AddToCalendar } from "@/components/AddToCalendar";
 import { showToast } from "@/components/UndoToast";
 import { DateTimeRangeFields, endPartsToIso, isoToParts, partsToIso, type DateTimeParts } from "@/components/DateTimeRangeFields";
@@ -76,7 +77,7 @@ export function PlanDetail({
         <BackButton fallback="/plans" className="hero-back is-inline" />
       )}
       <div className="flex gap-8 items-center mb-8">
-        <StatusBadge plan={plan} />
+        <PlanStatusBadge status={plan.status} startsAt={plan.startsAt} />
       </div>
       <h1 className="page-title">{plan.title}</h1>
       <p className="page-subtitle">
@@ -223,14 +224,6 @@ export function PlanDetail({
       )}
     </>
   );
-}
-
-function StatusBadge({ plan }: { plan: PlanDto }) {
-  if (plan.status === "cancelled") return <span className="badge badge-neutral">בוטלה</span>;
-  if (plan.status === "completed") return <span className="badge badge-green">בוצע</span>;
-  // בלי שלב אישור (25.9): תוכנית שנוצרה = סגורה. מסמנים רק מה שחסר.
-  if (!plan.startsAt) return <span className="badge badge-yellow">מועד לא נקבע</span>;
-  return null;
 }
 
 function CancelPlanButton({

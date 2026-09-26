@@ -7,6 +7,7 @@ import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { cache } from "react";
+import { STATIC_JWKS } from "@/lib/supabase/jwks";
 
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies();
@@ -47,14 +48,14 @@ export async function createSupabaseServerClient() {
 //
 // getClaims ולא getUser (26.9, שיפור מהירות — באישור שלומי): הפרויקט חותם
 // טוקנים ב-ES256, כך ש-getClaims מאמת את החתימה והתוקף כאן בשרת מול המפתח
-// הציבורי (JWKS, נשמר בזיכרון התהליך 10 דקות) — בלי קריאת רשת ל-Auth בכל
+// הציבורי (JWKS — מהבנייה, lib/supabase/jwks.ts; 27.9) — בלי קריאת רשת ל-Auth בכל
 // דף ובכל תמונה (~165ms בממוצע לפי יומני Supabase). אי אפשר לזייף טוקן.
 // המחיר: session שבוטל בשרת (התנתקות מכל המכשירים) ממשיך לעבוד עד שהטוקן
 // פג (עד שעה). מחיקת חשבון עדיין בודקת מול Auth (lib/dal/account.ts).
 // אם הפרויקט יחזור לחתימה סימטרית, getClaims נופל אוטומטית ל-getUser.
 export const getVerifiedUserId = cache(async (): Promise<string | null> => {
   const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase.auth.getClaims();
+  const { data, error } = await supabase.auth.getClaims(undefined, { jwks: STATIC_JWKS });
   if (error || !data?.claims) return null;
   const { sub, role } = data.claims;
   if (typeof sub !== "string" || role !== "authenticated") return null;

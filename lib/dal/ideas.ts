@@ -107,15 +107,17 @@ export async function listIdeas(
 
   if (!rows || rows.length === 0) return { ideas: [], counts: { all: 0, unreacted: 0, waiting: 0, matches: 0 } };
 
-  let matchedIds = new Set<string>();
-  if (filters.status === "active") {
-    const { data: matches } = await supabase.rpc("list_my_matches", { p_space: rows[0].space_id });
-    if (Array.isArray(matches)) {
-      matchedIds = new Set((matches as { idea_id: string }[]).map((m) => m.idea_id));
-    }
-  }
-
   const myReactionByIdea = new Map((reactions ?? []).map((r) => [r.idea_id, r.preference]));
+
+  // מאצ' = רעיון פעיל ששנינו אמרנו עליו "כן" — אותו כלל כמו list_my_matches
+  // (0002_rls.sql). מחושב כאן מהתגובות שכבר נטענו (27.9, מהירות) במקום
+  // קריאת RPC נוספת אחרי ה-Promise.all, שהייתה קפיצת רשת שנייה בכל טעינה.
+  // partner_reactions מחזיר רק את בן/בת הזוג הנוכחיים — בלי בן/בת זוג אין מאצ'.
+  const matchedIds = new Set<string>(
+    filters.status === "active"
+      ? rows.filter((i) => myReactionByIdea.get(i.id) === "yes" && partnerByIdea.get(i.id) === "yes").map((i) => i.id)
+      : [],
+  );
 
   const commentCountByIdea = new Map<string, number>();
   for (const c of commentRows ?? []) {
@@ -215,33 +217,31 @@ export type IdeaDetailDto = IdeaDto & {
   reactions: ReactionWithNameDto[];
 };
 
-// getIdea — קריאה בלבד. isMatch מחושב דרך list_my_matches (RPC שכבר גרנטד
-// ל-authenticated ב-0002_rls.sql) כי own_reaction_read חוסם קריאת תגובת
-// בן/בת הזוג ישירות — זו בדיוק הסיבה ש-list_my_matches קיימת כ-RPC נפרדת.
-// reactions (24.9, שינוי מאושר לעיצוב הפרטיות המקורי) — שתי התגובות
-// (עם שם) דרך get_idea_reactions (0014), RPC יעודית מאותה סיבה בדיוק.
+// getIdea — קריאה בלבד. own_reaction_read חוסם קריאת תגובת בן/בת הזוג
+// ישירות, לכן reactions (24.9, שינוי מאושר לעיצוב הפרטיות המקורי) — שתי
+// התגובות (עם שם) דרך get_idea_reactions (0014), RPC יעודית. isMatch מחושב
+// מהן (27.9) — אותו כלל כמו list_my_matches, בלי קריאה נוספת.
 // activePlanId — תוכנית proposed קיימת לרעיון הזה, אם יש (one_active_plan_per_idea);
 // ה-UI מציג "תכננו את זה" רק כשאין כזו, ומקשר לקיימת אחרת (F6).
 export async function getIdea(ideaId: string): Promise<IdeaDetailDto | null> {
   const supabase = await createSupabaseServerClient();
 
-  const { data: idea } = await supabase
-    .from("ideas")
-    .select(
-      "id, space_id, title, description, category, location_text, place_id, source_url, cost_minor, duration_minutes, created_at, status, version",
-    )
-    .eq("id", ideaId)
-    .maybeSingle<IdeaRow & { space_id: string; place_id: string | null }>();
-  if (!idea) return null;
-
-  const [{ data: reaction }, { data: matchIds }, { data: keptPlans }, { data: reactionsWithNames }] =
+  // הכל במקביל (27.9, מהירות): כל השאילתות צריכות רק את ideaId. רעיון זר/חסר
+  // — RLS מחזיר ריק לכולן, ו-null למטה.
+  const [{ data: idea }, { data: reaction }, { data: keptPlans }, { data: reactionsWithNames }] =
     await Promise.all([
+      supabase
+        .from("ideas")
+        .select(
+          "id, space_id, title, description, category, location_text, place_id, source_url, cost_minor, duration_minutes, created_at, status, version",
+        )
+        .eq("id", ideaId)
+        .maybeSingle<IdeaRow & { space_id: string; place_id: string | null }>(),
       supabase
         .from("idea_reactions")
         .select("preference")
         .eq("idea_id", ideaId)
         .maybeSingle<{ preference: "yes" | "maybe" | "no" }>(),
-      supabase.rpc("list_my_matches", { p_space: idea.space_id }),
       supabase
         .from("plans")
         .select("id, status")
@@ -251,15 +251,16 @@ export async function getIdea(ideaId: string): Promise<IdeaDetailDto | null> {
       supabase.rpc("get_idea_reactions", { p_idea_id: ideaId }),
     ]);
 
-  const isMatch = Array.isArray(matchIds)
-    ? matchIds.some((m: { idea_id: string }) => m.idea_id === ideaId)
-    : false;
+  if (!idea) return null;
 
   const reactions: ReactionWithNameDto[] = Array.isArray(reactionsWithNames)
     ? (reactionsWithNames as { user_id: string; display_name: string; preference: "yes" | "maybe" | "no" | null }[]).map(
         (r) => ({ userId: r.user_id, displayName: r.display_name, preference: r.preference }),
       )
     : [];
+  // מאצ' — אותו כלל כמו list_my_matches: רעיון פעיל, שני חברים, שניהם "כן".
+  // get_idea_reactions מחזיר שורה לכל חבר במרחב, כך שאין צורך ב-RPC נוסף.
+  const isMatch = idea.status === "active" && reactions.length === 2 && reactions.every((r) => r.preference === "yes");
 
   return {
     id: idea.id,

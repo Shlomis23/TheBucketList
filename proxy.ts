@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { STATIC_JWKS } from "@/lib/supabase/jwks";
 
 // proxy.ts (Next 16 — לשעבר middleware.ts). רץ לפני כל בקשה לדף/פעולה.
 //
@@ -53,7 +54,7 @@ export async function proxy(request: NextRequest) {
   // חובה בדיוק כאן, בלי קוד ביניים: getClaims מאמת את ה-JWT ומרענן אותו
   // אם פג — וזה מה שמפעיל את setAll למעלה. לא מחליטים כאן הרשאות: כל דף
   // עדיין עושה getVerifiedUserId + RLS בעצמו (spec 9.1).
-  await supabase.auth.getClaims();
+  await supabase.auth.getClaims(undefined, { jwks: STATIC_JWKS });
 
   return response;
 }

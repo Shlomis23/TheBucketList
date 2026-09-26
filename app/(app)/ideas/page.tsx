@@ -15,7 +15,7 @@ import { getMySpaceId, hasPartner } from "@/lib/dal/space";
 import { CoverImg } from "@/components/CoverImg";
 import { pendingPreview } from "@/lib/validation/review";
 import { PageTransition } from "@/components/PageTransition";
-import { previewAttr } from "@/lib/nav/preview";
+import { ideaPreviewAttr } from "@/lib/nav/preview";
 
 const PREF_LABEL = { yes: "כן", maybe: "אולי", no: "לא" } as const;
 
@@ -165,7 +165,7 @@ function ViewChips({ filters, counts, partner }: { filters: IdeaListFilters; cou
 function IdeaRow({ idea, archived, partner }: { idea: IdeaListItemDto; archived: boolean; partner: PartnerInfo }) {
   const tag = archived ? null : ideaStatusTag(idea, partner);
   const href = `/ideas/${idea.id}`;
-  const preview = previewAttr({ ...idea, status: archived ? "archived" : idea.status });
+  const preview = ideaPreviewAttr({ ...idea, status: archived ? "archived" : idea.status });
   const meta = [
     categoryLabels[idea.category],
     formatCostMinor(idea.costMinor),

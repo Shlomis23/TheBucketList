@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { MemoryDto } from "@/lib/dal/memories";
 import { CoverImg } from "@/components/CoverImg";
+import { memoryPreviewAttr } from "@/lib/nav/preview";
+import { formatMemoryDate } from "@/lib/validation/memory";
 
 // אריח בגריד האלבום של /memories (26.9, אפשרות ב). ריבוע עם תמונת השער,
 // ומתחתיו כותרת ותאריך. wide = אריח רחב (הזיכרון החדש בחודש, כשמספר
@@ -17,7 +19,11 @@ export function MemoryTile({ memory, wide = false }: { memory: MemoryDto; wide?:
     ? `/api/photos/${memory.coverPhotoId}/content${wide ? "" : "?v=thumb"}`
     : null;
   return (
-    <Link href={`/memories/${memory.id}`} className={wide ? "album-tile wide" : "album-tile"}>
+    <Link
+      href={`/memories/${memory.id}`}
+      className={wide ? "album-tile wide" : "album-tile"}
+      {...memoryPreviewAttr(memory, formatMemoryDate(memory.happenedOn))}
+    >
       <span className="album-img-wrap">
         {photo ? (
           // eslint-disable-next-line @next/next/no-img-element -- תמונה פרטית דרך route מאומת, לא next/image

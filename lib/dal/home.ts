@@ -45,6 +45,7 @@ export type PastPlan = {
   id: string;
   title: string;
   startsAt: string | null;
+  meetingPlace: string | null;
   ideaCategory: IdeaCategory | null;
 };
 
@@ -60,7 +61,7 @@ const PARTNER_NEW_IDEAS_LIMIT = 3;
 export async function getHome(spaceId: string, userId: string): Promise<HomeSummary> {
   const supabase = await createSupabaseServerClient();
 
-  const [profileRes, membersRes, ideasRes, matchesRes, planRes, partnerIdeasRes, myReactionsRes] = await Promise.all([
+  const [profileRes, membersRes, ideasRes, matchesRes, planRes, partnerIdeasRes, myReactionsRes, planIdeasRes] = await Promise.all([
     // בלי eq על id: RLS (profiles_read -> private.can_read_profile) מחזיר רק
     // את הפרופיל שלי ושל בן/בת הזוג במרחב פתוח — כך השם של שנינו מגיע באותה
     // שאילתה, בלי קפיצת רשת נוספת בשביל "חדש מ[שם]".
@@ -100,6 +101,14 @@ export async function getHome(spaceId: string, userId: string): Promise<HomeSumm
       .eq("space_id", spaceId)
       .eq("user_id", userId)
       .returns<{ idea_id: string }[]>(),
+    // קטגוריה ומיקום לתוכניות שבכרטיסים — כל הרעיונות של המרחב (עשרות שורות),
+    // במקביל לשאר (27.9, מהירות) במקום שאילתה נוספת אחרי שיודעים אילו תוכניות.
+    // בלי סינון status: תוכנית יכולה להצביע על רעיון שהועבר לארכיון.
+    supabase
+      .from("ideas")
+      .select("id, category, location_text, place_id")
+      .eq("space_id", spaceId)
+      .returns<{ id: string; category: IdeaCategory; location_text: string | null; place_id: string | null }[]>(),
   ]);
 
   const profiles = profileRes.data ?? [];
@@ -114,20 +123,12 @@ export async function getHome(spaceId: string, userId: string): Promise<HomeSumm
   const past = proposed.filter((p) => isPlanPast(p.starts_at, p.ends_at, now));
   const plan = proposed.find((p) => !isPlanPast(p.starts_at, p.ends_at, now)) ?? null;
 
-  // תמונות העטיפה (לפי קטגוריית הרעיון) — שאילתה אחת לכל התוכניות שמוצגות.
-  const ideaIds = [...new Set([...(plan ? [plan.idea_id] : []), ...past.slice(-3).map((p) => p.idea_id)])];
+  // תמונות העטיפה (לפי קטגוריית הרעיון) ומיקום לניווט.
   const categoryByIdea = new Map<string, IdeaCategory>();
   const ideaById = new Map<string, { location_text: string | null; place_id: string | null }>();
-  if (ideaIds.length > 0) {
-    const { data: ideas } = await supabase
-      .from("ideas")
-      .select("id, category, location_text, place_id")
-      .in("id", ideaIds)
-      .returns<{ id: string; category: IdeaCategory; location_text: string | null; place_id: string | null }[]>();
-    for (const i of ideas ?? []) {
-      categoryByIdea.set(i.id, i.category);
-      ideaById.set(i.id, i);
-    }
+  for (const i of planIdeasRes.data ?? []) {
+    categoryByIdea.set(i.id, i.category);
+    ideaById.set(i.id, i);
   }
   const ideaCategory = plan ? (categoryByIdea.get(plan.idea_id) ?? null) : null;
   const planIdea = plan ? ideaById.get(plan.idea_id) : undefined;
@@ -163,6 +164,12 @@ export async function getHome(spaceId: string, userId: string): Promise<HomeSumm
       .slice()
       .reverse()
       .slice(0, 3)
-      .map((p) => ({ id: p.id, title: p.title, startsAt: p.starts_at, ideaCategory: categoryByIdea.get(p.idea_id) ?? null })),
+      .map((p) => ({
+        id: p.id,
+        title: p.title,
+        startsAt: p.starts_at,
+        meetingPlace: p.meeting_place,
+        ideaCategory: categoryByIdea.get(p.idea_id) ?? null,
+      })),
   };
 }
