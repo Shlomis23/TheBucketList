@@ -4,6 +4,7 @@ import type { MemoryDto } from "@/lib/dal/memories";
 import type { UnreadConversation } from "@/lib/dal/conversations";
 import { pastWhenLabel, upcomingWhenLabel } from "@/lib/validation/plan";
 import { daysUntilLabel, planTodayKicker, type HeroKind } from "@/lib/validation/home";
+import { pendingPreview } from "@/lib/validation/review";
 import { categoryLabels } from "@/lib/validation/idea";
 import { formatMemoryDate } from "@/lib/validation/memory";
 import { ReactionControl } from "@/components/ReactionControl";
@@ -66,6 +67,21 @@ export function HeroCard({
 
   if (kind === "partner_idea") {
     const idea = home.partnerNewIdeas[0];
+    const total = home.partnerNewIdeasTotal;
+    // כמה רעיונות חדשים (26.9) — הכרטיס הוא כניסה לסבב בלבד, בלי תגובה
+    // מתוכו. רעיון אחד — תגובה ישר מהכרטיס, כמו קודם.
+    if (total > 1) {
+      return (
+        <section className="hero-card light" aria-label={`${total} רעיונות חדשים ${from}`}>
+          <span className="hero-kicker yellow">חדש {from}</span>
+          <h2 className="hero-title">{total} רעיונות חדשים</h2>
+          <p className="hero-sub">{pendingPreview(home.partnerNewIdeas.map((i) => i.title), total)}</p>
+          <Link href={`/ideas/review?first=${idea.id}`} className="btn btn-primary btn-block">
+            לסבב החלטות
+          </Link>
+        </section>
+      );
+    }
     return (
       <section className="hero-card light" aria-label={`רעיון חדש ${from}`}>
         <span className="hero-kicker yellow">חדש {from}</span>
@@ -74,11 +90,6 @@ export function HeroCard({
           <p className="hero-sub">{categoryLabels[idea.category]} · עוד לא ענית</p>
         </Link>
         <ReactionControl ideaId={idea.id} initialReaction={null} />
-        {home.partnerNewIdeasTotal > 1 && (
-          <Link href={`/ideas/review?first=${idea.id}`} className="hero-deck-link">
-            או לעבור על כל ה-{home.partnerNewIdeasTotal} בסבב &larr;
-          </Link>
-        )}
       </section>
     );
   }

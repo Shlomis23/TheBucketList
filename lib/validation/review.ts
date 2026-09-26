@@ -27,10 +27,11 @@ export function tallyAnswers(answers: ReviewPref[]): ReviewTally {
 
 // הבאנר ברשימה / השורה בבית: "קיאקים בכנרת, ארוחת בוקר במושבה" או
 // "קיאקים בכנרת, ועוד 3".
-export function pendingPreview(titles: string[]): string {
+// total — כשיש רק חלק מהשמות (בבית נשלפים עד 3), כמה יש בסך הכל.
+export function pendingPreview(titles: string[], total = titles.length): string {
   if (titles.length === 0) return "";
-  if (titles.length <= 2) return titles.join(", ");
-  return `${titles[0]}, ועוד ${titles.length - 1}`;
+  if (total <= 2) return titles.slice(0, total).join(", ");
+  return `${titles[0]}, ועוד ${total - 1}`;
 }
 
 // החלקה: מעבר לסף = תשובה. ימינה = כן, שמאלה = לא (כמו במקלדת/אפליקציות

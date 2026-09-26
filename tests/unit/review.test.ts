@@ -29,6 +29,7 @@ describe("סבב החלטות — עזרים", () => {
     expect(pendingPreview(["קיאקים", "בוקר"])).toBe("קיאקים, בוקר");
     expect(pendingPreview(["קיאקים", "בוקר", "סדנה", "טיול"])).toBe("קיאקים, ועוד 3");
     expect(pendingPreview([])).toBe("");
+    expect(pendingPreview(["קיאקים", "בוקר", "סדנה"], 6)).toBe("קיאקים, ועוד 5"); // בבית: 3 שמות מתוך 6
   });
   it("החלקה: ימינה כן, שמאלה לא, קצר מדי — כלום", () => {
     expect(swipeDecision(120)).toBe("yes");

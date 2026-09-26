@@ -46,29 +46,18 @@ export default async function HomePage() {
       sub: plan.startsAt ? `היה ${pastWhenLabel(plan.startsAt)} · שומרים כזיכרון?` : "שומרים כזיכרון?",
     });
   }
-  const ideasLeft = home.partnerNewIdeasTotal - (hero === "partner_idea" ? 1 : 0);
+  // רעיונות חדשים מבן/בת הזוג — שורה רק כשהכרטיס למעלה תפוס בדבר אחר
+  // (26.9: כשהוא "חדש מ...", הוא כבר מכסה את כולם — רעיון אחד או כניסה לסבב).
+  const ideasLeft = hero === "partner_idea" ? 0 : home.partnerNewIdeasTotal;
   if (ideasLeft > 0) {
-    const first = home.partnerNewIdeas[hero === "partner_idea" ? 1 : 0];
+    const first = home.partnerNewIdeas[0];
     rows.push({
       key: "partner-ideas",
-      // יותר מרעיון חדש אחד בסך הכל — לסבב ההחלטות (26.9), גם כשנשאר כאן
-      // רק אחד (השני בכרטיס למעלה). הרעיון של השורה ראשון בסבב.
-      href:
-        home.partnerNewIdeasTotal > 1
-          ? `/ideas/review${first ? `?first=${first.id}` : ""}`
-          : first
-            ? `/ideas/${first.id}`
-            : "/ideas/review",
+      // כמה רעיונות — לסבב ההחלטות; רעיון אחד — ישר אליו.
+      href: ideasLeft > 1 ? `/ideas/review${first ? `?first=${first.id}` : ""}` : first ? `/ideas/${first.id}` : "/ideas/review",
       icon: "idea",
-      title: hero === "partner_idea"
-        ? ideasLeft === 1 ? `עוד רעיון חדש ${from}` : `עוד ${ideasLeft} רעיונות חדשים ${from}`
-        : ideasLeft === 1 ? `רעיון חדש ${from}` : `${ideasLeft} רעיונות חדשים ${from}`,
-      sub:
-        home.partnerNewIdeasTotal > 1
-          ? `${ideasLeft === 1 && first ? `${first.title} · ` : ""}סבב קצר על כל ה-${home.partnerNewIdeasTotal}`
-          : first
-            ? `${first.title} · עוד לא ענית`
-            : "עוד לא ענית",
+      title: ideasLeft === 1 ? `רעיון חדש ${from}` : `${ideasLeft} רעיונות חדשים ${from}`,
+      sub: ideasLeft > 1 ? "סבב קצר — עוד לא ענית עליהם" : first ? `${first.title} · עוד לא ענית` : "עוד לא ענית",
     });
   }
   for (const c of unread.slice(hero === "unread" ? 1 : 0, 3)) {
