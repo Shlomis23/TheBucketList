@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { MemoryDto } from "@/lib/dal/memories";
-import { getIdeaCoverImage } from "@/lib/covers";
+import { CoverImg } from "@/components/CoverImg";
 
 // אריח בגריד האלבום של /memories (26.9, אפשרות ב). ריבוע עם תמונת השער,
 // ומתחתיו כותרת ותאריך. wide = אריח רחב (הזיכרון החדש בחודש, כשמספר
@@ -23,8 +23,7 @@ export function MemoryTile({ memory, wide = false }: { memory: MemoryDto; wide?:
           // eslint-disable-next-line @next/next/no-img-element -- תמונה פרטית דרך route מאומת, לא next/image
           <img src={photo} alt="" loading="lazy" decoding="async" className="album-img" />
         ) : memory.category ? (
-          // eslint-disable-next-line @next/next/no-img-element -- SVG עיצוב סטטי לפי קטגוריה
-          <img src={getIdeaCoverImage(memory.category)} alt="" className="album-img" />
+          <CoverImg category={memory.category} className="album-img" />
         ) : null}
         {memory.photoCount > 1 && <span className="album-count">{memory.photoCount} תמונות</span>}
         {!memory.story && <span className="album-nostory">עוד לא כתבתם איך היה</span>}

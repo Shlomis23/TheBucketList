@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { MemoryDto } from "@/lib/dal/memories";
 import { formatMemoryDate } from "@/lib/validation/memory";
-import { getIdeaCoverImage } from "@/lib/covers";
+import { CoverImg } from "@/components/CoverImg";
 
 // כרטיס זיכרון — בציר הזמן (/memories) ובבית ("הזיכרון האחרון").
 // eyebrow מאפשר לבית להציג "הזיכרון האחרון" במקום התאריך.
@@ -26,8 +26,7 @@ export function MemoryCard({ memory, eyebrow }: { memory: MemoryDto; eyebrow?: s
         </div>
       ) : (
         memory.category && (
-          // eslint-disable-next-line @next/next/no-img-element -- SVG עיצוב סטטי לפי קטגוריה, לא תוכן דינמי
-          <img src={getIdeaCoverImage(memory.category)} alt="" className="card-cover-img cover-sm" />
+          <CoverImg category={memory.category} className="card-cover-img cover-sm" />
         )
       )}
       <p className="page-eyebrow m-0 mb-2">

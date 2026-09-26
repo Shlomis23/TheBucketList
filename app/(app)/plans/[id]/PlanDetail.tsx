@@ -10,7 +10,7 @@ import {
   postponePlanWeekAction,
 } from "../actions";
 import { DEFAULT_PLAN_TIMEZONE, formatBudgetMinor, formatPlanWhen, isPlanPast, pastWhenLabel } from "@/lib/validation/plan";
-import { getIdeaCoverImage } from "@/lib/covers";
+import { CoverImg } from "@/components/CoverImg";
 import { DateTimeRangeFields, endPartsToIso, isoToParts, partsToIso, type DateTimeParts } from "@/components/DateTimeRangeFields";
 import type { PlanDetailDto, PlanDto } from "@/lib/dal/plans";
 import { FromIdeaCard } from "@/components/FromIdeaCard";
@@ -65,8 +65,7 @@ export function PlanDetail({
   return (
     <>
       {plan.ideaCategory && (
-        // eslint-disable-next-line @next/next/no-img-element -- SVG עיצוב סטטי לפי קטגוריה, לא תוכן דינמי
-        <img src={getIdeaCoverImage(plan.ideaCategory)} alt="" className="hero-banner" />
+        <CoverImg category={plan.ideaCategory} className="hero-banner" />
       )}
       <div className="flex gap-8 items-center mb-8">
         <StatusBadge plan={plan} />

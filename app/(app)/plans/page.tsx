@@ -2,7 +2,7 @@ import Link from "next/link";
 import { EmptyState } from "@/components/EmptyState";
 import { listPlans, type PlanDto } from "@/lib/dal/plans";
 import { formatPlanWhen, isPlanPast, pastWhenLabel } from "@/lib/validation/plan";
-import { getIdeaCoverImage } from "@/lib/covers";
+import { CoverImg } from "@/components/CoverImg";
 
 // תוכניות `/plans` — רק פעילות. מה שבוצע נמצא בזיכרונות, מה שבוטל לא מוצג
 // (25.9). בלי "מוצעות/מאושרות" — אין שלב אישור (25.9). למעלה "המועד עבר",
@@ -72,8 +72,7 @@ function PlanCard({ plan }: { plan: PlanDto }) {
       className="card block no-underline"
     >
       {plan.ideaCategory && (
-        // eslint-disable-next-line @next/next/no-img-element -- SVG עיצוב סטטי לפי קטגוריה, לא תוכן דינמי
-        <img src={getIdeaCoverImage(plan.ideaCategory)} alt="" className="card-cover-img cover-sm" />
+        <CoverImg category={plan.ideaCategory} className="card-cover-img cover-sm" />
       )}
       <div className="flex justify-between items-start gap-8">
         <p className="m-0 mb-4 fw-800 text-base">{plan.title}</p>

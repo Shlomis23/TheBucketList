@@ -8,6 +8,7 @@ import "./styles/components.css";
 import "./styles/screens.css";
 import "./styles/utilities.css";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { splashStartupImages } from "@/lib/pwa/splash";
 import { DEFAULT_THEME, parseTheme, THEME_COOKIE, themeInfo } from "@/lib/themes";
 
@@ -72,7 +73,7 @@ export default async function RootLayout({
   return (
     <html lang="he" dir="rtl" className={rubik.variable} data-color={theme === DEFAULT_THEME ? undefined : theme}>
       <body>
-        {children}
+        <ThemeProvider initialTheme={theme}>{children}</ThemeProvider>
         <ServiceWorkerRegister />
       </body>
     </html>

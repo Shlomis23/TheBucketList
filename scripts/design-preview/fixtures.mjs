@@ -119,6 +119,11 @@ export async function buildFixtures() {
     has_pending_invitation_for_me: () => false,
     mark_idea_read: () => true,
     check_rate_limit: () => true,
+    set_color_theme: ({ p_actor, p_theme }) => {
+      const me = profiles.find((x) => x.id === p_actor);
+      if (me) me.color_theme = p_theme;
+      return p_theme;
+    },
   };
 
   const users = {

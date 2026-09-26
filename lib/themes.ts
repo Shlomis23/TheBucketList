@@ -21,7 +21,7 @@ export function parseTheme(value: string | null | undefined): ColorTheme {
   return (colorThemes as readonly string[]).includes(value ?? "") ? (value as ColorTheme) : DEFAULT_THEME;
 }
 
-// איור הקטגוריה בערכה: proxy.ts משכתב /covers/<cat> לקובץ של הערכה לפי העוגייה.
+// הקובץ של איור קטגוריה בערכה (lib/covers.ts, components/CoverImg.tsx).
 export function themedCoverPath(theme: ColorTheme, file: string): string {
   return theme === DEFAULT_THEME ? `/images/covers/${file}` : `/images/covers/${theme}/${file}`;
 }

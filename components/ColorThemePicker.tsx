@@ -3,16 +3,12 @@
 import { useState, useTransition } from "react";
 import { setColorThemeAction } from "@/app/(app)/settings/actions";
 import { colorThemes, themeInfo, type ColorTheme } from "@/lib/themes";
+import { useTheme } from "@/components/ThemeProvider";
 
-function applyTheme(theme: ColorTheme) {
-  const root = document.documentElement;
-  if (theme === "purple") root.removeAttribute("data-color");
-  else root.setAttribute("data-color", theme);
-}
-
-// בחירת צבע האפליקציה (26.9) — אישי לכל אחד. מחליפים מיד על המסך, שומרים
-// בשרת, וטוענים מחדש כדי שגם איורי הקטגוריות יתחלפו.
+// בחירת צבע האפליקציה (26.9) — אישי לכל אחד. מחליפים מיד על המסך (כולל
+// איורי הקטגוריות, דרך ThemeProvider) ושומרים בשרת. בלי טעינה מחדש.
 export function ColorThemePicker({ current }: { current: ColorTheme }) {
+  const { setTheme } = useTheme();
   const [selected, setSelected] = useState(current);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState("");
@@ -22,16 +18,14 @@ export function ColorThemePicker({ current }: { current: ColorTheme }) {
     const prev = selected;
     setSelected(theme);
     setError("");
-    applyTheme(theme);
+    setTheme(theme);
     startTransition(async () => {
       const result = await setColorThemeAction(theme);
       if (!result.ok) {
         setSelected(prev);
-        applyTheme(prev);
+        setTheme(prev);
         setError(result.error.message);
-        return;
       }
-      window.location.reload();
     });
   }
 

@@ -3,18 +3,20 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { OPEN_PHOTO_EVENT } from "@/components/MemoryPhotos";
+import { CoverImg } from "@/components/CoverImg";
+import type { IdeaCategory } from "@/lib/validation/idea";
 
 // באנר עליון בדף זיכרון (26.9): התמונה היא הגיבורה. כל התמונות בגלילה
 // אופקית (scroll-snap — החלקה טבעית בטלפון), נקודות למטה, ולחיצה פותחת את
 // הצפייה במסך מלא של MemoryPhotos. בלי תמונות — איור הקטגוריה, באותה צורה.
 export function MemoryHero({
   photoIds,
-  fallbackSrc,
+  fallbackCategory,
   title,
   dateLabel,
 }: {
   photoIds: string[];
-  fallbackSrc: string | null;
+  fallbackCategory: IdeaCategory | null;
   title: string;
   dateLabel: string;
 }) {
@@ -64,10 +66,7 @@ export function MemoryHero({
           ))}
         </div>
       ) : (
-        fallbackSrc && (
-          // eslint-disable-next-line @next/next/no-img-element -- SVG עיצוב סטטי לפי קטגוריה
-          <img src={fallbackSrc} alt="" className="mhero-fallback" />
-        )
+        fallbackCategory && <CoverImg category={fallbackCategory} className="mhero-fallback" />
       )}
       <span className="mhero-shade" aria-hidden="true" />
       <button type="button" className="mhero-back" onClick={back} aria-label="חזרה">

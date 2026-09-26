@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { chooseExperienceAction } from "./actions";
 import { ideaCategories, categoryLabels, formatCostMinor, formatDurationMinutes, maxDurationPresets, type IdeaCategory } from "@/lib/validation/idea";
-import { getIdeaCoverImage } from "@/lib/covers";
+import { CoverImg } from "@/components/CoverImg";
 import type { ChooseCandidate } from "@/lib/dal/choose";
 
 type Status = "idle" | "busy" | "error";
@@ -199,8 +199,7 @@ function CandidateCard({
 
   return (
     <div className="card">
-      {/* eslint-disable-next-line @next/next/no-img-element -- SVG עיצוב סטטי לפי קטגוריה, לא תוכן דינמי */}
-      <img src={getIdeaCoverImage(candidate.category)} alt="" className="card-cover-img cover-lg" />
+      <CoverImg category={candidate.category} className="card-cover-img cover-lg" />
       <p className="page-eyebrow">מה דעתכם על</p>
       <p className="m-0 mb-8 fw-800 text-lg">{candidate.title}</p>
       <div className="flex gap-8 flex-wrap mb-8">

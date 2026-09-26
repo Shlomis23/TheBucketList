@@ -6,7 +6,7 @@ import { getIdea } from "@/lib/dal/ideas";
 import { listComments } from "@/lib/dal/comments";
 import { IdeaConversation } from "@/components/IdeaConversation";
 import { categoryLabels, formatCostMinor, formatDurationMinutes, reactionLabels, reactionBadgeClass } from "@/lib/validation/idea";
-import { getIdeaCoverImage } from "@/lib/covers";
+import { CoverImg } from "@/components/CoverImg";
 import { linkHost } from "@/lib/validation/comment";
 import { NavigateTile } from "@/components/NavigateTile";
 import { markIdeaRead } from "@/lib/dal/conversations";
@@ -34,8 +34,7 @@ export default async function IdeaDetailPage({
 
   return (
     <div className="page">
-      {/* eslint-disable-next-line @next/next/no-img-element -- SVG עיצוב סטטי לפי קטגוריה, לא תוכן דינמי */}
-      <img src={getIdeaCoverImage(idea.category)} alt="" className="hero-banner" />
+      <CoverImg category={idea.category} className="hero-banner" />
       <div className="flex gap-8 items-center mb-8">
         <span className="badge badge-neutral">{categoryLabels[idea.category]}</span>
         {idea.isMatch && <span className="badge badge-green">מאצ&apos;!</span>}

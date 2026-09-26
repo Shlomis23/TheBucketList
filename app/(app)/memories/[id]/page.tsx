@@ -5,7 +5,6 @@ import { listPhotos } from "@/lib/dal/photos";
 import { MemoryPhotos } from "@/components/MemoryPhotos";
 import { MemoryHero } from "@/components/MemoryHero";
 import { formatMemoryDate } from "@/lib/validation/memory";
-import { getIdeaCoverImage } from "@/lib/covers";
 
 // זיכרון `/memories/[id]` — spec סעיף 6: תאריך, תמונות (עד 10, שניהם
 // מוסיפים ומוחקים — זיכרון משותף, 0029) וסיפור משותף. למעלה באנר מקצה לקצה
@@ -21,7 +20,7 @@ export default async function MemoryDetailPage({ params }: { params: Promise<{ i
       {/* 26.9: התמונה היא הגיבורה — באנר מקצה לקצה עם הכותרת והתאריך. */}
       <MemoryHero
         photoIds={photos.map((p) => p.id)}
-        fallbackSrc={memory.category ? getIdeaCoverImage(memory.category) : null}
+        fallbackCategory={memory.category}
         title={memory.title}
         dateLabel={formatMemoryDate(memory.happenedOn)}
       />

@@ -13,7 +13,7 @@ import {
 } from "@/lib/validation/ideaList";
 import { getPartnerName } from "@/lib/dal/profile";
 import { getMySpaceId, hasPartner } from "@/lib/dal/space";
-import { getIdeaCoverImage } from "@/lib/covers";
+import { CoverImg } from "@/components/CoverImg";
 
 // מאגר `/ideas` — spec סעיף 6: חיפוש, פילטר קטגוריה/מאצ'ים/תגובה שלי, מיון.
 // כל הסינון ב-URL (ראו lib/validation/ideaList.ts) ומבוצע בשרת ב-listIdeas.
@@ -152,8 +152,7 @@ function IdeaRow({ idea, archived, partner }: { idea: IdeaListItemDto; archived:
   return (
     <div className={archived ? "card idea-row is-static" : "card idea-row"}>
       <Link href={href} className="idea-row-thumb-link" tabIndex={-1} aria-hidden="true">
-        {/* eslint-disable-next-line @next/next/no-img-element -- SVG עיצוב סטטי לפי קטגוריה, לא תוכן דינמי */}
-        <img src={getIdeaCoverImage(idea.category)} alt="" className="idea-row-thumb" />
+        <CoverImg category={idea.category} className="idea-row-thumb" />
       </Link>
       <Link href={href} className="idea-row-text">
         <div className="idea-row-title-line">
