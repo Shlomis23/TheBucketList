@@ -33,6 +33,9 @@ export function BottomNav() {
           <Link className="flex-1 flex flex-col items-center justify-center gap-2 rounded-pill no-underline text-2xs"
             key={tab.href}
             href={tab.href}
+            // טעינה מראש מלאה (לא רק שלד הטעינה) — הלשוניות נפתחות מיד.
+            // נשמר בטלפון 60 שניות (staleTimes.static ב-next.config.ts).
+            prefetch={true}
             aria-current={active ? "page" : undefined}
             style={{ minHeight: "var(--touch-target-min)", padding: "6px 4px", fontWeight: active ? 700 : 500, color: active ? "var(--color-primary)" : "var(--color-muted)", background: active ? "var(--color-primary-soft)" : "transparent" }}
           >

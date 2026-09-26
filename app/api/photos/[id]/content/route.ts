@@ -6,10 +6,11 @@ import { getPhotoContent } from "@/lib/dal/photos";
 // + RLS על השורה (חבר במרחב, status='ready'), ורק אז הקובץ מה-bucket הפרטי.
 // זר/חסר/נמחק -> 404 זהה.
 //
-// Cache: private (רק הדפדפן של המשתמש, אף פעם לא CDN משותף), לשעה. הקובץ
-// לעולם לא משתנה תחת אותו מזהה, והמטמון חוסך הורדה חוזרת בכל חזרה למסך
-// (ובמכסת התעבורה של Supabase). תמונה שנמחקה נעלמת מהמסכים מיד — היא פשוט
-// לא מופיעה יותר ברשימה.
+// Cache: private (רק הדפדפן של המשתמש, אף פעם לא CDN משותף), 30 יום,
+// immutable. הקובץ לעולם לא משתנה תחת אותו מזהה (תמונה חדשה = מזהה חדש),
+// כך שחזרה למסך הזיכרונות לא מורידה שוב אף תמונה (26.9, שיפור מהירות).
+// תמונה שנמחקה נעלמת מהמסכים מיד — היא פשוט לא מופיעה יותר ברשימה; העותק
+// במטמון המכשיר לא נגיש מאף מסך ונמחק כשהתוקף פג.
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const notFound = () =>
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       // כל מה שנשמר עבר קידוד מחדש ל-JPEG בשרת (lib/photos/process.ts).
       "Content-Type": "image/jpeg",
       "Content-Length": String(blob.size),
-      "Cache-Control": "private, max-age=3600",
+      "Cache-Control": "private, max-age=2592000, immutable",
       "X-Content-Type-Options": "nosniff",
       "Content-Disposition": "inline",
     },

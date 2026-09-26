@@ -58,4 +58,9 @@ export async function photosUploadedAction(input: unknown): Promise<void> {
   const parsed = photosUploadedSchema.safeParse(input);
   if (!parsed.success) return;
   notifyPartner({ kind: "photos_added", memoryId: parsed.data.memoryId, count: parsed.data.count });
+  // ההעלאה עצמה עוברת ב-API route (לא Server Action), ולכן לא מנקה את
+  // המסכים השמורים בטלפון (staleTimes) — תמונת השער ברשימה ובבית.
+  revalidatePath("/memories");
+  revalidatePath(`/memories/${parsed.data.memoryId}`);
+  revalidatePath("/");
 }

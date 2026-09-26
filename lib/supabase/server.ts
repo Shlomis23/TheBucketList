@@ -3,10 +3,6 @@ import "server-only";
 // Supabase client עבור שרת בלבד (Server Components / Server Actions / Route Handlers).
 // אין להשתמש בקובץ הזה מרכיב לקוח — "server-only" יזרוק שגיאת build אם ינסו.
 // ראו docs/The-Bucket-List-Technical-Spec-HE.md סעיפים 9.1, 13.4.
-//
-// TODO לפני מימוש עסקי: לוודא מול תיעוד Supabase SSR העדכני בעת הכתיבה
-// (https://supabase.com/docs/guides/auth/server-side/creating-a-client)
-// את שם המתודה המדויק לאימות claims (getClaims/getUser) בגרסת ה-SDK הננעלת.
 
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
@@ -46,11 +42,21 @@ export async function createSupabaseServerClient() {
  */
 //
 // עטוף ב-cache() של React: תוצאה אחת לכל בקשת שרת. כמה DAL-ים באותו רינדור
-// (למשל settings: הדף + getMyProfile) לא יבצעו כל אחד קריאת רשת נפרדת
-// ל-Auth. ה-cache לא חוצה בקשות/משתמשים — הוא מתאפס בכל בקשה.
+// (למשל settings: הדף + getMyProfile) לא יבצעו כל אחד אימות נפרד.
+// ה-cache לא חוצה בקשות/משתמשים — הוא מתאפס בכל בקשה.
+//
+// getClaims ולא getUser (26.9, שיפור מהירות — באישור שלומי): הפרויקט חותם
+// טוקנים ב-ES256, כך ש-getClaims מאמת את החתימה והתוקף כאן בשרת מול המפתח
+// הציבורי (JWKS, נשמר בזיכרון התהליך 10 דקות) — בלי קריאת רשת ל-Auth בכל
+// דף ובכל תמונה (~165ms בממוצע לפי יומני Supabase). אי אפשר לזייף טוקן.
+// המחיר: session שבוטל בשרת (התנתקות מכל המכשירים) ממשיך לעבוד עד שהטוקן
+// פג (עד שעה). מחיקת חשבון עדיין בודקת מול Auth (lib/dal/account.ts).
+// אם הפרויקט יחזור לחתימה סימטרית, getClaims נופל אוטומטית ל-getUser.
 export const getVerifiedUserId = cache(async (): Promise<string | null> => {
   const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) return null;
-  return data.user.id;
+  const { data, error } = await supabase.auth.getClaims();
+  if (error || !data?.claims) return null;
+  const { sub, role } = data.claims;
+  if (typeof sub !== "string" || role !== "authenticated") return null;
+  return sub;
 });
