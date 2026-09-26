@@ -126,6 +126,14 @@ export async function buildFixtures() {
       if (p_preference) idea_reactions.push({ space_id: SPACE, idea_id: p_idea_id, user_id: p_actor, preference: p_preference, updated_at: new Date().toISOString() });
       return [{ preference: p_preference ?? null, is_match: bothYes(p_idea_id) }];
     },
+    // יומן במינוי (0037) — טוקן קבוע לבדיקה.
+    calendar_feed_token: () => "f".repeat(64),
+    calendar_feed_plans: ({ p_token }) => {
+      if (p_token !== "f".repeat(64)) throw new Error("NOT_FOUND");
+      return plans
+        .filter((x) => x.starts_at && x.status === "proposed")
+        .map((x) => ({ id: x.id, title: x.title, status: x.status, starts_at: x.starts_at, ends_at: x.ends_at, meeting_place: x.meeting_place, notes: x.notes, updated_at: x.created_at }));
+    },
     // מחיקת רעיון (0035) — בלי תוכנית פעילה/שהושלמה.
     delete_idea: ({ p_id }) => {
       if (plans.some((x) => x.idea_id === p_id && x.status !== "cancelled")) throw new Error("HAS_PLAN");

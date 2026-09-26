@@ -45,3 +45,30 @@ describe("יומן — גוגל", () => {
     expect(u.searchParams.get("details")).toContain(ev.url);
   });
 });
+
+describe("יומן במינוי", () => {
+  it("כמה תוכניות ביומן אחד, עם שם ובקשת רענון", async () => {
+    const { buildCalendar } = await import("@/lib/calendar");
+    const ics = buildCalendar(
+      [
+        { ...ev, uid: "plan-1@x", updatedAt: "2026-09-26T09:00:00.000Z" },
+        { ...ev, uid: "plan-2@x", title: "קיאקים", startsAt: "2026-10-20T06:00:00.000Z", location: null },
+      ],
+      { name: "The Bucket List", now: new Date("2026-09-26T10:00:00Z") },
+    );
+    const unfolded = ics.replace(/\r\n /g, "");
+    expect(unfolded.match(/BEGIN:VEVENT/g)?.length).toBe(2);
+    expect(unfolded).toContain("X-WR-CALNAME:The Bucket List");
+    expect(unfolded).toContain("REFRESH-INTERVAL;VALUE=DURATION:PT1H");
+    expect(unfolded).toContain("LAST-MODIFIED:20260926T090000Z");
+    expect(unfolded).toContain("UID:plan-2@x");
+  });
+  it("כתובות: webcal לאייפון, גוגל עם cid", async () => {
+    const { calendarFeedUrls } = await import("@/lib/calendarFeed");
+    const t = "a".repeat(64);
+    const u = calendarFeedUrls(t, "https://app.example");
+    expect(u.https).toBe(`https://app.example/api/calendar/${t}.ics`);
+    expect(u.webcal).toBe(`webcal://app.example/api/calendar/${t}.ics`);
+    expect(new URL(u.google).searchParams.get("cid")).toBe(u.webcal);
+  });
+});

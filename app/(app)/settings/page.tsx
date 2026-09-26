@@ -10,6 +10,7 @@ import Link from "next/link";
 import { ExportButton } from "@/components/ExportButton";
 import { PushSettings } from "@/components/PushSettings";
 import { ColorThemePicker } from "@/components/ColorThemePicker";
+import { CalendarFeedSettings } from "@/components/CalendarFeedSettings";
 
 // הגדרות `/settings` — F8, spec סעיף 6, 11.1: השם שלי, ניהול הזמנה, הורדת
 // הזיכרונות, יציאה, ובתחתית — סגירת מרחב ומחיקת חשבון (החלטות 25.9, 0020).
@@ -60,6 +61,16 @@ export default async function SettingsPage() {
           התראות
         </p>
         <PushSettings publicKey={process.env.VAPID_PUBLIC_KEY ?? null} partnerName={partnerName} />
+      </section>
+
+      <section id="calendar" className="card mt-12" aria-labelledby="calendar-title">
+        <p id="calendar-title" className="page-eyebrow mb-4">
+          יומן
+        </p>
+        <p className="status-msg m-0 mb-12 text-sm">
+          כל התוכניות שלכם ביומן של הטלפון — חיבור פעם אחת, והן נכנסות ומתעדכנות לבד (שינוי מועד, ביטול).
+        </p>
+        <CalendarFeedSettings />
       </section>
 
       <section className="card mt-12" aria-labelledby="export">

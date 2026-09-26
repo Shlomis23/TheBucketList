@@ -1,6 +1,7 @@
-// הוספת תוכנית ליומן (26.9). פונקציות טהורות (לבדיקות):
-//   buildIcs — קובץ .ics (יומן אייפון/אאוטלוק/כל יומן), RFC 5545.
-//   googleCalendarUrl — קישור "הוסף ליומן" של גוגל (אנדרואיד).
+// יומן (26.9). פונקציות טהורות (לבדיקות):
+//   buildCalendar — יומן .ics (RFC 5545) עם כל התוכניות — היומן במינוי
+//     (/api/calendar/<token>.ics, 0037). buildIcs — אירוע בודד.
+//   googleCalendarUrl — קישור "הוסף ליומן" של גוגל לתוכנית בודדת.
 // זמנים ב-UTC (…Z) — היומן מציג לפי שעון המכשיר. בלי שעת סיום: שעתיים.
 
 export type CalendarEvent = {
@@ -11,6 +12,7 @@ export type CalendarEvent = {
   location: string | null;
   notes: string;
   url: string; // קישור לתוכנית באפליקציה
+  updatedAt?: string; // LAST-MODIFIED — היומן יודע שהתוכנית השתנתה
 };
 
 const DEFAULT_DURATION_MS = 2 * 60 * 60 * 1000;
@@ -55,16 +57,12 @@ function description(e: CalendarEvent): string {
   return [e.notes.trim(), `בתוכנית ב-The Bucket List: ${e.url}`].filter(Boolean).join("\n\n");
 }
 
-export function buildIcs(e: CalendarEvent, now = new Date()): string {
-  const lines = [
-    "BEGIN:VCALENDAR",
-    "VERSION:2.0",
-    "PRODID:-//The Bucket List//HE",
-    "CALSCALE:GREGORIAN",
-    "METHOD:PUBLISH",
+function veventLines(e: CalendarEvent, now: Date): string[] {
+  return [
     "BEGIN:VEVENT",
     `UID:${e.uid}`,
     `DTSTAMP:${icsDate(now.toISOString())}`,
+    ...(e.updatedAt ? [`LAST-MODIFIED:${icsDate(e.updatedAt)}`] : []),
     `DTSTART:${icsDate(e.startsAt)}`,
     `DTEND:${icsDate(eventEnd(e))}`,
     `SUMMARY:${icsEscape(e.title)}`,
@@ -77,9 +75,28 @@ export function buildIcs(e: CalendarEvent, now = new Date()): string {
     `TRIGGER:${REMIND_BEFORE}`,
     "END:VALARM",
     "END:VEVENT",
+  ];
+}
+
+// יומן שלם. name — השם שמופיע ברשימת היומנים בטלפון. REFRESH-INTERVAL /
+// X-PUBLISHED-TTL — בקשה (לא הבטחה) מהיומן לרענן כל שעה.
+export function buildCalendar(events: CalendarEvent[], opts: { name?: string; now?: Date } = {}): string {
+  const now = opts.now ?? new Date();
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//The Bucket List//HE",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    ...(opts.name ? [`X-WR-CALNAME:${icsEscape(opts.name)}`, "X-WR-TIMEZONE:Asia/Jerusalem", "REFRESH-INTERVAL;VALUE=DURATION:PT1H", "X-PUBLISHED-TTL:PT1H"] : []),
+    ...events.flatMap((e) => veventLines(e, now)),
     "END:VCALENDAR",
   ];
   return lines.map(foldLine).join("\r\n") + "\r\n";
+}
+
+export function buildIcs(e: CalendarEvent, now = new Date()): string {
+  return buildCalendar([e], { now });
 }
 
 export function googleCalendarUrl(e: CalendarEvent): string {

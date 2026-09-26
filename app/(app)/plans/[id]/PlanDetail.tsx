@@ -35,12 +35,10 @@ export function PlanDetail({
   plan,
   memoryId,
   startCompleting = false,
-  icsHref,
 }: {
   plan: PlanDetailDto;
   memoryId: string | null;
   startCompleting?: boolean;
-  icsHref: string; // קובץ יומן חתום (lib/calendarToken.ts)
 }) {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>(startCompleting ? "complete" : "view");
@@ -88,7 +86,6 @@ export function PlanDetail({
       {mode === "view" && plan.status === "proposed" && plan.startsAt && !past && (
         <div className="mb-16">
           <AddToCalendar
-            icsHref={icsHref}
             plan={{ id: plan.id, title: plan.title, startsAt: plan.startsAt, endsAt: plan.endsAt, meetingPlace: plan.meetingPlace, notes: plan.notes }}
           />
         </div>
