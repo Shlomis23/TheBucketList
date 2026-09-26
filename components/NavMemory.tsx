@@ -12,6 +12,7 @@ import {
   setNavDirection,
   unfreezeSaving,
 } from "@/lib/nav/memory";
+import { rememberPreview } from "@/lib/nav/preview";
 
 // שומר את מיקום הגלילה בכל רשימה ומחזיר אותו בחזרה אליה (26.9) — מכפתור
 // החזרה, מלחיצה על הלשונית מתוך רעיון, ומ"אחורה" של אנדרואיד.
@@ -65,6 +66,8 @@ export function NavMemory() {
       const href = a.getAttribute("href") ?? "";
       if (!href.startsWith("/") || href === currentUrl()) return;
       freezeSaving();
+      // רעיון מהרשימה: מה שכבר ידוע עליו מוצג מיד בשלד הטעינה (lib/nav/preview).
+      rememberPreview(href.split("?")[0], a.getAttribute("data-preview"));
       // כיוון המעבר לאנימציית הכניסה (PageTransition): ניווט תחתון/רשימה —
       // דהייה; פריט — פנימה.
       setNavDirection(a.closest("nav.bottom-nav") || isListPath(href.split("?")[0]) ? "tab" : "forward");

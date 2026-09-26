@@ -1128,6 +1128,15 @@
 .page-anim[data-enter="tab"] {
   animation: page-in-fade 180ms ease-out backwards;
 }
+/* התוכן שמחליף שלד טעינה רגיל (27.9) — השלד כבר החליק; כאן רק התייצבות. */
+.page-anim[data-enter="settle"] {
+  animation: page-in-settle 160ms ease-out backwards;
+}
+@keyframes page-in-settle {
+  from {
+    opacity: 0.35;
+  }
+}
 @keyframes page-in-forward {
   from {
     opacity: 0;

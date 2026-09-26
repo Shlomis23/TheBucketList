@@ -94,6 +94,9 @@ async function readBody(req) {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
   const who = whoIs(req);
+  // FAKE_SUPABASE_DELAY_MS — השהיה מלאכותית (בדיקת שלדי טעינה ומעברים ברשת איטית).
+  const delay = Number(process.env.FAKE_SUPABASE_DELAY_MS ?? 0);
+  if (delay > 0) await new Promise((r) => setTimeout(r, delay));
 
   if (url.pathname === "/auth/v1/user") {
     if (!who.userId) return send(res, 401, { message: "no session" });

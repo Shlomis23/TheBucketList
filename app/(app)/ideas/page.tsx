@@ -15,6 +15,7 @@ import { getMySpaceId, hasPartner } from "@/lib/dal/space";
 import { CoverImg } from "@/components/CoverImg";
 import { pendingPreview } from "@/lib/validation/review";
 import { PageTransition } from "@/components/PageTransition";
+import { previewAttr } from "@/lib/nav/preview";
 
 const PREF_LABEL = { yes: "כן", maybe: "אולי", no: "לא" } as const;
 
@@ -164,6 +165,7 @@ function ViewChips({ filters, counts, partner }: { filters: IdeaListFilters; cou
 function IdeaRow({ idea, archived, partner }: { idea: IdeaListItemDto; archived: boolean; partner: PartnerInfo }) {
   const tag = archived ? null : ideaStatusTag(idea, partner);
   const href = `/ideas/${idea.id}`;
+  const preview = previewAttr({ ...idea, status: archived ? "archived" : idea.status });
   const meta = [
     categoryLabels[idea.category],
     formatCostMinor(idea.costMinor),
@@ -175,10 +177,10 @@ function IdeaRow({ idea, archived, partner }: { idea: IdeaListItemDto; archived:
 
   return (
     <div className="card idea-row" data-idea-id={idea.id}>
-      <Link href={href} className="idea-row-thumb-link" tabIndex={-1} aria-hidden="true">
+      <Link href={href} className="idea-row-thumb-link" tabIndex={-1} aria-hidden="true" {...preview}>
         <CoverImg category={idea.category} className="idea-row-thumb" />
       </Link>
-      <Link href={href} className="idea-row-text">
+      <Link href={href} className="idea-row-text" {...preview}>
         <div className="idea-row-title-line">
           <p className="idea-row-title">{idea.title}</p>
           {tag && <span className={`status-tag ${tag.kind}`}>{tag.label}</span>}

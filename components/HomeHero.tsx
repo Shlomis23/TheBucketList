@@ -9,6 +9,7 @@ import { categoryLabels } from "@/lib/validation/idea";
 import { formatMemoryDate } from "@/lib/validation/memory";
 import { ReactionControl } from "@/components/ReactionControl";
 import { NavigateTile } from "@/components/NavigateTile";
+import { previewAttr } from "@/lib/nav/preview";
 
 // רכיבי מסך הבית (26.9, אפשרות א): הכרטיס הגדול, שורות "עוד בשבילך",
 // ושורת "הזיכרון האחרון". ההחלטה מה עולה לכרטיס — lib/validation/home.ts.
@@ -85,7 +86,7 @@ export function HeroCard({
     return (
       <section className="hero-card light" aria-label={`רעיון חדש ${from}`}>
         <span className="hero-kicker yellow">חדש {from}</span>
-        <Link href={`/ideas/${idea.id}`} className="hero-link">
+        <Link href={`/ideas/${idea.id}`} className="hero-link" {...previewAttr(idea)}>
           <h2 className="hero-title">{idea.title}</h2>
           <p className="hero-sub">{categoryLabels[idea.category]} · עוד לא ענית</p>
         </Link>

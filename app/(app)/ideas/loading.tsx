@@ -1,30 +1,39 @@
 // שלד טעינה ל-`/ideas` — אותה גיאומטריה כמו השורה (IdeaRow, 26.9: שורה
 // אחת, תמונה 56px, בלי גלולות תגובה) — כדי שלא תהיה קפיצת layout כשהדאטה
 // האמיתית נכנסת.
+import { PageTransition } from "@/components/PageTransition";
+import { IdeaOrListSkeleton } from "@/components/IdeaSkeleton";
 export default function Loading() {
+  // רעיון שנלחץ לפני שהמבנה שלו נטען מראש — שלד רעיון (IdeaOrListSkeleton).
   return (
-    <div className="page">
-      <div className="flex items-center justify-between mb-12">
-        <div className="skeleton skeleton-title mb-0" style={{ width: 110 }} />
-        <div className="skeleton rounded-pill" style={{ width: 84, height: 40 }} />
-      </div>
+    <IdeaOrListSkeleton
+      list={
+        <PageTransition skeleton="settle">
+          <div className="page">
+            <div className="flex items-center justify-between mb-12">
+              <div className="skeleton skeleton-title mb-0" style={{ width: 110 }} />
+              <div className="skeleton rounded-pill" style={{ width: 84, height: 40 }} />
+            </div>
 
-      <div className="skeleton mb-12" style={{ height: 42 }} />
-      <div className="flex gap-8 mb-16">
-        {[48, 104, 76, 112].map((w, i) => (
-          <div key={i} className="skeleton rounded-pill" style={{ width: w, height: 36 }} />
-        ))}
-      </div>
+            <div className="skeleton mb-12" style={{ height: 42 }} />
+            <div className="flex gap-8 mb-16">
+              {[48, 104, 76, 112].map((w, i) => (
+                <div key={i} className="skeleton rounded-pill" style={{ width: w, height: 36 }} />
+              ))}
+            </div>
 
-      {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-        <div key={i} className="card idea-row">
-          <div className="skeleton idea-row-thumb-link" style={{ width: 56, height: 56 }} />
-          <div>
-            <div className="skeleton skeleton-line mb-8" style={{ width: "60%", height: 15 }} />
-            <div className="skeleton skeleton-line" style={{ width: "45%", height: 11 }} />
+            {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="card idea-row">
+                <div className="skeleton idea-row-thumb-link" style={{ width: 56, height: 56 }} />
+                <div>
+                  <div className="skeleton skeleton-line mb-8" style={{ width: "60%", height: 15 }} />
+                  <div className="skeleton skeleton-line" style={{ width: "45%", height: 11 }} />
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
-      ))}
-    </div>
+        </PageTransition>
+      }
+    />
   );
 }
