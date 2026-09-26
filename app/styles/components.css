@@ -1172,3 +1172,29 @@
   background: var(--color-danger-soft);
   text-align: center;
 }
+
+/* הוספה ליומן בדף תוכנית (26.9, components/AddToCalendar.tsx). */
+.calendar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-primary);
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
+.calendar-options {
+  display: flex;
+  gap: var(--sp-2);
+}
+.calendar-options .btn {
+  flex: 1;
+  min-height: 40px;
+  font-size: var(--fs-sm);
+  text-decoration: none;
+}

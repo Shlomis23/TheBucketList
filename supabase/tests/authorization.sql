@@ -127,6 +127,18 @@ begin
     failures := failures || 'delete_idea left rows'::text;
   end if;
 
+  -- תזכורת שבועית לסבב (0036): רק מי שמחכים לו רעיונות, רק במרחב שלו
+  insert into private.push_subscriptions (endpoint, user_id, p256dh, auth) values
+    ('https://push.test/b', b, repeat('p', 40), repeat('a', 16)),
+    ('https://push.test/c', c, repeat('p', 40), repeat('a', 16));
+  perform public.create_idea(a, gen_random_uuid(), 'רעיון חדש של A', '', 'other', null, null, null, null, null, true);
+  checks := checks + 1;
+  if not exists (select 1 from public.review_nudge_targets(1) t where t.user_id = b and t.pending = 1) then failures := failures || 'nudge:B missing'::text; end if;
+  checks := checks + 1;
+  if exists (select 1 from public.review_nudge_targets(1) t where t.user_id in (a, c)) then failures := failures || 'nudge:A/C included'::text; end if;
+  checks := checks + 1;
+  if exists (select 1 from public.review_nudge_targets(2) t where t.user_id = b) then failures := failures || 'nudge:min ignored'::text; end if;
+
   -- סגירה: A סוגר, B לא יכול לבטל, C לא מושפע
   perform public.close_space(a, false, 14);
   checks := checks + 1;

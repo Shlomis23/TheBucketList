@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { orderForReview, pendingPreview, swipeDecision, tallyAnswers } from "@/lib/validation/review";
+import { orderForReview, pendingPreview, reviewNudgeCopy, swipeDecision, tallyAnswers } from "@/lib/validation/review";
+import { isReviewNudgeDay } from "@/lib/reminders";
 
 const idea = (id: string, createdAt: string, partnerAnswered = false) => ({ id, createdAt, partnerAnswered });
 
@@ -35,5 +36,17 @@ describe("סבב החלטות — עזרים", () => {
     expect(swipeDecision(120)).toBe("yes");
     expect(swipeDecision(-95)).toBe("no");
     expect(swipeDecision(40)).toBeNull();
+  });
+});
+
+describe("תזכורת שבועית", () => {
+  it("נוסח", () => {
+    expect(reviewNudgeCopy(3, "קיאקים")).toEqual({ title: "3 רעיונות מחכים לך", body: "קיאקים ועוד — סבב של חצי דקה" });
+    expect(reviewNudgeCopy(1, "קיאקים").title).toBe("רעיון אחד מחכה לך");
+  });
+  it("רק ביום חמישי לפי שעון ישראל", () => {
+    expect(isReviewNudgeDay(new Date("2026-10-01T06:07:00Z"))).toBe(true); // חמישי 09:07
+    expect(isReviewNudgeDay(new Date("2026-10-02T06:07:00Z"))).toBe(false);
+    expect(isReviewNudgeDay(new Date("2026-09-30T22:30:00Z"))).toBe(true); // כבר חמישי בישראל
   });
 });

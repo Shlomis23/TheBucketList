@@ -3,6 +3,7 @@ import "server-only";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { sendPayload, type PushTarget } from "@/lib/push";
 import { yearsAgoLabel } from "@/lib/validation/memory";
+import { reviewNudgeCopy } from "@/lib/validation/review";
 
 // התראות מתוזמנות — רצות מהמשימה היומית (וגם תזכורת הגיבוי החודשית, למטה) (app/api/cron/daily), בבוקר:
 //   "מחר ב-19:30: פיקניק בטבע"        — יום לפני תוכנית
@@ -104,6 +105,36 @@ export async function sendOnThisDayReminders(now = new Date()): Promise<number> 
       url: `/memories/${r.memory_id}`,
       tag: `otd-${r.memory_id}`,
     });
+    sent++;
+  }
+  return sent;
+}
+
+// תזכורת שבועית לסבב ההחלטות (0036, 26.9): ביום חמישי בבוקר (לקראת סוף
+// השבוע), למי שיש לו לפחות 2 רעיונות שמחכים לתגובה שלו. פעם בשבוע לכל
+// היותר (claim_push לפי התאריך). בלי רעיונות שמחכים — בלי התראה.
+export const REVIEW_NUDGE_DAY = "Thu";
+export const REVIEW_NUDGE_MIN = 2;
+
+export function isReviewNudgeDay(now = new Date()): boolean {
+  return new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Jerusalem", weekday: "short" }).format(now) === REVIEW_NUDGE_DAY;
+}
+
+type NudgeRow = { user_id: string; pending: number; sample_title: string; targets: PushTarget[] };
+
+export async function sendReviewNudges(now = new Date()): Promise<number> {
+  if (!isReviewNudgeDay(now)) return 0;
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem" }).format(now);
+  const service = createSupabaseServiceClient();
+  const { data, error } = await service.rpc("review_nudge_targets", { p_min: REVIEW_NUDGE_MIN });
+  if (error) throw new Error("review_nudge_targets failed");
+
+  let sent = 0;
+  for (const r of (data as NudgeRow[] | null) ?? []) {
+    if (r.targets.length === 0) continue;
+    const { data: first } = await service.rpc("claim_push", { p_key: `review:${r.user_id}:${today}` });
+    if (first !== true) continue;
+    await sendPayload(r.targets, { ...reviewNudgeCopy(r.pending, r.sample_title), url: "/ideas/review", tag: "review-nudge" });
     sent++;
   }
   return sent;

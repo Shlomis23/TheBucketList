@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { timingSafeEqual } from "crypto";
 import { cleanupStalePhotos, listSpacesDueForPurge, purgeSpaceNow, sweepOrphanObjects } from "@/lib/purge";
-import { sendBackupReminders, sendOnThisDayReminders, sendPlanNotifications } from "@/lib/reminders";
+import { sendBackupReminders, sendOnThisDayReminders, sendPlanNotifications, sendReviewNudges } from "@/lib/reminders";
 import { recordDailyRun } from "@/lib/ops";
 
 // משימה יומית (vercel.json -> crons). Vercel שולח Authorization: Bearer
@@ -10,7 +10,7 @@ import { recordDailyRun } from "@/lib/ops";
 //   1. מחיקה סופית של מרחבים שתקופת החרטה שלהם (14 יום) נגמרה.
 //   2. ניקוי העלאות תמונה שנתקעו באמצע, וקבצים יתומים באחסון (בלי שורה ב-DB).
 //   3. התראות בוקר: "מחר ב-19:30: ..." ו"איך היה?", וב-1 לחודש תזכורת
-//      גיבוי, ו"לפני שנה בדיוק" (lib/reminders.ts).
+//      גיבוי, ו"לפני שנה בדיוק", ובחמישי תזכורת לסבב ההחלטות (lib/reminders.ts).
 //   4. דוח בריאות: כל ריצה נשמרת (private.job_runs), והתראה למי שפתח את
 //      המרחב אם משהו נכשל או שדילגנו על יום (lib/ops.ts).
 //   5. בדרך אגב — פעילות יומית מול Supabase, כך שהפרויקט בתוכנית החינמית
@@ -29,7 +29,7 @@ function authorized(request: NextRequest) {
 export async function GET(request: NextRequest) {
   if (!authorized(request)) return NextResponse.json({ ok: false }, { status: 401 });
 
-  const summary = { purged: 0, purgeFailed: 0, stalePhotos: 0, orphanObjects: 0, planNotifications: 0, backupReminders: 0, onThisDay: 0, errors: [] as string[] };
+  const summary = { purged: 0, purgeFailed: 0, stalePhotos: 0, orphanObjects: 0, planNotifications: 0, backupReminders: 0, onThisDay: 0, reviewNudges: 0, errors: [] as string[] };
 
   try {
     for (const spaceId of await listSpacesDueForPurge()) {
@@ -63,6 +63,12 @@ export async function GET(request: NextRequest) {
     summary.onThisDay = await sendOnThisDayReminders();
   } catch (e) {
     summary.errors.push(e instanceof Error ? e.message : "on this day failed");
+  }
+
+  try {
+    summary.reviewNudges = await sendReviewNudges();
+  } catch (e) {
+    summary.errors.push(e instanceof Error ? e.message : "review nudges failed");
   }
 
   console.log("daily job", JSON.stringify(summary));

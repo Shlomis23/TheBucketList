@@ -42,3 +42,11 @@ export function swipeDecision(dx: number): ReviewPref | null {
   if (dx <= -SWIPE_THRESHOLD) return "no";
   return null;
 }
+
+// התראה שבועית (lib/reminders.ts sendReviewNudges): "3 רעיונות מחכים לך".
+export function reviewNudgeCopy(pending: number, sampleTitle: string): { title: string; body: string } {
+  return {
+    title: pending === 1 ? "רעיון אחד מחכה לך" : `${pending} רעיונות מחכים לך`,
+    body: pending === 1 ? `${sampleTitle} · סבב של כמה שניות` : `${sampleTitle} ועוד — סבב של חצי דקה`,
+  };
+}

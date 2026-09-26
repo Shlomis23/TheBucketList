@@ -12,6 +12,7 @@ import {
 import { DEFAULT_PLAN_TIMEZONE, formatBudgetMinor, formatPlanWhen, isPlanPast, pastWhenLabel } from "@/lib/validation/plan";
 import { CoverImg } from "@/components/CoverImg";
 import { BackButton } from "@/components/BackButton";
+import { AddToCalendar } from "@/components/AddToCalendar";
 import { DateTimeRangeFields, endPartsToIso, isoToParts, partsToIso, type DateTimeParts } from "@/components/DateTimeRangeFields";
 import type { PlanDetailDto, PlanDto } from "@/lib/dal/plans";
 import { FromIdeaCard } from "@/components/FromIdeaCard";
@@ -34,10 +35,12 @@ export function PlanDetail({
   plan,
   memoryId,
   startCompleting = false,
+  icsHref,
 }: {
   plan: PlanDetailDto;
   memoryId: string | null;
   startCompleting?: boolean;
+  icsHref: string; // קובץ יומן חתום (lib/calendarToken.ts)
 }) {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>(startCompleting ? "complete" : "view");
@@ -81,6 +84,15 @@ export function PlanDetail({
         {formatPlanWhen(plan.startsAt)}
         {plan.meetingPlace ? ` · ${plan.meetingPlace}` : ""}
       </p>
+      {/* הוספה ליומן (26.9) — רק לתוכנית עתידית עם מועד. */}
+      {mode === "view" && plan.status === "proposed" && plan.startsAt && !past && (
+        <div className="mb-16">
+          <AddToCalendar
+            icsHref={icsHref}
+            plan={{ id: plan.id, title: plan.title, startsAt: plan.startsAt, endsAt: plan.endsAt, meetingPlace: plan.meetingPlace, notes: plan.notes }}
+          />
+        </div>
+      )}
 
       {mode === "edit" ? (
         <EditPlanForm
