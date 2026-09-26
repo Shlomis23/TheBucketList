@@ -171,7 +171,7 @@ function IdeaRow({ idea, archived, partner }: { idea: IdeaListItemDto; archived:
     .join(" · ");
 
   return (
-    <div className="card idea-row">
+    <div className="card idea-row" data-idea-id={idea.id}>
       <Link href={href} className="idea-row-thumb-link" tabIndex={-1} aria-hidden="true">
         <CoverImg category={idea.category} className="idea-row-thumb" />
       </Link>

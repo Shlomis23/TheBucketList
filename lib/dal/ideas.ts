@@ -210,6 +210,8 @@ export type IdeaDetailDto = IdeaDto & {
   placeId: string | null; // Google place_id (0019) — ניווט מדויק; null = טקסט חופשי
   isMatch: boolean;
   activePlanId: string | null;
+  // אפשר למחוק (0035) רק בלי תוכנית פעילה או שהושלמה (שם יש זיכרון).
+  canDelete: boolean;
   reactions: ReactionWithNameDto[];
 };
 
@@ -232,7 +234,7 @@ export async function getIdea(ideaId: string): Promise<IdeaDetailDto | null> {
     .maybeSingle<IdeaRow & { space_id: string; place_id: string | null }>();
   if (!idea) return null;
 
-  const [{ data: reaction }, { data: matchIds }, { data: activePlan }, { data: reactionsWithNames }] =
+  const [{ data: reaction }, { data: matchIds }, { data: keptPlans }, { data: reactionsWithNames }] =
     await Promise.all([
       supabase
         .from("idea_reactions")
@@ -242,10 +244,10 @@ export async function getIdea(ideaId: string): Promise<IdeaDetailDto | null> {
       supabase.rpc("list_my_matches", { p_space: idea.space_id }),
       supabase
         .from("plans")
-        .select("id")
+        .select("id, status")
         .eq("idea_id", ideaId)
-        .eq("status", "proposed")
-        .maybeSingle<{ id: string }>(),
+        .in("status", ["proposed", "completed"])
+        .returns<{ id: string; status: "proposed" | "completed" }[]>(),
       supabase.rpc("get_idea_reactions", { p_idea_id: ideaId }),
     ]);
 
@@ -272,7 +274,8 @@ export async function getIdea(ideaId: string): Promise<IdeaDetailDto | null> {
     createdAt: idea.created_at,
     myReaction: reaction?.preference ?? null,
     isMatch,
-    activePlanId: activePlan?.id ?? null,
+    activePlanId: keptPlans?.find((p) => p.status === "proposed")?.id ?? null,
+    canDelete: (keptPlans ?? []).length === 0,
     reactions,
     status: idea.status as IdeaStatus,
     version: idea.version,
@@ -402,9 +405,31 @@ function mapIdeaRpcError(errorMessage: string | undefined, fallback: string, tra
   return fail("UNEXPECTED", fallback, traceId);
 }
 
+// deleteIdea — RPC שירות (0035_delete_idea.sql). כל אחד מבני הזוג, כל רעיון;
+// חסום כשיש תוכנית פעילה/שהושלמה (HAS_PLAN). תוכניות שבוטלו נמחקות איתו.
+export async function deleteIdea(ideaId: string, expectedVersion: number): Promise<Result<{ deleted: true }>> {
+  const traceId = crypto.randomUUID();
+  const userId = await getVerifiedUserId();
+  if (!userId) return fail("UNAUTHENTICATED", "צריך להתחבר קודם", traceId);
+
+  const service = createSupabaseServiceClient();
+  const { data, error } = await service.rpc("delete_idea", {
+    p_actor: userId,
+    p_id: ideaId,
+    p_expected_version: expectedVersion,
+  });
+  if (error?.message?.includes("HAS_PLAN")) {
+    return fail("VERSION_CONFLICT", "לרעיון יש תוכנית או זיכרון — אפשר רק להעביר לארכיון", traceId);
+  }
+  if (error || data !== true) {
+    return mapIdeaRpcError(error?.message, "המחיקה נכשלה, נסו שוב", traceId);
+  }
+  return ok({ deleted: true as const }, traceId);
+}
+
 // archiveIdea/restoreIdea — RPC שירות (0010_idea_archive_rpcs.sql). ארכוב
-// חסום כל עוד יש תוכנית proposed לרעיון (ACTIVE_PLAN_EXISTS). בלי מחיקה
-// פיזית — status בלבד (spec סעיף 6.1, 13.2).
+// חסום כל עוד יש תוכנית proposed לרעיון (ACTIVE_PLAN_EXISTS). status בלבד
+// (spec 13.2); מחיקה אמיתית — deleteIdea למעלה (0035, 26.9).
 export async function archiveIdea(ideaId: string, expectedVersion: number): Promise<Result<{ version: number }>> {
   const traceId = crypto.randomUUID();
   const userId = await getVerifiedUserId();

@@ -126,6 +126,13 @@ export async function buildFixtures() {
       if (p_preference) idea_reactions.push({ space_id: SPACE, idea_id: p_idea_id, user_id: p_actor, preference: p_preference, updated_at: new Date().toISOString() });
       return [{ preference: p_preference ?? null, is_match: bothYes(p_idea_id) }];
     },
+    // מחיקת רעיון (0035) — בלי תוכנית פעילה/שהושלמה.
+    delete_idea: ({ p_id }) => {
+      if (plans.some((x) => x.idea_id === p_id && x.status !== "cancelled")) throw new Error("HAS_PLAN");
+      const i = ideas.findIndex((x) => x.id === p_id);
+      if (i >= 0) ideas.splice(i, 1);
+      return true;
+    },
     mark_matches_seen: ({ p_idea_ids }) =>
       ideas.filter((i) => (p_idea_ids ?? []).includes(i.id)).map((i) => ({ id: i.id, title: i.title })),
     set_color_theme: ({ p_actor, p_theme }) => {

@@ -12,6 +12,7 @@ import { linkHost } from "@/lib/validation/comment";
 import { NavigateTile } from "@/components/NavigateTile";
 import { getUnreadConversations, markIdeaRead } from "@/lib/dal/conversations";
 import { RefreshAfterRead } from "@/components/RefreshAfterRead";
+import { DeleteIdeaButton } from "@/components/DeleteIdeaButton";
 
 // פרטי רעיון `/ideas/[id]` — F4, spec סעיף 6.
 // תגובות טקסט: IdeaConversation (0017). בארכיון — קריאה בלבד.
@@ -37,6 +38,8 @@ export default async function IdeaDetailPage({
   const cost = formatCostMinor(idea.costMinor);
   const duration = formatDurationMinutes(idea.durationMinutes);
   const isArchived = idea.status === "archived";
+  // "שניכם אמרתם לא" (26.9) — הצעה למחוק, במקום לחפש את הקישור בתחתית.
+  const bothSaidNo = idea.reactions.length === 2 && idea.reactions.every((r) => r.preference === "no");
 
   return (
     <div className="page">
@@ -95,6 +98,7 @@ export default async function IdeaDetailPage({
             הרעיון הזה בארכיון — אי אפשר להגיב עליו או לתכנן אותו כל עוד הוא שם.
           </p>
           <ArchiveIdeaButton ideaId={idea.id} version={idea.version} mode="restore" />
+          {idea.canDelete && <DeleteIdeaButton ideaId={idea.id} title={idea.title} version={idea.version} />}
         </div>
       ) : null}
 
@@ -134,6 +138,13 @@ export default async function IdeaDetailPage({
             </div>
           )}
 
+          {bothSaidNo && idea.canDelete && (
+            <div className="card mb-16 text-center">
+              <p className="m-0 mb-12 fw-600">שניכם אמרתם לא. למחוק את הרעיון?</p>
+              <DeleteIdeaButton ideaId={idea.id} title={idea.title} version={idea.version} variant="suggest" />
+            </div>
+          )}
+
           <IdeaConversation ideaId={idea.id} comments={comments} canPost />
 
           <Link
@@ -159,6 +170,11 @@ export default async function IdeaDetailPage({
             mode="archive"
             blockedByActivePlan={Boolean(idea.activePlanId)}
           />
+          {idea.canDelete && !bothSaidNo && (
+            <div className="mt-8 text-center">
+              <DeleteIdeaButton ideaId={idea.id} title={idea.title} version={idea.version} />
+            </div>
+          )}
         </>
       )}
     </div>

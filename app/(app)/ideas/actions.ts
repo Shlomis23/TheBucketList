@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createIdea, setReaction, archiveIdea, restoreIdea, updateIdea } from "@/lib/dal/ideas";
+import { createIdea, setReaction, archiveIdea, restoreIdea, updateIdea, deleteIdea } from "@/lib/dal/ideas";
+import { z } from "zod";
 import { createIdeaSchema, updateIdeaSchema } from "@/lib/validation/idea";
 import { addComment, editComment, deleteComment } from "@/lib/dal/comments";
 import { addCommentSchema, editCommentSchema, deleteCommentSchema } from "@/lib/validation/comment";
@@ -51,6 +52,17 @@ export async function setReactionAction(
     celebrate = (await markMatchesSeen([ideaId]))[0] ?? null;
   }
   return { ...result, data: { ...result.data, celebrate } };
+}
+
+// מחיקה (0035). נקרא אחרי חלון ה"ביטול" (components/UndoToast.tsx), לא
+// ישר מהכפתור. revalidatePath על כל האפליקציה — הרעיון יכול להופיע בבית,
+// ברשימה, בסבב ובחיפוש "מה עושים?".
+export async function deleteIdeaAction(ideaId: unknown, expectedVersion: unknown) {
+  const parsed = z.object({ id: z.uuid(), version: z.number().int().positive() }).safeParse({ id: ideaId, version: expectedVersion });
+  if (!parsed.success) return fail("INVALID_INPUT", "בקשה לא תקינה", crypto.randomUUID());
+  const result = await deleteIdea(parsed.data.id, parsed.data.version);
+  if (result.ok) revalidatePath("/", "layout");
+  return result;
 }
 
 export async function archiveIdeaAction(ideaId: string, expectedVersion: number) {

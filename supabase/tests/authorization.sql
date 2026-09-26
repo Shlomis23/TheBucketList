@@ -17,6 +17,7 @@ declare
   a uuid := gen_random_uuid(); b uuid := gen_random_uuid(); c uuid := gen_random_uuid();
   s1 uuid := gen_random_uuid(); s2 uuid := gen_random_uuid();
   idea public.ideas; plan_id uuid; mem_id uuid; photo_id uuid; comment_id uuid;
+  idea2 public.ideas; plan2 uuid;
   checks int := 0; failures text[] := '{}'; r record; v jsonb;
 begin
   -- ---------- fixture ----------
@@ -52,6 +53,7 @@ begin
     ('delete_comment',     format('select public.delete_comment(%L, %L, 1)', c, comment_id)),
     ('update_idea',        format('select public.update_idea(%L, %L, %s, ''x'', '''', ''other'', null, null, null, null, null)', c, idea.id, idea.version)),
     ('archive_idea',       format('select public.archive_idea(%L, %L, %s)', c, idea.id, idea.version)),
+    ('delete_idea',        format('select public.delete_idea(%L, %L, %s)', c, idea.id, idea.version)),
     ('create_plan',        format('select public.create_plan(%L, gen_random_uuid(), %L, null, null, ''Asia/Jerusalem'', null, '''', null)', c, idea.id)),
     ('update_memory',      format('select public.update_memory(%L, %L, 1, current_date, ''x'')', c, mem_id)),
     ('create_photo_upload',format('select public.create_photo_upload(%L, gen_random_uuid(), %L, ''image/jpeg'', 10)', c, mem_id)),
@@ -103,6 +105,27 @@ begin
   if pg_temp.must_fail(format('select public.begin_delete_photo(%L, %L)', b, photo_id)) then failures := failures || 'B:delete A photo blocked'::text; end if;
   checks := checks + 1;
   if public.finish_delete_photo(c, photo_id) then failures := failures || 'C:finish_delete_photo'::text; end if;
+
+  -- מחיקת רעיון (0035): כל אחד מבני הזוג; לא כשיש תוכנית שהושלמה/פעילה
+  checks := checks + 1;
+  if not pg_temp.must_fail(format('select public.delete_idea(%L, %L, %s)', a, idea.id, idea.version)) then failures := failures || 'A:deleted idea with memory'::text; end if;
+  idea2 := public.create_idea(a, gen_random_uuid(), 'נוסף בטעות', '', 'other', null, null, null, null, null, true);
+  perform public.add_comment(a, gen_random_uuid(), idea2.id, 'x');
+  plan2 := (public.create_plan(a, gen_random_uuid(), idea2.id, null, null, 'Asia/Jerusalem', null, '', null)).id;
+  checks := checks + 1;
+  if not pg_temp.must_fail(format('select public.delete_idea(%L, %L, %s)', b, idea2.id, idea2.version)) then failures := failures || 'B:deleted idea with active plan'::text; end if;
+  update public.plans set status = 'cancelled' where id = plan2;
+  checks := checks + 1;
+  if not pg_temp.must_fail(format('select public.delete_idea(%L, %L, %s)', b, idea2.id, idea2.version + 7)) then failures := failures || 'B:delete stale version'::text; end if;
+  checks := checks + 1;
+  if not public.delete_idea(b, idea2.id, idea2.version) then failures := failures || 'B:delete A idea blocked'::text; end if;
+  checks := checks + 1;
+  if exists (select 1 from public.ideas where id = idea2.id)
+     or exists (select 1 from public.plans where id = plan2)
+     or exists (select 1 from public.idea_comments where idea_id = idea2.id)
+     or exists (select 1 from public.idea_reactions where idea_id = idea2.id) then
+    failures := failures || 'delete_idea left rows'::text;
+  end if;
 
   -- סגירה: A סוגר, B לא יכול לבטל, C לא מושפע
   perform public.close_space(a, false, 14);

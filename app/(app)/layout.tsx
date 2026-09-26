@@ -5,6 +5,7 @@ import { getMatchCelebrationState } from "@/lib/dal/matches";
 import { getMyProfile } from "@/lib/dal/profile";
 import { ThemeSync } from "@/components/ThemeSync";
 import { NavMemory } from "@/components/NavMemory";
+import { UndoToast } from "@/components/UndoToast";
 import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { parseTheme, THEME_COOKIE } from "@/lib/themes";
@@ -33,6 +34,7 @@ export default async function AppLayout({
       </main>
       <BottomNav />
       <AppLifecycle />
+      <UndoToast />
       {/* useSearchParams — בתוך Suspense לפי כללי Next. */}
       <Suspense fallback={null}>
         <NavMemory />

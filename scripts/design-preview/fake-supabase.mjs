@@ -110,7 +110,12 @@ const server = http.createServer(async (req, res) => {
   if (rpc) {
     const args = req.method === "GET" ? Object.fromEntries(url.searchParams) : await readBody(req);
     const fn = db.rpc[rpc[1]];
-    return send(res, 200, fn ? fn(args, who) : null);
+    // שגיאת RPC (raise exception) — כמו PostgREST: 400 עם message.
+    try {
+      return send(res, 200, fn ? fn(args, who) : null);
+    } catch (e) {
+      return send(res, 400, { message: String(e?.message ?? e), code: "P0001" });
+    }
   }
 
   const table = url.pathname.match(/^\/rest\/v1\/([a-z_]+)$/);
