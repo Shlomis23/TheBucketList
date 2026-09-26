@@ -30,7 +30,7 @@
   --radius-lg: 22px;
   --radius-md: 14px;
   --radius-pill: 999px;
-  --shadow-card: 0 10px 28px -18px rgba(70, 40, 130, 0.45);
+  --shadow-card: 0 10px 28px -18px rgba(var(--shadow-card-rgb), 0.45);
 
   /* סולם טקסט (26.9) — כל גודל באפליקציה הוא אחד מאלה. */
   --fs-2xs: 11px; /* תגיות קטנות */
@@ -52,11 +52,25 @@
   --sp-6: 24px;
   --sp-8: 32px;
 
-  /* צבעי מותג קבועים — לא משתנים במצב כהה (טקסט סגול על כפתור לבן וכו'). */
-  --brand-purple: #5b3e9e;
-  --brand-purple-deep: #46307d;
+  /* צבעי מותג — לא משתנים במצב כהה (טקסט בצבע המותג על כפתור לבן, מעברי
+     הצבע של הכרטיסים הגדולים). כל ערכת צבע (data-color, למטה) מחליפה אותם. */
+  --brand: #5b3e9e;
+  --brand-deep: #46307d;
   --brand-night: #2e1f5c;
   --brand-ink: #241b3a;
+  --brand-bright: #6a49b3;
+  --brand-glow: #8a5ad0;
+  --brand-glow-soft: #7a58c4;
+  --brand-mid: #4b3290;
+  --brand-tint: #f3edff;
+  --hero-angle: 135deg;
+  --shadow-rgb: 40, 20, 90;
+  --shadow-card-rgb: 70, 40, 130;
+  --overlay-rgb: 20, 10, 50;
+  --overlay-deep-rgb: 18, 10, 40;
+  --arrow-primary: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%235b3e9e' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  --arrow-muted: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%236e6584' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  --arrow-white: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
 
   --touch-target-min: 44px;
   /* גובה הניווט התחתון (בלי safe-area) — BottomNav הוא position: fixed,
@@ -64,6 +78,93 @@
   --bottom-nav-height: 68px;
   --safe-area-top: env(safe-area-inset-top, 0px);
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+
+/* ---------------------------------------------------------------------------
+   ערכות צבע (26.9) — כל אחד בוחר בהגדרות; <html data-color="...">.
+   סגול דמדומים = ברירת המחדל (הערכים ב-:root למעלה). כאן — לפני בלוקי
+   המצב הכהה, כדי שבמצב כהה הערכים הכהים יגברו.
+   --------------------------------------------------------------------------- */
+/* כחול ים */
+:root[data-color="ocean"] {
+  --color-bg: #f6f9fe;
+  --color-text: #142236;
+  --color-primary: #2a5fa8;
+  --color-primary-strong: #1f4a85;
+  --color-primary-soft: #e5eefb;
+  --color-border: #d9e4f3;
+  --color-muted: #5b6b82;
+  --brand: #2a5fa8;
+  --brand-deep: #1f4a85;
+  --brand-night: #16283f;
+  --brand-ink: #142236;
+  --brand-bright: #3b78c9;
+  --brand-glow: #5b93dd;
+  --brand-glow-soft: #4f86d1;
+  --brand-mid: #22508f;
+  --brand-tint: #eaf2ff;
+  --hero-angle: 225deg; /* הצד הכהה של המעבר מאחורי הטקסט (בצד ימין) */
+  --shadow-rgb: 15, 40, 80;
+  --shadow-card-rgb: 30, 70, 130;
+  --overlay-rgb: 10, 25, 50;
+  --overlay-deep-rgb: 8, 20, 40;
+  --arrow-primary: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%232a5fa8' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  --arrow-muted: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%235b6b82' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+/* טורקיז */
+:root[data-color="turquoise"] {
+  --color-bg: #f4fcfc;
+  --color-text: #0e2a2c;
+  --color-primary: #0a7479;
+  --color-primary-strong: #075a5e;
+  --color-primary-soft: #dcf3f4;
+  --color-border: #cfe9eb;
+  --color-muted: #4b6a6c;
+  --brand: #0a7479;
+  --brand-deep: #075a5e;
+  --brand-night: #06292b;
+  --brand-ink: #0e2a2c;
+  --brand-bright: #0fa3a8;
+  --brand-glow: #3cc3c7;
+  --brand-glow-soft: #16a4a9;
+  --brand-mid: #0a6a6e;
+  --brand-tint: #e0fafa;
+  --hero-angle: 225deg; /* הצד הכהה של המעבר מאחורי הטקסט (בצד ימין) */
+  --shadow-rgb: 5, 50, 52;
+  --shadow-card-rgb: 10, 90, 95;
+  --overlay-rgb: 5, 30, 32;
+  --overlay-deep-rgb: 4, 24, 26;
+  --arrow-primary: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%230a7479' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  --arrow-muted: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%234b6a6c' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+/* מנגו */
+:root[data-color="mango"] {
+  --color-bg: #fffaf3;
+  --color-text: #3a2208;
+  --color-primary: #b24d00;
+  --color-primary-strong: #8f3d00;
+  --color-primary-soft: #fdeedd;
+  --color-border: #f4e2cc;
+  --color-muted: #7a6048;
+  --brand: #b24d00;
+  --brand-deep: #a04500;
+  --brand-night: #3d1d02;
+  --brand-ink: #3a2208;
+  --brand-bright: #f08a1c;
+  --brand-glow: #ffa94d;
+  --brand-glow-soft: #f08a1c;
+  --brand-mid: #a04500;
+  --brand-tint: #fff1e0;
+  --hero-angle: 225deg; /* הצד הכהה של המעבר מאחורי הטקסט (בצד ימין) */
+  --shadow-rgb: 80, 40, 5;
+  --shadow-card-rgb: 140, 70, 10;
+  --overlay-rgb: 45, 20, 2;
+  --overlay-deep-rgb: 36, 16, 2;
+  --arrow-primary: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23b24d00' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  --arrow-muted: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%237a6048' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
 }
 
 @media (prefers-color-scheme: dark) {
@@ -112,4 +213,80 @@
   --badge-green-text: #7fd89b;
 
   --shadow-card: 0 10px 28px -16px rgba(0, 0, 0, 0.6);
+}
+
+/* ערכות צבע במצב כהה (אחרי הבסיס הכהה — גוברות עליו) */
+@media (prefers-color-scheme: dark) {
+  :root[data-color="ocean"]:not([data-theme="light"]) {
+    --color-bg: #0e1728;
+    --color-surface: #152238;
+    --color-text: #eaf2ff;
+    --color-primary: #80aef0;
+    --color-primary-strong: #b0cdf6;
+    --color-primary-contrast: #0e1728;
+    --color-primary-soft: #1b2f4d;
+    --color-border: #253e60;
+    --color-muted: #a7b7cd;
+    --arrow-muted: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23a7b7cd' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  }
+  :root[data-color="turquoise"]:not([data-theme="light"]) {
+    --color-bg: #0a1b1c;
+    --color-surface: #10272a;
+    --color-text: #e4fbfb;
+    --color-primary: #5fd3d6;
+    --color-primary-strong: #9fe6e8;
+    --color-primary-contrast: #0a1b1c;
+    --color-primary-soft: #133a3d;
+    --color-border: #1d4b4e;
+    --color-muted: #a2c7c8;
+    --arrow-muted: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23a2c7c8' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  }
+  :root[data-color="mango"]:not([data-theme="light"]) {
+    --color-bg: #1f1305;
+    --color-surface: #2b1b09;
+    --color-text: #fff1e2;
+    --color-primary: #ffab5c;
+    --color-primary-strong: #ffc98f;
+    --color-primary-contrast: #1f1305;
+    --color-primary-soft: #3d2710;
+    --color-border: #4d3318;
+    --color-muted: #d6b99a;
+    --arrow-muted: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23d6b99a' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  }
+}
+:root[data-color="ocean"][data-theme="dark"] {
+  --color-bg: #0e1728;
+  --color-surface: #152238;
+  --color-text: #eaf2ff;
+  --color-primary: #80aef0;
+  --color-primary-strong: #b0cdf6;
+  --color-primary-contrast: #0e1728;
+  --color-primary-soft: #1b2f4d;
+  --color-border: #253e60;
+  --color-muted: #a7b7cd;
+  --arrow-muted: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23a7b7cd' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+:root[data-color="turquoise"][data-theme="dark"] {
+  --color-bg: #0a1b1c;
+  --color-surface: #10272a;
+  --color-text: #e4fbfb;
+  --color-primary: #5fd3d6;
+  --color-primary-strong: #9fe6e8;
+  --color-primary-contrast: #0a1b1c;
+  --color-primary-soft: #133a3d;
+  --color-border: #1d4b4e;
+  --color-muted: #a2c7c8;
+  --arrow-muted: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23a2c7c8' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+:root[data-color="mango"][data-theme="dark"] {
+  --color-bg: #1f1305;
+  --color-surface: #2b1b09;
+  --color-text: #fff1e2;
+  --color-primary: #ffab5c;
+  --color-primary-strong: #ffc98f;
+  --color-primary-contrast: #1f1305;
+  --color-primary-soft: #3d2710;
+  --color-border: #4d3318;
+  --color-muted: #d6b99a;
+  --arrow-muted: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23d6b99a' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
 }

@@ -11,6 +11,8 @@ bash scripts/design-preview/run.sh /tmp/shots-after
 python3 scripts/design-preview/diff.py /tmp/shots-before /tmp/shots-after /tmp/shots-diff
 ```
 
+ערכת צבע: `THEME=mango bash scripts/design-preview/run.sh /tmp/shots-mango`.
+
 `diff.py` מדפיס כמה פיקסלים השתנו בכל מסך ושומר תמונה (לפני | אחרי | הבדלים
 באדום). שינוי שלא אמור להיראות (רפקטור) צריך לצאת `0 changed`.
 צריך Playwright (`PLAYWRIGHT_PATH` אם הוא מותקן גלובלית) ו-Pillow.

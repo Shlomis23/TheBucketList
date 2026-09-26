@@ -3,7 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createInvitation, revokeInvitation } from "@/lib/dal/invitations";
-import { updateMyProfile } from "@/lib/dal/profile";
+import { getMyProfile, setMyColorTheme, updateMyProfile } from "@/lib/dal/profile";
+import { cookies } from "next/headers";
+import { colorThemes, THEME_COOKIE, type ColorTheme } from "@/lib/themes";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { consumeInviteCookie } from "@/lib/invitations/cookie";
 import { createInvitationSchema, invitationIdSchema } from "@/lib/validation/invitation";
@@ -65,4 +67,26 @@ export async function signOutAction(): Promise<void> {
   await consumeInviteCookie();
   revalidatePath("/", "layout");
   redirect("/login");
+}
+
+// ערכת צבע (26.9): נשמרת בפרופיל (עוברת בין מכשירים) + עוגייה, כדי שהשרת
+// יצבע את הדף מהטעינה הראשונה. הלקוח טוען את הדף מחדש אחרי זה (האיורים).
+export async function setColorThemeAction(theme: unknown) {
+  const parsed = colorThemes.includes(theme as ColorTheme) ? (theme as ColorTheme) : null;
+  if (!parsed) return fail("INVALID_INPUT", "צבע לא מוכר", crypto.randomUUID());
+  const result = await setMyColorTheme(parsed);
+  if (result.ok) await writeThemeCookie(parsed);
+  return result;
+}
+
+// מסנכרן את העוגייה לבחירה שבפרופיל (מכשיר חדש / שינוי ממכשיר אחר).
+export async function syncThemeCookieAction(): Promise<ColorTheme | null> {
+  const profile = await getMyProfile();
+  if (!profile) return null;
+  await writeThemeCookie(profile.colorTheme);
+  return profile.colorTheme;
+}
+
+async function writeThemeCookie(theme: ColorTheme) {
+  (await cookies()).set(THEME_COOKIE, theme, { path: "/", maxAge: 60 * 60 * 24 * 400, sameSite: "lax" });
 }

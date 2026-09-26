@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { parseTheme, THEME_COOKIE, themedCoverPath } from "@/lib/themes";
 
 // proxy.ts (Next 16 — לשעבר middleware.ts). רץ לפני כל בקשה לדף/פעולה.
 //
@@ -27,6 +28,14 @@ export async function proxy(request: NextRequest) {
     url.port = "";
     // 308 שומר method/body — לא משנה POST של Server Action ל-GET.
     return NextResponse.redirect(url, 308);
+  }
+
+  // איורי קטגוריות בערכת הצבע של המשתמש (26.9): /covers/food ->
+  // /images/covers/<theme>/food.svg (rewrite פנימי, בלי קפיצה נוספת).
+  const cover = request.nextUrl.pathname.match(/^\/covers\/([a-z]+)$/);
+  if (cover) {
+    const theme = parseTheme(request.cookies.get(THEME_COOKIE)?.value);
+    return NextResponse.rewrite(new URL(themedCoverPath(theme, `${cover[1]}.svg`), request.url));
   }
 
   let response = NextResponse.next({ request });

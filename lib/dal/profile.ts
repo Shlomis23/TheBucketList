@@ -4,24 +4,26 @@ import { cache } from "react";
 import { createSupabaseServerClient, getVerifiedUserId } from "@/lib/supabase/server";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { ok, fail, type Result } from "@/lib/errors/result";
+import { parseTheme, type ColorTheme } from "@/lib/themes";
 
 // getMyProfile — קריאה בלבד, דרך client עם JWT המשתמש (profiles_read/
 // can_read_profile מרשה קריאת הפרופיל של עצמך תמיד). משמש כדי להחליט אם
 // צריך לבקש שם תצוגה לפני accept_invitation_internal (הפרופיל חייב
 // להתקיים לפני קבלת הזמנה — spec סעיף 10.3).
-export async function getMyProfile(): Promise<{ id: string; displayName: string } | null> {
+// ב-cache לבקשה: ה-layout (ערכת צבע) וההגדרות שואלים באותה בקשה.
+export const getMyProfile = cache(async (): Promise<{ id: string; displayName: string; colorTheme: ColorTheme } | null> => {
   const userId = await getVerifiedUserId();
   if (!userId) return null;
 
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("profiles")
-    .select("id, display_name")
+    .select("id, display_name, color_theme")
     .eq("id", userId)
-    .maybeSingle<{ id: string; display_name: string }>();
+    .maybeSingle<{ id: string; display_name: string; color_theme: string | null }>();
 
-  return data ? { id: data.id, displayName: data.display_name } : null;
-}
+  return data ? { id: data.id, displayName: data.display_name, colorTheme: parseTheme(data.color_theme) } : null;
+});
 
 // שם התצוגה של בן/בת הזוג (null אם עוד אין, או בלי שם). RLS (can_read_profile)
 // מחזיר רק אותי ואת בן/בת הזוג במרחב פתוח — אז "מי שאינו אני" הוא בן/בת הזוג.
@@ -66,4 +68,15 @@ export async function updateMyProfile(
   }
 
   return ok({ id: data.id as string, displayName: data.display_name as string }, requestId);
+}
+
+// ערכת צבע אישית (0034, 26.9). העוגייה נכתבת ב-Server Action (settings/actions).
+export async function setMyColorTheme(theme: ColorTheme): Promise<Result<{ theme: ColorTheme }>> {
+  const traceId = crypto.randomUUID();
+  const userId = await getVerifiedUserId();
+  if (!userId) return fail("UNAUTHENTICATED", "צריך להתחבר קודם", traceId);
+  const service = createSupabaseServiceClient();
+  const { error } = await service.rpc("set_color_theme", { p_actor: userId, p_theme: theme });
+  if (error) return fail("UNEXPECTED", "שמירת הצבע נכשלה, נסו שוב", traceId);
+  return ok({ theme }, traceId);
 }

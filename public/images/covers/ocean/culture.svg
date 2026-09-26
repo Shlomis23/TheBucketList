@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-label="תרבות">
+  <defs>
+    <linearGradient id="gCultureBg" x1="0" y1="0" x2="480" y2="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1f4a85"/>
+      <stop offset="1" stop-color="#2a5fa8"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="300" fill="url(#gCultureBg)"/>
+  <circle cx="60" cy="240" r="70" fill="#fef1cf" opacity="0.12"/>
+  <circle cx="420" cy="60" r="60" fill="#ddf3e4" opacity="0.1"/>
+  <g transform="translate(240,150)">
+    <g transform="translate(-58,0)">
+      <circle r="52" fill="none" stroke="#eaf2ff" stroke-width="4.5" opacity="0.92"/>
+      <circle cx="-16" cy="-10" r="5.5" fill="#eaf2ff" opacity="0.92"/>
+      <circle cx="16" cy="-10" r="5.5" fill="#eaf2ff" opacity="0.92"/>
+      <path d="M-20 18 C -8 30, 8 30, 20 18" fill="none" stroke="#eaf2ff" stroke-width="4.5" stroke-linecap="round" opacity="0.92"/>
+    </g>
+    <!-- 26.9: במקום מסכת העצב — פרצוף נלהב (עיניים מחייכות, פה פתוח). זיכרון
+         מהופעה לא אמור להיראות כמו "היה מבאס". -->
+    <g transform="translate(58,10)">
+      <circle r="52" fill="none" stroke="#fef1cf" stroke-width="4.5" opacity="0.85"/>
+      <path d="M-23 -6 Q -16 -15 -9 -6" fill="none" stroke="#fef1cf" stroke-width="4.5" stroke-linecap="round" opacity="0.85"/>
+      <path d="M9 -6 Q 16 -15 23 -6" fill="none" stroke="#fef1cf" stroke-width="4.5" stroke-linecap="round" opacity="0.85"/>
+      <path d="M-20 12 H20 Q 20 34 0 34 Q -20 34 -20 12 Z" fill="#fef1cf" opacity="0.85"/>
+    </g>
+    <!-- תווים קטנים — מוזיקה/במה -->
+    <g fill="#eaf2ff" opacity="0.55">
+      <ellipse cx="-150" cy="-40" rx="9" ry="7"/>
+      <rect x="-143" y="-78" width="3.5" height="38" rx="1.5"/>
+      <path d="M-143 -78 q 14 4 16 16" fill="none" stroke="#eaf2ff" stroke-width="3.5" stroke-linecap="round"/>
+      <ellipse cx="160" cy="-62" rx="8" ry="6"/>
+      <rect x="166" y="-96" width="3" height="34" rx="1.5"/>
+    </g>
+  </g>
+</svg>

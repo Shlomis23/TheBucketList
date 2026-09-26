@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-label="אוכל">
+  <defs>
+    <linearGradient id="gFoodBg" x1="0" y1="0" x2="480" y2="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1f4a85"/>
+      <stop offset="1" stop-color="#2a5fa8"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="300" fill="url(#gFoodBg)"/>
+  <circle cx="390" cy="60" r="90" fill="#ffe1e9" opacity="0.16"/>
+  <circle cx="70" cy="250" r="70" fill="#c23a63" opacity="0.14"/>
+  <g opacity="0.9">
+    <circle cx="240" cy="160" r="70" fill="none" stroke="#eaf2ff" stroke-width="4" opacity="0.85"/>
+    <circle cx="240" cy="160" r="46" fill="none" stroke="#eaf2ff" stroke-width="2.5" opacity="0.55"/>
+    <g stroke="#eaf2ff" stroke-width="4.5" stroke-linecap="round" opacity="0.9">
+      <line x1="148" y1="118" x2="148" y2="206"/>
+      <line x1="138" y1="118" x2="138" y2="150"/>
+      <line x1="148" y1="118" x2="148" y2="150"/>
+      <line x1="158" y1="118" x2="158" y2="150"/>
+      <path d="M330 118 v40 c0 10 -8 16 -8 16 v32" fill="none"/>
+      <path d="M330 118 c-8 0 -8 16 0 24" fill="none"/>
+    </g>
+  </g>
+  <g stroke="#eaf2ff" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.55">
+    <path d="M214 84 c-6 -10 6 -14 0 -26"/>
+    <path d="M240 84 c-6 -10 6 -14 0 -26"/>
+    <path d="M266 84 c-6 -10 6 -14 0 -26"/>
+  </g>
+</svg>

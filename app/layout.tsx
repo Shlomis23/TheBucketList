@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Rubik } from "next/font/google";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 // עיצוב (26.9): טוקנים -> בסיס -> רכיבים -> מסכים -> מחלקות עזר. הסדר חשוב.
 import "./styles/tokens.css";
 import "./styles/base.css";
@@ -9,6 +9,7 @@ import "./styles/screens.css";
 import "./styles/utilities.css";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { splashStartupImages } from "@/lib/pwa/splash";
+import { DEFAULT_THEME, parseTheme, THEME_COOKIE, themeInfo } from "@/lib/themes";
 
 // Rubik — גופן עגול וחברותי עם תמיכת עברית מלאה, לפי כיוון העיצוב שנבחר.
 const rubik = Rubik({
@@ -46,27 +47,30 @@ export const metadata: Metadata = {
 // headers() הופך את ה-layout לדינמי; כל הדפים כבר דינמיים (cookies/searchParams).
 export async function generateViewport(): Promise<Viewport> {
   const ua = (await headers()).get("user-agent") ?? "";
+  const bg = themeInfo[parseTheme((await cookies()).get(THEME_COOKIE)?.value)].bg;
   const isIOS = /iPhone|iPad|iPod/i.test(ua);
   return {
     width: "device-width",
     initialScale: 1,
     ...(isIOS ? { maximumScale: 1 } : {}),
     viewportFit: "cover", // safe-area לתמיכה ב-iOS notch
-    // צבע שורת הסטטוס/הכתובת = רקע האפליקציה, לפי מצב בהיר/כהה (app/styles/tokens.css).
+    // צבע שורת הסטטוס/הכתובת = רקע האפליקציה, לפי מצב בהיר/כהה וערכת הצבע.
     themeColor: [
-      { media: "(prefers-color-scheme: light)", color: "#faf8ff" },
-      { media: "(prefers-color-scheme: dark)", color: "#17122b" },
+      { media: "(prefers-color-scheme: light)", color: bg.light },
+      { media: "(prefers-color-scheme: dark)", color: bg.dark },
     ],
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // ערכת הצבע (26.9) מהעוגייה — הדף נצבע כבר בשרת, בלי הבזק של הסגול.
+  const theme = parseTheme((await cookies()).get(THEME_COOKIE)?.value);
   return (
-    <html lang="he" dir="rtl" className={rubik.variable}>
+    <html lang="he" dir="rtl" className={rubik.variable} data-color={theme === DEFAULT_THEME ? undefined : theme}>
       <body>
         {children}
         <ServiceWorkerRegister />

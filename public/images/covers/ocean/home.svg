@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-label="בית">
+  <defs>
+    <linearGradient id="gHomeBg" x1="0" y1="0" x2="480" y2="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1f4a85"/>
+      <stop offset="1" stop-color="#2a5fa8"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="300" fill="url(#gHomeBg)"/>
+  <circle cx="360" cy="70" r="70" fill="#fef1cf" opacity="0.14"/>
+  <circle cx="90" cy="240" r="60" fill="#ffe1e9" opacity="0.12"/>
+  <g opacity="0.92">
+    <path d="M170 190 L240 130 L310 190 Z" fill="#eaf2ff"/>
+    <rect x="182" y="190" width="116" height="70" fill="#eaf2ff" opacity="0.88"/>
+    <rect x="222" y="220" width="36" height="40" fill="#1f4a85" opacity="0.85"/>
+    <path d="M198 205 l16 0 0 16 -16 0 z" fill="#2a5fa8" opacity="0.6"/>
+    <path d="M264 205 l16 0 0 16 -16 0 z" fill="#2a5fa8" opacity="0.6"/>
+    <path d="M232 146 l6 8 -12 0 z" fill="#c23a63" opacity="0.85"/>
+  </g>
+</svg>

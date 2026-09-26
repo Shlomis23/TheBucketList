@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-label="טיול">
+  <defs>
+    <linearGradient id="gTripBg" x1="0" y1="0" x2="480" y2="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1f4a85"/>
+      <stop offset="1" stop-color="#2a5fa8"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="300" fill="url(#gTripBg)"/>
+  <circle cx="80" cy="70" r="60" fill="#ddf3e4" opacity="0.12"/>
+  <circle cx="400" cy="230" r="80" fill="#ffe1e9" opacity="0.12"/>
+  <path d="M30 220 C 150 150, 320 260, 430 130" fill="none" stroke="#eaf2ff" stroke-width="3" stroke-dasharray="2 12" stroke-linecap="round" opacity="0.7"/>
+  <g fill="#eaf2ff" opacity="0.5">
+    <ellipse cx="120" cy="60" rx="26" ry="10"/>
+    <ellipse cx="146" cy="60" rx="18" ry="8"/>
+    <ellipse cx="150" cy="235" rx="30" ry="11"/>
+    <ellipse cx="180" cy="235" rx="20" ry="8"/>
+  </g>
+  <g transform="translate(310,120) rotate(-32) scale(1.15)" fill="#eaf2ff" opacity="0.95">
+    <path d="M60 0 L-46 -30 L-16 0 L-46 30 Z"/>
+    <path d="M60 0 L-16 0" stroke="#2a5fa8" stroke-width="2.5" opacity="0.5"/>
+  </g>
+</svg>

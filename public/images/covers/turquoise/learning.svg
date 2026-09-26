@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-label="למידה">
+  <defs>
+    <linearGradient id="gLearningBg" x1="0" y1="0" x2="480" y2="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#075a5e"/>
+      <stop offset="1" stop-color="#0a7479"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="300" fill="url(#gLearningBg)"/>
+  <circle cx="380" cy="230" r="80" fill="#ddf3e4" opacity="0.12"/>
+  <circle cx="330" cy="90" r="24" fill="#fef1cf" opacity="0.9"/>
+  <path d="M330 118 v14 M320 138 h20" stroke="#fef1cf" stroke-width="3" stroke-linecap="round" opacity="0.75"/>
+  <g opacity="0.92">
+    <path d="M150 130 C 190 118, 232 122, 240 138 C 248 122, 290 118, 330 130 L330 210 C 290 198, 248 202, 240 216 C 232 202, 190 198, 150 210 Z" fill="#e0fafa"/>
+    <path d="M240 138 L240 216" stroke="#0a7479" stroke-width="3" opacity="0.5"/>
+    <path d="M168 150 h50 M168 168 h50 M168 186 h44" stroke="#0a7479" stroke-width="3" stroke-linecap="round" opacity="0.35"/>
+    <path d="M262 150 h50 M262 168 h50 M268 186 h44" stroke="#0a7479" stroke-width="3" stroke-linecap="round" opacity="0.35"/>
+  </g>
+</svg>

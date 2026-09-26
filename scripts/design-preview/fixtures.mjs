@@ -23,7 +23,7 @@ async function photo(top, bottom) {
 
 export async function buildFixtures() {
   const profiles = [
-    { id: ME, display_name: "בסטי" },
+    { id: ME, display_name: "בסטי", color_theme: process.env.THEME ?? "purple" },
     { id: PARTNER, display_name: "גואל" },
   ];
   const space_members = [

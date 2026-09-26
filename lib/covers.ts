@@ -5,14 +5,16 @@ import type { IdeaCategory } from "@/lib/validation/idea";
 // SVG מקוריים, קבועים לקטגוריה, יושבים תחת public/images/covers — בלי
 // DB, בלי Storage, בלי RLS. אם בעתיד ירצו תמונות אמיתיות לרעיון, זה
 // שינוי scope נפרד (ראו דיון "דרך B") ולא הרחבה של הקובץ הזה.
+// /covers/<קטגוריה> — proxy.ts משכתב לקובץ בערכת הצבע של המשתמש (26.9),
+// כך שכל <img> בכל מקום מקבל את האיור בצבעים הנכונים בלי לדעת מה הערכה.
 export const categoryCoverImages: Record<IdeaCategory, string> = {
-  food: "/images/covers/food.svg",
-  outdoors: "/images/covers/outdoors.svg",
-  culture: "/images/covers/culture.svg",
-  trip: "/images/covers/trip.svg",
-  home: "/images/covers/home.svg",
-  learning: "/images/covers/learning.svg",
-  other: "/images/covers/other.svg",
+  food: "/covers/food",
+  outdoors: "/covers/outdoors",
+  culture: "/covers/culture",
+  trip: "/covers/trip",
+  home: "/covers/home",
+  learning: "/covers/learning",
+  other: "/covers/other",
 };
 
 export function getIdeaCoverImage(category: IdeaCategory): string {

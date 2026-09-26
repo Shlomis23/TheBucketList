@@ -45,7 +45,10 @@ const session = { access_token: jwt, token_type: "bearer", expires_in: 3600, exp
 const browser = await chromium.launch();
 for (const scheme of ["light", "dark"]) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, colorScheme: scheme, reducedMotion: "reduce", serviceWorkers: "block" });
-  await ctx.addCookies([{ name: "sb-localhost-auth-token", value: `base64-${b64(session)}`, url: base }]);
+  await ctx.addCookies([
+    { name: "sb-localhost-auth-token", value: `base64-${b64(session)}`, url: base },
+    ...(process.env.THEME ? [{ name: "bl-color", value: process.env.THEME, url: base }] : []),
+  ]);
   const page = await ctx.newPage();
   for (const [name, path] of SCREENS) {
     await page.goto(base + path, { waitUntil: "networkidle" });
