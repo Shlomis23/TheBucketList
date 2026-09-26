@@ -33,12 +33,12 @@ export function FromIdeaCard({
   const hasLinks = Boolean(sourceUrl || place || conversationLinks.length);
 
   return (
-    <section className="card" aria-labelledby="from-idea" style={{ marginBottom: 16 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: hasLinks ? 10 : 0 }}>
-        <p id="from-idea" className="page-eyebrow" style={{ margin: 0 }}>
+    <section className="card mb-16" aria-labelledby="from-idea">
+      <div className="flex justify-between items-center" style={{ marginBottom: hasLinks ? 12 : 0 }}>
+        <p id="from-idea" className="page-eyebrow m-0">
           מהרעיון
         </p>
-        <Link href={`/ideas/${ideaId}`} className="link-plain" style={{ fontSize: 13.5 }}>
+        <Link href={`/ideas/${ideaId}`} className="link-plain text-sm">
           לרעיון המלא &larr;
         </Link>
       </div>
@@ -48,11 +48,11 @@ export function FromIdeaCard({
           <ExternalIcon />
           {/* שתי שורות: טקסט עברי למעלה, שם האתר (LTR) מתחת — כך אף אחד מהם
               לא נחתך מהצד הלא נכון במסך צר. */}
-          <span className="link-tile-text" style={{ display: "flex", flexDirection: "column", whiteSpace: "normal" }}>
+          <span className="link-tile-text flex flex-col" style={{ whiteSpace: "normal" }}>
             <span>קישור מהרעיון</span>
-            <span
+            <span className="text-right text-xs fw-600 c-muted"
               dir="ltr"
-              style={{ textAlign: "right", fontSize: 12.5, fontWeight: 600, color: "var(--color-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+              style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
             >
               {linkHost(sourceUrl)}
             </span>
@@ -64,7 +64,7 @@ export function FromIdeaCard({
 
       {conversationLinks.length > 0 && (
         <>
-          <p className="status-msg" style={{ margin: "4px 0 8px", fontSize: 12.5 }}>
+          <p className="status-msg m-0 mt-4 mb-8 text-xs">
             קישורים מהשיחה
           </p>
           {conversationLinks.map((url) => (
@@ -72,7 +72,7 @@ export function FromIdeaCard({
               <ExternalIcon />
               {/* כתובת בלבד: השורה כולה LTR, כדי שה-"…" ייחתך בסוף הכתובת ולא
                   בתחילתה (ב-RTL החיתוך נופל על ההתחלה — "ntim.co.il" במקום "eventim"). */}
-              <span className="link-tile-text" dir="ltr" style={{ textAlign: "right" }}>
+              <span className="link-tile-text text-right" dir="ltr">
                 {shortLinkLabel(url, 60)}
               </span>
             </a>

@@ -80,7 +80,7 @@ function PartsRow({
         />
       </div>
       {error && (
-        <p role="alert" className="alert-error" style={{ marginTop: 8 }}>
+        <p role="alert" className="alert-error mt-8">
           {error}
         </p>
       )}
@@ -126,7 +126,9 @@ export function DateTimeRangeFields({
         }}
       />
       <PartsRow id={`${idPrefix}-end`} label={endLabel} value={end} error={endError} onChange={onEndChange} />
-      <p className="status-msg" style={{ margin: "-6px 0 0", fontSize: 12.5 }}>
+      {/* הזזה שלילית מכוונת: ההסבר צמוד לשדות שמעליו */}
+      {/* eslint-disable-next-line no-restricted-syntax */}
+      <p className="status-msg text-xs" style={{ margin: "-6px 0 0" }}>
         בוחרים תאריך ושעה — או משאירים ריק ומשלימים אחר כך.
       </p>
     </>

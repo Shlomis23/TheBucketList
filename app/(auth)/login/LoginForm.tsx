@@ -106,11 +106,11 @@ export function LoginForm({ initialError }: { initialError?: string }) {
 
   if (step === "code") {
     return (
-      <form onSubmit={verifyCode} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <form className="flex flex-col gap-16" onSubmit={verifyCode}>
         {sentTo && (
-          <div role="status" className="status-msg" style={{ margin: 0 }}>
+          <div role="status" className="status-msg m-0">
             שלחנו מייל עם קוד לכתובת:
-            <div dir="ltr" style={{ fontWeight: 700, color: "var(--color-text)", textAlign: "right", margin: "2px 0" }}>
+            <div className="fw-700 c-text text-right m-0 mt-2 mb-2" dir="ltr">
               {sentTo}
             </div>
             אם הוא לא מופיע תוך דקה, כדאי לבדוק בספאם.
@@ -121,7 +121,7 @@ export function LoginForm({ initialError }: { initialError?: string }) {
           <input
             id="code"
             name="code"
-            className="input"
+            className="input text-center text-xl fw-700"
             dir="ltr"
             inputMode="numeric"
             autoComplete="one-time-code"
@@ -130,14 +130,14 @@ export function LoginForm({ initialError }: { initialError?: string }) {
             placeholder="123456"
             value={code}
             onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-            style={{ textAlign: "center", fontSize: 22, letterSpacing: 6, fontWeight: 700 }}
+            style={{ letterSpacing: 6 }}
             autoFocus
           />
         </div>
         <button type="submit" className="btn btn-primary btn-block" disabled={busy || code.length < 6}>
           {busy ? "בודקים…" : "כניסה"}
         </button>
-        <p className="status-msg" style={{ margin: 0, fontSize: 13.5 }}>
+        <p className="status-msg m-0 text-sm">
           אפשר גם ללחוץ על הקישור במייל — אבל רק אם הוא נפתח באותו דפדפן. הקוד עובד תמיד.
         </p>
         {errorMsg && (
@@ -145,7 +145,7 @@ export function LoginForm({ initialError }: { initialError?: string }) {
             {errorMsg}
           </p>
         )}
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+        <div className="flex justify-between gap-12 flex-wrap">
           <button type="button" className="link-plain" onClick={sendEmail} disabled={busy || cooldown > 0}>
             {cooldown > 0 ? `שליחה מחדש בעוד ${cooldown}` : "שליחת מייל חדש"}
           </button>
@@ -166,12 +166,11 @@ export function LoginForm({ initialError }: { initialError?: string }) {
   }
 
   return (
-    <form
+    <form className="flex flex-col gap-16"
       onSubmit={(e) => {
         e.preventDefault();
         void sendEmail();
       }}
-      style={{ display: "flex", flexDirection: "column", gap: 16 }}
     >
       <div className="field">
         <label htmlFor="email">אימייל</label>
@@ -192,7 +191,7 @@ export function LoginForm({ initialError }: { initialError?: string }) {
       <button type="submit" className="btn btn-primary btn-block" disabled={busy || cooldown > 0}>
         {busy ? "שולחים…" : cooldown > 0 ? `אפשר לשלוח שוב בעוד ${cooldown}` : "שליחת קוד כניסה"}
       </button>
-      <p className="status-msg" style={{ margin: 0, fontSize: 13.5 }}>
+      <p className="status-msg m-0 text-sm">
         בכניסה הראשונה ייפתח לך חשבון אוטומטית.
       </p>
       {errorMsg && (

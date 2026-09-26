@@ -1,0 +1,731 @@
+/* עיצוב של מסכים ורכיבים גדולים — כניסה, מאצ', "לפני שנה", אלבום, דף זיכרון, בית, רשימת רעיונות. */
+
+/* ---------- מסך כניסה (app/(auth)/login) — "אופציה א", 25.9 ---------- */
+.auth-screen {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+.auth-hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #fff;
+  min-height: 42dvh;
+  padding: calc(40px + var(--safe-area-top)) 20px 64px;
+  background: radial-gradient(120% 90% at 50% 0%, #7a58c4 0%, #4b3290 55%, var(--brand-night) 100%);
+}
+.auth-star {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.55;
+}
+.auth-star.is-small {
+  width: 2px;
+  height: 2px;
+  opacity: 0.4;
+}
+.auth-logo {
+  width: 92px;
+  height: 92px;
+  border-radius: 26px;
+  margin-bottom: var(--sp-4);
+  box-shadow: 0 14px 34px -10px rgba(0, 0, 0, 0.5);
+}
+.auth-title {
+  margin: 0;
+  font-size: var(--fs-display);
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+.auth-tagline {
+  margin: var(--sp-2) 0 0;
+  font-size: var(--fs-base);
+  opacity: 0.88;
+}
+.auth-sheet {
+  position: relative;
+  flex: 1;
+  margin-top: -32px;
+  padding: 28px 22px calc(32px + var(--safe-area-bottom));
+  border-radius: 28px 28px 0 0;
+  background: var(--color-bg);
+  width: 100%;
+  max-width: 480px;
+  margin-inline: auto;
+}
+.auth-sheet-title {
+  margin: 0 0 var(--sp-1);
+  font-size: var(--fs-xl);
+  font-weight: 800;
+}
+.auth-sheet-sub {
+  margin: 0 0 var(--sp-5);
+  font-size: var(--fs-md);
+  color: var(--color-muted);
+}
+.auth-notice {
+  margin: 0 0 var(--sp-4);
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: var(--fs-md);
+  font-weight: 600;
+}
+@media (min-width: 540px) {
+  /* במחשב: הגיליון ברוחב של טלפון, ממורכז, עם פינות מלאות */
+  .auth-sheet {
+    border-radius: 28px;
+    flex: none;
+    margin-bottom: 40px;
+    box-shadow: 0 18px 40px -26px rgba(70, 40, 130, 0.45);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   רגע המאצ' — מסך חגיגה מלא (components/MatchCelebration.tsx, 0030).
+   אותם צבעים כמו מסך הכניסה. ב"הפחתת תנועה" הכול מופיע מיד, בלי קונפטי.
+   --------------------------------------------------------------------------- */
+.match-overlay {
+  outline: none;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  padding: calc(32px + var(--safe-area-top)) 28px calc(32px + var(--safe-area-bottom));
+  color: #fff;
+  background: radial-gradient(120% 80% at 50% 20%, #7a58c4 0%, #4b3290 55%, var(--brand-night) 100%);
+  animation: match-fade 0.3s ease-out both;
+}
+@keyframes match-fade {
+  from { opacity: 0; }
+}
+.match-duo {
+  position: relative;
+  width: 196px;
+  height: 100px;
+  margin-bottom: var(--sp-6);
+}
+.match-av {
+  position: absolute;
+  top: 8px;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-display);
+  font-weight: 800;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+}
+.match-av.me {
+  right: 0;
+  background: #f3edff;
+  color: var(--brand-purple);
+  animation: match-from-right 0.6s 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+.match-av.partner {
+  left: 0;
+  background: #fef1cf;
+  color: #8a5a00;
+  animation: match-from-left 0.6s 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+@keyframes match-from-right {
+  from { transform: translateX(60px); opacity: 0; }
+}
+@keyframes match-from-left {
+  from { transform: translateX(-60px); opacity: 0; }
+}
+.match-heart {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  animation: match-pop 0.5s 0.8s cubic-bezier(0.2, 0.9, 0.3, 1.6) both;
+}
+@keyframes match-pop {
+  from { transform: scale(0); }
+}
+.match-title,
+.match-sub,
+.match-idea,
+.match-actions {
+  animation: match-up 0.5s both;
+}
+.match-title { margin: 0 0 4px; font-size: var(--fs-display); font-weight: 800; animation-delay: 1.05s; }
+.match-sub { margin: 0; font-size: var(--fs-base); opacity: 0.88; animation-delay: 1.2s; }
+.match-idea {
+  margin: var(--sp-3) 0 var(--sp-8);
+  max-width: 100%;
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.13);
+  overflow-wrap: anywhere;
+  animation-delay: 1.35s;
+}
+.match-actions { width: 100%; max-width: 360px; animation-delay: 1.5s; }
+@keyframes match-up {
+  from { opacity: 0; transform: translateY(10px); }
+}
+.match-btn-primary {
+  background: #fff;
+  color: var(--brand-purple);
+  text-decoration: none;
+}
+.match-btn-later {
+  margin-top: var(--sp-2);
+  background: transparent;
+  color: #fff;
+}
+.match-more {
+  display: inline-block;
+  margin-top: var(--sp-3);
+  color: #fef1cf;
+  font-size: var(--fs-md);
+  font-weight: 600;
+}
+.match-confetti {
+  position: absolute;
+  top: -16px;
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  opacity: 0.9;
+  animation: match-fall 2.8s linear infinite;
+}
+@keyframes match-fall {
+  to { transform: translateY(110dvh) rotate(540deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .match-confetti { display: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   "לפני שנה בדיוק" בבית (components/OnThisDayCard.tsx)
+   --------------------------------------------------------------------------- */
+.otd-card {
+  position: relative;
+  display: block;
+  height: 210px;
+  margin-bottom: var(--sp-4);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--brand-purple-deep), var(--brand-purple));
+  box-shadow: 0 14px 28px -18px rgba(40, 20, 90, 0.7);
+  color: #fff;
+  text-decoration: none;
+}
+.otd-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.otd-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(20, 10, 50, 0.12) 0%, rgba(20, 10, 50, 0.05) 40%, rgba(20, 10, 50, 0.82) 100%);
+}
+.otd-pill {
+  position: absolute;
+  top: 12px;
+  inset-inline-start: 12px;
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--brand-purple);
+  font-size: var(--fs-xs);
+  font-weight: 800;
+}
+.otd-meta {
+  position: absolute;
+  inset-inline: 14px;
+  bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.otd-title {
+  font-size: var(--fs-lg);
+  font-weight: 800;
+}
+.otd-quote {
+  font-size: var(--fs-sm);
+  opacity: 0.92;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------------------------------------------------------------------------
+   אלבום הזיכרונות (/memories, components/MemoryTile.tsx) — גריד 2 עמודות.
+   --------------------------------------------------------------------------- */
+.album-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-3);
+}
+.album-tile {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 8px 18px -14px rgba(40, 20, 90, 0.55);
+  color: inherit;
+  text-decoration: none;
+}
+.album-tile.wide {
+  grid-column: span 2;
+}
+.album-img-wrap {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, var(--brand-purple-deep), var(--brand-purple));
+}
+.album-tile.wide .album-img-wrap {
+  aspect-ratio: 16 / 9;
+}
+.album-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.album-count {
+  position: absolute;
+  top: 8px;
+  inset-inline-end: 8px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+}
+.album-nostory {
+  position: absolute;
+  inset-inline: 8px;
+  bottom: 8px;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--brand-purple);
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.album-cap {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 10px 10px;
+  min-width: 0;
+}
+.album-title {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.album-tile.wide .album-title {
+  font-size: var(--fs-base);
+}
+.album-date {
+  font-size: var(--fs-2xs);
+  color: var(--color-muted);
+}
+
+/* ---------------------------------------------------------------------------
+   באנר עליון בדף זיכרון (components/MemoryHero.tsx) — מקצה לקצה.
+   --------------------------------------------------------------------------- */
+.mhero {
+  position: relative;
+  height: clamp(260px, 46dvh, 380px);
+  margin: -20px -18px var(--sp-8);
+  background: linear-gradient(135deg, var(--brand-purple-deep), var(--brand-purple));
+  color: #fff;
+}
+.mhero-scroller {
+  display: flex;
+  height: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.mhero-scroller::-webkit-scrollbar {
+  display: none;
+}
+.mhero-slide {
+  flex: 0 0 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  scroll-snap-align: center;
+  cursor: zoom-in;
+}
+.mhero-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background-size: cover;
+  background-position: center;
+}
+.mhero-fallback {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.mhero-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.28) 0%, rgba(0, 0, 0, 0) 26%, rgba(0, 0, 0, 0) 52%, rgba(18, 10, 40, 0.82) 100%);
+}
+.mhero-back {
+  position: absolute;
+  top: 12px;
+  inset-inline-start: 14px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--brand-purple);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+.mhero-meta {
+  position: absolute;
+  inset-inline: 18px;
+  bottom: 16px;
+  pointer-events: none;
+}
+.mhero-date {
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  opacity: 0.92;
+}
+.mhero-title {
+  margin: 2px 0 0;
+  font-size: var(--fs-2xl);
+  font-weight: 800;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.25);
+}
+.mhero-dots {
+  position: absolute;
+  bottom: -18px;
+  inset-inline: 0;
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+}
+.mhero-dots button {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  background: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+}
+.mhero-dots button::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--color-border);
+  transition: width 0.2s ease, background-color 0.2s ease;
+}
+.mhero-dots button.on::before {
+  width: 16px;
+  background: var(--color-primary);
+}
+
+/* ---------------------------------------------------------------------------
+   מסך הבית — כרטיס עליון אחד + "עוד בשבילך" (26.9, אפשרות א)
+   --------------------------------------------------------------------------- */
+.home-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin: var(--sp-1) 0 var(--sp-4);
+}
+.home-stats a {
+  padding: 5px 11px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-primary);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  text-decoration: none;
+}
+.hero-card {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: var(--sp-4);
+  padding: 18px;
+  border-radius: 22px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--brand-purple-deep), #6a49b3);
+  box-shadow: 0 16px 30px -20px rgba(40, 20, 90, 0.8);
+}
+.hero-card::before {
+  content: "";
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  inset-inline-end: -40px;
+  top: -55px;
+  pointer-events: none;
+}
+.hero-card > * {
+  position: relative;
+}
+.hero-card.tonight {
+  background: linear-gradient(135deg, var(--brand-night), var(--brand-purple) 60%, #8a5ad0);
+}
+.hero-card.howwas {
+  background: linear-gradient(135deg, #7a3b61, #c2567f);
+}
+.hero-card.idle {
+  text-align: center;
+}
+.hero-card.light {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+}
+.hero-card.light::before {
+  background: var(--color-primary-soft);
+  opacity: 0.6;
+}
+.hero-kicker {
+  display: inline-block;
+  margin-bottom: var(--sp-2);
+  padding: 3px 11px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.18);
+  font-size: var(--fs-xs);
+  font-weight: 800;
+}
+.hero-kicker.yellow {
+  background: var(--badge-yellow-bg);
+  color: var(--badge-yellow-text);
+}
+.hero-kicker.soft {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+.hero-title {
+  margin: 0 0 var(--sp-1);
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.hero-sub {
+  margin: 0 0 var(--sp-4);
+  font-size: var(--fs-sm);
+  line-height: 1.45;
+  opacity: 0.9;
+}
+.hero-card.light .hero-sub {
+  color: var(--color-muted);
+  opacity: 1;
+}
+.hero-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+.hero-actions {
+  display: flex;
+  gap: var(--sp-2);
+}
+.hero-actions .btn {
+  flex: 1;
+}
+.hero-btn-white {
+  background: #fff;
+  color: var(--brand-purple);
+}
+.hero-btn-glass {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+.home-more-h {
+  margin: var(--sp-1) 2px var(--sp-2);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--color-muted);
+}
+.home-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-2);
+  padding: 11px 13px;
+  border-radius: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: inherit;
+  text-decoration: none;
+}
+.home-row-ic {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+.home-row-ic.how {
+  background: var(--badge-pink-bg);
+  color: var(--badge-pink-text);
+}
+.home-row-ic.idea {
+  background: var(--badge-yellow-bg);
+  color: var(--badge-yellow-text);
+}
+.home-row-ic.plan {
+  background: var(--badge-green-bg);
+  color: var(--badge-green-text);
+}
+.home-row-ic.memory {
+  background: var(--badge-pink-bg);
+  color: var(--badge-pink-text);
+}
+.home-row-thumb {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+.home-row-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.home-row-title {
+  font-size: var(--fs-md);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.home-row-sub {
+  font-size: var(--fs-xs);
+  color: var(--color-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.home-row-chev {
+  flex: none;
+  font-size: 20px;
+  color: var(--color-muted);
+}
+.home-choose {
+  margin: var(--sp-1) 0 var(--sp-3);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+/* NavigateTile בתוך כרטיס כהה — אותו אריח, על רקע לבן */
+.hero-card:not(.light) .link-tile {
+  background: #fff;
+  border-color: transparent;
+  color: var(--brand-purple);
+}
+.hero-card:not(.light) .link-tile .link-tile-text {
+  color: var(--brand-ink) !important; /* גם במצב כהה — האריח לבן */
+}
+.hero-card:not(.light) .nav-option {
+  background: var(--brand-purple);
+  color: #fff;
+}
+
+/* תגית מצב ברשימת הרעיונות (26.9, אפשרות א) — ideaStatusTag */
+.status-tag {
+  flex: none;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-2xs);
+  font-weight: 800;
+  white-space: nowrap;
+}
+.status-tag.match {
+  background: var(--badge-green-bg);
+  color: var(--badge-green-text);
+}
+.status-tag.you {
+  background: var(--badge-yellow-bg);
+  color: var(--badge-yellow-text);
+}
+.status-tag.partner {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+.status-tag.plan {
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+.status-tag.answered {
+  background: var(--color-bg);
+  color: var(--color-muted);
+  box-shadow: inset 0 0 0 1px var(--color-border);
+}

@@ -17,52 +17,24 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav
+    <nav className="flex gap-4 bg-surface"
       aria-label="ניווט ראשי"
-      // fixed ולא sticky: overflow-x: hidden על html/body (AC12, globals.css)
+      // fixed ולא sticky: overflow-x: hidden על html/body (AC12, app/styles/base.css)
       // הופך את body לקונטיינר גלילה, ובמצב הזה sticky לא נצמד ל-viewport
       // (בעיקר ב-iOS Safari) — הבר נגלל עם התוכן. ה-main ב-(app)/layout.tsx
       // שומר ריווח תחתון בגובה --bottom-nav-height כדי שלא יסתיר תוכן.
-      style={{
-        position: "fixed",
-        bottom: 0,
-        insetInlineStart: 0,
-        insetInlineEnd: 0,
-        zIndex: 50,
-        minHeight: "var(--bottom-nav-height)",
-        display: "flex",
-        gap: 4,
-        borderTop: "1px solid var(--color-border)",
-        background: "var(--color-surface)",
-        padding: "8px 8px",
-        paddingBottom: "calc(8px + var(--safe-area-bottom))",
-      }}
+      style={{ position: "fixed", bottom: 0, insetInlineStart: 0, insetInlineEnd: 0, zIndex: 50, minHeight: "var(--bottom-nav-height)", borderTop: "1px solid var(--color-border)", padding: "8px 8px", paddingBottom: "calc(8px + var(--safe-area-bottom))" }}
     >
       {TABS.map((tab) => {
         const active =
           tab.href === "/" ? pathname === "/" : pathname.startsWith(tab.href);
         const Icon = tab.icon;
         return (
-          <Link
+          <Link className="flex-1 flex flex-col items-center justify-center gap-2 rounded-pill no-underline text-2xs"
             key={tab.href}
             href={tab.href}
             aria-current={active ? "page" : undefined}
-            style={{
-              flex: 1,
-              minHeight: "var(--touch-target-min)",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 2,
-              padding: "6px 4px",
-              borderRadius: "var(--radius-pill)",
-              textDecoration: "none",
-              fontSize: 11,
-              fontWeight: active ? 700 : 500,
-              color: active ? "var(--color-primary)" : "var(--color-muted)",
-              background: active ? "var(--color-primary-soft)" : "transparent",
-            }}
+            style={{ minHeight: "var(--touch-target-min)", padding: "6px 4px", fontWeight: active ? 700 : 500, color: active ? "var(--color-primary)" : "var(--color-muted)", background: active ? "var(--color-primary-soft)" : "transparent" }}
           >
             <Icon />
             {tab.label}

@@ -28,13 +28,13 @@ export function StatusScreen({
           </svg>
         )}
       </div>
-      <h1 className="page-title" style={{ marginBottom: 8 }}>
+      <h1 className="page-title mb-8">
         {title}
       </h1>
-      <p className="page-subtitle" style={{ marginBottom: 24 }}>
+      <p className="page-subtitle mb-24">
         {text}
       </p>
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>{children}</div>
+      <div className="flex flex-col gap-12">{children}</div>
     </div>
   );
 }

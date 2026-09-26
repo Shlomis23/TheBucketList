@@ -1,0 +1,115 @@
+/* בסיס עיצוב — RTL, נגישות, מובייל תחילה.
+   ראו docs/The-Bucket-List-Technical-Spec-HE.md סעיף 4.
+   שימוש ב-CSS logical properties (inset-inline, padding-inline וכו')
+   כדי שהעיצוב יעבוד נכון גם אם יתווסף אי-פעם מסך LTR.
+
+   מערכת עיצוב — "סגול דמדומים": כיוון ויזואלי חם, צבעוני ומזמין
+   לפי הפניה שהוצגה (אמטיסט עמוק + פינות מעוגלות + badges צבעוניים לפי משמעות).
+   רק על מה שכבר בנוי — אין הוספת פיצ'רים חדשים דרך ה-CSS הזה. */
+
+:root {
+  --color-bg: #faf8ff;
+  --color-surface: #ffffff;
+  --color-text: #241b3a;
+  --color-primary: #5b3e9e;
+  --color-primary-strong: #46307d;
+  --color-primary-contrast: #ffffff;
+  --color-primary-soft: #efe9fb;
+  --color-border: #e6e0f2;
+  --color-muted: #6e6584;
+  --color-danger: #c23a63;
+  --color-danger-soft: #fce4ea;
+
+  --badge-pink-bg: #ffe1e9;
+  --badge-pink-text: #c23a63;
+  --badge-yellow-bg: #fef1cf;
+  --badge-yellow-text: #9a6b0a;
+  --badge-green-bg: #ddf3e4;
+  --badge-green-text: #1f7a45;
+
+  --radius-lg: 22px;
+  --radius-md: 14px;
+  --radius-pill: 999px;
+  --shadow-card: 0 10px 28px -18px rgba(70, 40, 130, 0.45);
+
+  /* סולם טקסט (26.9) — כל גודל באפליקציה הוא אחד מאלה. */
+  --fs-2xs: 11px; /* תגיות קטנות */
+  --fs-xs: 12.5px; /* הערות, מטא */
+  --fs-sm: 13.5px; /* טקסט משני */
+  --fs-md: 14.5px; /* טקסט רגיל, כפתורים */
+  --fs-base: 16px; /* שדות קלט (בלי זום באייפון), כותרות כרטיס */
+  --fs-lg: 19px;
+  --fs-xl: 22px;
+  --fs-2xl: 24px; /* כותרת מסך */
+  --fs-display: 32px;
+
+  /* סולם מרווחים — כפולות של 4. */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+
+  /* צבעי מותג קבועים — לא משתנים במצב כהה (טקסט סגול על כפתור לבן וכו'). */
+  --brand-purple: #5b3e9e;
+  --brand-purple-deep: #46307d;
+  --brand-night: #2e1f5c;
+  --brand-ink: #241b3a;
+
+  --touch-target-min: 44px;
+  /* גובה הניווט התחתון (בלי safe-area) — BottomNav הוא position: fixed,
+     אז ה-main צריך ריווח תחתון בגובה הזה כדי שהפריט האחרון לא יוסתר. */
+  --bottom-nav-height: 68px;
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: #17122b;
+    --color-surface: #1f1a38;
+    --color-text: #f1ecff;
+    --color-primary: #a58af0;
+    --color-primary-strong: #c3b0f7;
+    --color-primary-contrast: #17122b;
+    --color-primary-soft: #2c2350;
+    --color-border: #342b57;
+    --color-muted: #b3a8cf;
+    --color-danger: #ff8fae;
+    --color-danger-soft: #3a2036;
+
+    --badge-pink-bg: #3a2036;
+    --badge-pink-text: #ff8fae;
+    --badge-yellow-bg: #3a2f14;
+    --badge-yellow-text: #e8c268;
+    --badge-green-bg: #16311f;
+    --badge-green-text: #7fd89b;
+
+    --shadow-card: 0 10px 28px -16px rgba(0, 0, 0, 0.6);
+  }
+}
+
+:root[data-theme="dark"] {
+  --color-bg: #17122b;
+  --color-surface: #1f1a38;
+  --color-text: #f1ecff;
+  --color-primary: #a58af0;
+  --color-primary-strong: #c3b0f7;
+  --color-primary-contrast: #17122b;
+  --color-primary-soft: #2c2350;
+  --color-border: #342b57;
+  --color-muted: #b3a8cf;
+  --color-danger: #ff8fae;
+  --color-danger-soft: #3a2036;
+
+  --badge-pink-bg: #3a2036;
+  --badge-pink-text: #ff8fae;
+  --badge-yellow-bg: #3a2f14;
+  --badge-yellow-text: #e8c268;
+  --badge-green-bg: #16311f;
+  --badge-green-text: #7fd89b;
+
+  --shadow-card: 0 10px 28px -16px rgba(0, 0, 0, 0.6);
+}

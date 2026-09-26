@@ -29,36 +29,36 @@ export default async function SpaceClosedPage() {
         {state.closedAt ? ` ב-${new Date(state.closedAt).toLocaleDateString("he-IL", { timeZone: "Asia/Jerusalem" })}` : ""}.
       </p>
 
-      <div className="card" style={{ marginBottom: 12 }}>
-        <p className="page-eyebrow" style={{ marginBottom: 8 }}>
+      <div className="card mb-12">
+        <p className="page-eyebrow mb-8">
           מחיקה סופית
         </p>
-        <p style={{ margin: 0, fontSize: 14.5, fontWeight: 700 }}>
+        <p className="m-0 text-md fw-700">
           {left > 0 ? `בעוד ${left === 1 ? "יום אחד" : `${left} ימים`} · ` : "היום · "}
           {formatPurgeDate(purgeAfter)}
         </p>
-        <p className="status-msg" style={{ margin: "8px 0 0", fontSize: 13.5 }}>
+        <p className="status-msg m-0 mt-8 text-sm">
           אז יימחקו לצמיתות כל הרעיונות, התוכניות, הזיכרונות והתמונות.
           {state.deletionRequested && " באותו יום יימחק גם החשבון שלך."}
         </p>
       </div>
 
-      <div className="card" style={{ marginBottom: 12 }}>
-        <p className="page-eyebrow" style={{ marginBottom: 8 }}>
+      <div className="card mb-12">
+        <p className="page-eyebrow mb-8">
           הזיכרונות שלכם
         </p>
-        <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13.5 }}>
+        <p className="status-msg m-0 mb-12 text-sm">
           אפשר להוריד עותק עד המחיקה: כל הזיכרונות, התמונות והרעיונות, בקובץ ZIP אחד.
         </p>
         <ExportButton />
       </div>
 
       {state.closedByMe && (
-        <div className="card" style={{ marginBottom: 12 }}>
-          <p className="page-eyebrow" style={{ marginBottom: 8 }}>
+        <div className="card mb-12">
+          <p className="page-eyebrow mb-8">
             התחרטת?
           </p>
-          <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13.5 }}>
+          <p className="status-msg m-0 mb-12 text-sm">
             עד המחיקה אפשר לבטל את הסגירה, והכול חוזר בדיוק כמו שהיה — לשניכם.
           </p>
           <ReopenButton />
@@ -67,9 +67,9 @@ export default async function SpaceClosedPage() {
 
       <div className="card">
         {!state.deletionRequested && (
-          <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13.5 }}>
+          <p className="status-msg m-0 mb-12 text-sm">
             החשבון שלך נשאר גם אחרי המחיקה, ואפשר יהיה להתחיל מרחב חדש.{" "}
-            <Link href="/account/delete" className="link-plain" style={{ fontSize: 13.5 }}>
+            <Link href="/account/delete" className="link-plain text-sm">
               למחוק גם את החשבון
             </Link>
           </p>
@@ -77,8 +77,7 @@ export default async function SpaceClosedPage() {
         <form action={signOutAction}>
           <button
             type="submit"
-            className="btn btn-block"
-            style={{ background: "transparent", border: "1.5px solid var(--color-border)", color: "var(--color-text)" }}
+            className="btn btn-block btn-outline c-text"
           >
             התנתקות
           </button>

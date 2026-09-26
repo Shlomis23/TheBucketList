@@ -8,28 +8,13 @@ export function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div
+    <div className="flex flex-col items-center gap-16 text-center"
       role="status"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: 16,
-        padding: "40px 16px",
-        textAlign: "center",
-      }}
+      style={{ padding: "40px 16px" }}
     >
-      <div
+      <div className="bg-soft flex items-center justify-center"
         aria-hidden="true"
-        style={{
-          width: 56,
-          height: 56,
-          borderRadius: "50%",
-          background: "var(--color-primary-soft)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
+        style={{ width: 56, height: 56, borderRadius: "50%" }}
       >
         <svg
           width="26"

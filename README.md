@@ -118,3 +118,10 @@ Supabase. הכול בטרנזקציה שמתבטלת; התוצאה היא הוד
 | Supabase | השהיה אחרי 7 ימים בלי פעילות | המשימה היומית |
 | Google Places | 10,000 בחודש לכל סוג | תקרה ב-DB: 300 השלמות ביום |
 | Vercel Hobby | cron פעם ביום | מספיק |
+
+## עיצוב
+
+- `app/styles/tokens.css` — צבעים, גדלי טקסט (`--fs-*`), מרווחים (`--sp-*`), פינות. מצב כהה.
+- `base.css` → `components.css` → `screens.css` → `utilities.css` (בסדר הזה, מ-`app/layout.tsx`).
+- בקוד: מחלקות עזר (`text-sm`, `mb-12`, `gap-8`, `c-muted`, `flex`...) במקום `style={{...}}` — `npm run lint` חוסם גודל/מרווח/צבע קבוע.
+- בדיקת שינויי עיצוב: `scripts/design-preview` (צילומי לפני/אחרי מול Supabase מזויף).

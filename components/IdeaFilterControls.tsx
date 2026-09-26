@@ -50,13 +50,12 @@ export function IdeaSearch({ filters }: { filters: IdeaListFilters }) {
   }, [value]);
 
   return (
-    <form
+    <form className="mb-12"
       role="search"
       onSubmit={(e) => {
         e.preventDefault();
         navigate(buildIdeasHref(filtersRef.current, { q: value.trim() }));
       }}
-      style={{ marginBottom: 12 }}
     >
       <input
         type="search"

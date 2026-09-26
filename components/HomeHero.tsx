@@ -37,7 +37,7 @@ export function HeroCard({
           {upcomingWhenLabel(plan.startsAt)}
           {plan.meetingPlace ? ` · ${plan.meetingPlace}` : ""}
         </p>
-        {plan.navPlace && <NavigateTile place={plan.navPlace} placeId={plan.navPlaceId} style={{ marginBottom: 8 }} />}
+        {plan.navPlace && <NavigateTile place={plan.navPlace} placeId={plan.navPlaceId} className="mb-8" />}
         <Link href={`/plans/${plan.id}`} className="btn btn-block hero-btn-glass">
           לתוכנית
         </Link>
@@ -156,7 +156,7 @@ export function HomeRow({ row }: { row: Row }) {
 
 export function LatestMemoryRow({ memory }: { memory: MemoryDto }) {
   return (
-    <Link href={`/memories/${memory.id}`} className="home-row" style={{ marginTop: 4 }}>
+    <Link href={`/memories/${memory.id}`} className="home-row mt-4">
       {memory.coverPhotoId ? (
         // eslint-disable-next-line @next/next/no-img-element -- תמונה פרטית דרך route מאומת, לא next/image
         <img src={`/api/photos/${memory.coverPhotoId}/content?v=thumb`} alt="" className="home-row-thumb" loading="lazy" />

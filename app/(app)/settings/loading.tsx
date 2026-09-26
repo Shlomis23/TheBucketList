@@ -8,9 +8,9 @@ export default function Loading() {
         [0, 80],
         [0, 48],
       ].map(([input, w], i) => (
-        <div key={i} className="card" style={{ marginTop: 12 }}>
-          <div className="skeleton skeleton-line" style={{ width: "30%", marginBottom: 12 }} />
-          {input > 0 && <div className="skeleton" style={{ height: input, marginBottom: 12 }} />}
+        <div key={i} className="card mt-12">
+          <div className="skeleton skeleton-line mb-12" style={{ width: "30%" }} />
+          {input > 0 && <div className="skeleton mb-12" style={{ height: input }} />}
           <div className="skeleton skeleton-line" style={{ width: `${w}%` }} />
         </div>
       ))}

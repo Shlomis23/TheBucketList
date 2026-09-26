@@ -43,13 +43,13 @@ export default async function PlansPage() {
 
 function PlanSection({ title, plans }: { title: string; plans: PlanDto[] }) {
   return (
-    <div style={{ marginBottom: 20 }}>
+    <div className="mb-20">
       {title && (
-        <p className="page-eyebrow" style={{ marginBottom: 8 }}>
+        <p className="page-eyebrow mb-8">
           {title}
         </p>
       )}
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div className="flex flex-col gap-12">
         {plans.map((plan) => (
           <PlanCard key={plan.id} plan={plan} />
         ))}
@@ -69,18 +69,17 @@ function PlanCard({ plan }: { plan: PlanDto }) {
   return (
     <Link
       href={`/plans/${plan.id}`}
-      className="card"
-      style={{ display: "block", textDecoration: "none" }}
+      className="card block no-underline"
     >
       {plan.ideaCategory && (
         // eslint-disable-next-line @next/next/no-img-element -- SVG עיצוב סטטי לפי קטגוריה, לא תוכן דינמי
         <img src={getIdeaCoverImage(plan.ideaCategory)} alt="" className="card-cover-img cover-sm" />
       )}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
-        <p style={{ margin: "0 0 4px", fontWeight: 800, fontSize: 16 }}>{plan.title}</p>
+      <div className="flex justify-between items-start gap-8">
+        <p className="m-0 mb-4 fw-800 text-base">{plan.title}</p>
         {statusBadge}
       </div>
-      <p className="status-msg" style={{ margin: 0 }}>
+      <p className="status-msg m-0">
         {past ? `היה ${pastWhenLabel(plan.startsAt)}` : formatPlanWhen(plan.startsAt)}
         {plan.meetingPlace ? ` · ${plan.meetingPlace}` : ""}
       </p>

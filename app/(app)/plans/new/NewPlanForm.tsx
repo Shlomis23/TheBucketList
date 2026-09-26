@@ -61,7 +61,7 @@ export function NewPlanForm({ ideaId }: { ideaId: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <form className="flex flex-col gap-16" onSubmit={handleSubmit}>
       <DateTimeRangeFields
         idPrefix="plan"
         start={start}
@@ -109,14 +109,13 @@ export function NewPlanForm({ ideaId }: { ideaId: string }) {
         />
       </div>
 
-      <div style={{ display: "flex", gap: 12 }}>
+      <div className="flex gap-12">
         <button type="submit" className="btn btn-primary btn-block" disabled={status === "busy"}>
           {status === "busy" ? "שומר..." : "שמירת תוכנית"}
         </button>
         <button
           type="button"
-          className="btn"
-          style={{ background: "transparent", border: "1.5px solid var(--color-border)" }}
+          className="btn btn-outline"
           onClick={() => router.back()}
           disabled={status === "busy"}
         >

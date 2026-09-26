@@ -34,11 +34,11 @@ export function CloseSpaceForm() {
         />
       </div>
       {error && (
-        <p role="alert" className="alert-error" style={{ marginTop: 12 }}>
+        <p role="alert" className="alert-error mt-12">
           {error}
         </p>
       )}
-      <button type="submit" className="btn btn-block btn-danger" disabled={!ready || pending} style={{ marginTop: 12 }}>
+      <button type="submit" className="btn btn-block btn-danger mt-12" disabled={!ready || pending}>
         {pending ? "סוגר…" : "סגירת המרחב"}
       </button>
     </form>

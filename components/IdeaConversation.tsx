@@ -94,20 +94,20 @@ export function IdeaConversation({
   }
 
   return (
-    <section className="card" aria-labelledby="conversation" style={{ marginBottom: 16 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <p id="conversation" className="page-eyebrow" style={{ margin: 0 }}>
+    <section className="card mb-16" aria-labelledby="conversation">
+      <div className="flex justify-between items-center mb-12">
+        <p id="conversation" className="page-eyebrow m-0">
           שיחה על הרעיון
         </p>
         {comments.length > 0 && (
-          <span className="status-msg" style={{ fontSize: 12.5 }}>
+          <span className="status-msg text-xs">
             {comments.length === 1 ? "הודעה אחת" : `${comments.length} הודעות`}
           </span>
         )}
       </div>
 
       {comments.length === 0 ? (
-        <p className="status-msg" style={{ margin: 0, fontSize: 13.5 }}>
+        <p className="status-msg m-0 text-sm">
           {canPost
             ? "עוד אין הודעות. מצאתם תאריך, מחיר או משהו שכדאי לדעת? כתבו כאן."
             : "לא נכתבו הודעות על הרעיון הזה."}
@@ -117,7 +117,7 @@ export function IdeaConversation({
           {comments.map((c) => (
             <li key={c.id} className={c.isMine ? "msg-row mine" : "msg-row theirs"}>
               {editingId === c.id ? (
-                <div style={{ width: "100%" }}>
+                <div className="w-full">
                   <textarea
                     className="textarea"
                     aria-label="עריכת ההודעה"
@@ -127,7 +127,7 @@ export function IdeaConversation({
                     style={{ minHeight: 70 }}
                     autoFocus
                   />
-                  <div className="msg-meta" style={{ marginTop: 8 }}>
+                  <div className="msg-meta mt-8">
                     <button type="button" className="link-plain msg-action" disabled={pending} onClick={() => saveEdit(c)}>
                       שמירה
                     </button>
@@ -169,11 +169,10 @@ export function IdeaConversation({
                     )}
                     {confirmDeleteId === c.id && (
                       <>
-                        <span style={{ color: "var(--color-text)" }}>למחוק?</span>
+                        <span className="c-text">למחוק?</span>
                         <button
                           type="button"
-                          className="link-plain msg-action"
-                          style={{ color: "var(--color-danger)" }}
+                          className="link-plain msg-action c-danger"
                           disabled={pending}
                           onClick={() => remove(c)}
                         >
@@ -193,7 +192,7 @@ export function IdeaConversation({
       )}
 
       {error && (
-        <p role="alert" className="alert-error" style={{ marginTop: 12 }}>
+        <p role="alert" className="alert-error mt-12">
           {error}
         </p>
       )}
@@ -240,8 +239,8 @@ export function IdeaConversation({
       )}
       {canPost && trimmed.length > COUNTER_FROM && (
         <p
-          className="status-msg"
-          style={{ margin: "4px 0 0", fontSize: 12.5, color: trimmed.length > COMMENT_MAX ? "var(--color-danger)" : undefined }}
+          className="status-msg m-0 mt-4 text-xs"
+          style={{ color: trimmed.length > COMMENT_MAX ? "var(--color-danger)" : undefined }}
         >
           {trimmed.length}/{COMMENT_MAX}
         </p>

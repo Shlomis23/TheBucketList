@@ -48,7 +48,7 @@ export function EditMemoryForm({ memory }: { memory: MemoryDto }) {
 
   return (
     <form onSubmit={handleSubmit} noValidate>
-      <div className="field" style={{ marginBottom: 16 }}>
+      <div className="field mb-16">
         <label htmlFor="happenedOn">מתי זה קרה</label>
         <input
           id="happenedOn"
@@ -63,12 +63,12 @@ export function EditMemoryForm({ memory }: { memory: MemoryDto }) {
         {fieldErrors.happenedOn && <p className="alert-error">{fieldErrors.happenedOn[0]}</p>}
       </div>
 
-      <div className="field" style={{ marginBottom: 4 }}>
+      <div className="field mb-4">
         <label htmlFor="story">איך היה</label>
         <textarea
           id="story"
-          className="textarea"
-          style={{ minHeight: 180, lineHeight: 1.7 }}
+          className="textarea leading-loose"
+          style={{ minHeight: 180 }}
           placeholder="מה עשיתם, מה הכי זכור, מה הייתם עושים אחרת..."
           value={story}
           onChange={(e) => setStory(e.target.value)}
@@ -78,14 +78,14 @@ export function EditMemoryForm({ memory }: { memory: MemoryDto }) {
       </div>
       <p
         id="story-count"
-        className="status-msg"
-        style={{ margin: "0 0 16px", fontSize: 12.5, textAlign: "left", color: over ? "var(--color-danger)" : undefined }}
+        className="status-msg m-0 mb-16 text-xs text-left"
+        style={{ color: over ? "var(--color-danger)" : undefined }}
       >
         {story.length.toLocaleString("he-IL")} / {MEMORY_STORY_MAX.toLocaleString("he-IL")}
       </p>
 
       {errorMsg && (
-        <p role="alert" className="alert-error" style={{ marginBottom: 12 }}>
+        <p role="alert" className="alert-error mb-12">
           {errorMsg}
         </p>
       )}
@@ -93,7 +93,7 @@ export function EditMemoryForm({ memory }: { memory: MemoryDto }) {
       <button type="submit" className="btn btn-primary btn-block" disabled={status === "busy" || over}>
         {status === "busy" ? "שומרים…" : "שמירה"}
       </button>
-      <p style={{ textAlign: "center", margin: "12px 0 0" }}>
+      <p className="text-center m-0 mt-12">
         <Link href={`/memories/${memory.id}`} className="link-plain">
           ביטול
         </Link>

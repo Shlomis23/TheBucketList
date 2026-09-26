@@ -80,8 +80,8 @@ export function InviteConsent() {
   }
 
   return (
-    <div className="card" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <p className="status-msg" style={{ margin: 0 }}>
+    <div className="card flex flex-col gap-16">
+      <p className="status-msg m-0">
         הוזמנתם להצטרף ל-The Bucket List — הרשימה המשותפת שלכם.
       </p>
       <button

@@ -25,37 +25,37 @@ export default async function MemoryDetailPage({ params }: { params: Promise<{ i
         title={memory.title}
         dateLabel={formatMemoryDate(memory.happenedOn)}
       />
-      <p className="status-msg" style={{ margin: "0 0 16px", fontSize: 13.5 }}>
+      <p className="status-msg m-0 mb-16 text-sm">
         מתוך{" "}
-        <Link href={`/plans/${memory.planId}`} className="link-plain" style={{ fontSize: 13.5 }}>
+        <Link href={`/plans/${memory.planId}`} className="link-plain text-sm">
           התוכנית המקורית &larr;
         </Link>
       </p>
 
       {/* "איך היה" לפני התמונות (25.9): עם הרבה תמונות הסיפור נדחף רחוק למטה. */}
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-          <p className="page-eyebrow" style={{ margin: 0 }}>
+      <div className="card mb-16">
+        <div className="flex justify-between items-center mb-8">
+          <p className="page-eyebrow m-0">
             איך היה
           </p>
-          <Link href={`/memories/${memory.id}/edit`} className="link-plain" style={{ fontSize: 13.5 }}>
+          <Link href={`/memories/${memory.id}/edit`} className="link-plain text-sm">
             {memory.story ? "עריכה" : "הוספה"}
           </Link>
         </div>
         {memory.story ? (
-          <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.7, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>
+          <p className="m-0 text-md leading-loose pre-wrap break-anywhere">
             {memory.story}
           </p>
         ) : (
-          <p className="status-msg" style={{ margin: 0 }}>
+          <p className="status-msg m-0">
             עוד לא כתבתם איך היה.{" "}
-            <Link href={`/memories/${memory.id}/edit`} className="link-plain" style={{ fontSize: 14.5 }}>
+            <Link href={`/memories/${memory.id}/edit`} className="link-plain text-md">
               לכתוב עכשיו &larr;
             </Link>
           </p>
         )}
         {memory.createdByName && (
-          <p className="status-msg" style={{ margin: "12px 0 0", fontSize: 12.5 }}>
+          <p className="status-msg m-0 mt-12 text-xs">
             נשמר ע״י {memory.createdByName}
           </p>
         )}

@@ -211,20 +211,20 @@ export function MemoryPhotos({ memoryId, photos }: { memoryId: string; photos: P
   const total = photos.length;
 
   return (
-    <section className="card" aria-labelledby="memory-photos" style={{ marginBottom: 16 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <p id="memory-photos" className="page-eyebrow" style={{ margin: 0 }}>
+    <section className="card mb-16" aria-labelledby="memory-photos">
+      <div className="flex justify-between items-center mb-12">
+        <p id="memory-photos" className="page-eyebrow m-0">
           תמונות
         </p>
-        <span style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span className="status-msg" style={{ fontSize: 12.5 }} aria-live="polite">
+        <span className="flex items-center gap-12">
+          <span className="status-msg text-xs" aria-live="polite">
             {uploadingCount > 0 ? `מעלה… (${uploadingCount})` : total > 0 ? `${total} מתוך ${MAX}` : ""}
           </span>
           {total > 0 && uploadingCount === 0 && (
             <button
               type="button"
-              className="link-plain"
-              style={{ fontSize: 13.5, minHeight: 32, minWidth: 0 }}
+              className="link-plain text-sm min-w-0"
+              style={{ minHeight: 32 }}
               onClick={() => {
                 setEditing((v) => !v);
                 setConfirmId(null);
@@ -237,7 +237,8 @@ export function MemoryPhotos({ memoryId, photos }: { memoryId: string; photos: P
         </span>
       </div>
       {editing && (
-        <p className="status-msg" style={{ margin: "-4px 0 12px", fontSize: 12.5 }}>
+        // eslint-disable-next-line no-restricted-syntax -- הזזה שלילית מכוונת: צמוד לשורת הכותרת
+        <p className="status-msg text-xs" style={{ margin: "-4px 0 12px" }}>
           לוחצים על ה-X כדי למחוק תמונה.
         </p>
       )}
@@ -246,7 +247,7 @@ export function MemoryPhotos({ memoryId, photos }: { memoryId: string; photos: P
         <button type="button" className="photo-empty" onClick={() => inputRef.current?.click()} disabled={busy}>
           <CameraIcon />
           <span>הוספת תמונות מהיום הזה</span>
-          <span className="status-msg" style={{ fontSize: 12.5, margin: 0 }}>
+          <span className="status-msg text-xs m-0">
             עד {MAX} תמונות · שניכם יכולים להוסיף
           </span>
         </button>
@@ -314,18 +315,18 @@ export function MemoryPhotos({ memoryId, photos }: { memoryId: string; photos: P
       )}
 
       {deleteError && (
-        <p role="alert" className="alert-error" style={{ marginTop: 12 }}>
+        <p role="alert" className="alert-error mt-12">
           {deleteError}
         </p>
       )}
 
       {errors.map((e) => (
-        <p key={e.key} role="alert" className="alert-error" style={{ marginTop: 12, display: "flex", gap: 8, alignItems: "center" }}>
-          <span style={{ flex: 1 }}>{e.error}</span>
+        <p key={e.key} role="alert" className="alert-error mt-12 flex gap-8 items-center">
+          <span className="flex-1">{e.error}</span>
           <button
             type="button"
-            className="link-plain"
-            style={{ fontSize: 12.5, minHeight: 32, minWidth: 0 }}
+            className="link-plain text-xs min-w-0"
+            style={{ minHeight: 32 }}
             onClick={() => {
               if (e.preview) URL.revokeObjectURL(e.preview);
               setQueue((q) => q.filter((i) => i.key !== e.key));
@@ -451,7 +452,7 @@ function PhotoViewer({
           {index + 1} מתוך {count}
         </span>
         {confirming ? (
-          <span style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <span className="flex gap-8 items-center">
             <button type="button" className="viewer-btn danger" onClick={remove} disabled={pending}>
               {pending ? "מוחק…" : "למחוק"}
             </button>
@@ -460,7 +461,7 @@ function PhotoViewer({
             </button>
           </span>
         ) : (
-          <button type="button" className="viewer-btn" onClick={() => setConfirming(true)} aria-label="מחיקת התמונה" style={{ gap: 8 }}>
+          <button type="button" className="viewer-btn gap-8" onClick={() => setConfirming(true)} aria-label="מחיקת התמונה">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
             </svg>

@@ -26,19 +26,19 @@ export default async function SettingsPage() {
     <div className="page">
       <h1 className="page-title">הגדרות</h1>
 
-      <section className="card" aria-labelledby="me" style={{ marginTop: 12 }}>
-        <p id="me" className="page-eyebrow" style={{ marginBottom: 8 }}>
+      <section className="card mt-12" aria-labelledby="me">
+        <p id="me" className="page-eyebrow mb-8">
           השם שלי
         </p>
         <DisplayNameForm initialName={profile?.displayName ?? ""} partnerName={partnerName} />
       </section>
 
-      <section id="invite" className="card" style={{ marginTop: 12 }}>
-        <p className="page-eyebrow" style={{ marginBottom: 4 }}>
+      <section id="invite" className="card mt-12">
+        <p className="page-eyebrow mb-4">
           {partnerPresent && partnerName ? partnerName : "בן/בת הזוג"}
         </p>
         {partnerPresent ? (
-          <p className="status-msg" style={{ margin: 0 }}>
+          <p className="status-msg m-0">
             {partnerName ? "במרחב איתך — המרחב מלא." : "כבר הצטרפו אליכם — המרחב מלא."}
           </p>
         ) : (
@@ -46,35 +46,34 @@ export default async function SettingsPage() {
         )}
       </section>
 
-      <section className="card" aria-labelledby="notifications" style={{ marginTop: 12 }}>
-        <p id="notifications" className="page-eyebrow" style={{ marginBottom: 8 }}>
+      <section className="card mt-12" aria-labelledby="notifications">
+        <p id="notifications" className="page-eyebrow mb-8">
           התראות
         </p>
         <PushSettings publicKey={process.env.VAPID_PUBLIC_KEY ?? null} partnerName={partnerName} />
       </section>
 
-      <section className="card" aria-labelledby="export" style={{ marginTop: 12 }}>
-        <p id="export" className="page-eyebrow" style={{ marginBottom: 4 }}>
+      <section className="card mt-12" aria-labelledby="export">
+        <p id="export" className="page-eyebrow mb-4">
           גיבוי
         </p>
-        <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13.5 }}>
+        <p className="status-msg m-0 mb-12 text-sm">
           כל הזיכרונות, התמונות והרעיונות בקובץ ZIP אחד — עם דף שנפתח בכל דפדפן.
         </p>
         <ExportButton />
       </section>
 
-      <section className="card" aria-labelledby="signout" style={{ marginTop: 12 }}>
-        <p id="signout" className="page-eyebrow" style={{ marginBottom: 4 }}>
+      <section className="card mt-12" aria-labelledby="signout">
+        <p id="signout" className="page-eyebrow mb-4">
           יציאה
         </p>
-        <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13.5 }}>
+        <p className="status-msg m-0 mb-12 text-sm">
           מתנתק רק במכשיר הזה. כדי לחזור צריך להתחבר שוב עם קוד במייל.
         </p>
         <form action={signOutAction}>
           <button
             type="submit"
-            className="btn btn-block"
-            style={{ background: "transparent", border: "1.5px solid var(--color-border)", color: "var(--color-danger)" }}
+            className="btn btn-block btn-outline c-danger"
           >
             התנתקות
           </button>
@@ -82,19 +81,19 @@ export default async function SettingsPage() {
       </section>
 
       {/* אזור רגיש — בנפרד, בתחתית, וכל פעולה במסך הסבר משלה. */}
-      <section className="card danger-card" aria-labelledby="danger" style={{ marginTop: 24 }}>
-        <p id="danger" className="page-eyebrow" style={{ marginBottom: 12, color: "var(--color-danger)" }}>
+      <section className="card danger-card mt-24" aria-labelledby="danger">
+        <p id="danger" className="page-eyebrow mb-12 c-danger">
           אזור רגיש
         </p>
         <Link href="/settings/close" className="danger-link">
           <span>סגירת המרחב</span>
-          <span className="status-msg" style={{ fontSize: 12.5, margin: 0 }}>
+          <span className="status-msg text-xs m-0">
             נועל לשניכם ונמחק אחרי 14 יום. אפשר להתחרט עד אז.
           </span>
         </Link>
         <Link href="/account/delete" className="danger-link">
           <span>מחיקת החשבון</span>
-          <span className="status-msg" style={{ fontSize: 12.5, margin: 0 }}>
+          <span className="status-msg text-xs m-0">
             {partnerPresent ? "סוגר גם את המרחב המשותף." : "מוחק את החשבון ואת המרחב מיד."}
           </span>
         </Link>

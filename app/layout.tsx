@@ -1,7 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Rubik } from "next/font/google";
 import { headers } from "next/headers";
-import "./globals.css";
+// עיצוב (26.9): טוקנים -> בסיס -> רכיבים -> מסכים -> מחלקות עזר. הסדר חשוב.
+import "./styles/tokens.css";
+import "./styles/base.css";
+import "./styles/components.css";
+import "./styles/screens.css";
+import "./styles/utilities.css";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { splashStartupImages } from "@/lib/pwa/splash";
 
@@ -34,7 +39,7 @@ export const metadata: Metadata = {
 };
 
 // iOS בלבד: maximum-scale=1 מבטל את הזום האוטומטי של Safari כשנוגעים בשדה
-// (select/צ'יפים קטנים; שדות ההקלדה כבר 16px ב-globals.css). ב-iOS 10+ זה
+// (select/צ'יפים קטנים; שדות ההקלדה כבר 16px ב-app/styles/components.css). ב-iOS 10+ זה
 // לא חוסם הגדלה ידנית בשתי אצבעות — Safari מתעלם מזה לצביטה, כך שאין פגיעה
 // בנגישות. באנדרואיד אין זום אוטומטי כזה, ושם maximum-scale כן היה חוסם
 // צביטה — לכן לא מוסיפים אותו שם (החלטה מ-25.9, "דרך א").
@@ -47,7 +52,7 @@ export async function generateViewport(): Promise<Viewport> {
     initialScale: 1,
     ...(isIOS ? { maximumScale: 1 } : {}),
     viewportFit: "cover", // safe-area לתמיכה ב-iOS notch
-    // צבע שורת הסטטוס/הכתובת = רקע האפליקציה, לפי מצב בהיר/כהה (globals.css).
+    // צבע שורת הסטטוס/הכתובת = רקע האפליקציה, לפי מצב בהיר/כהה (app/styles/tokens.css).
     themeColor: [
       { media: "(prefers-color-scheme: light)", color: "#faf8ff" },
       { media: "(prefers-color-scheme: dark)", color: "#17122b" },

@@ -83,8 +83,8 @@ export default async function HomePage() {
       {/* כניסה להגדרות (שם, הזמנה, התנתקות). הניווט התחתון נשאר 4 טאבים
           כמו שהוחלט, ובלי הכפתור הזה ההגדרות היו נגישות רק במצב "מחכים
           לבן/בת הזוג". */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-        <p className="page-eyebrow" style={{ margin: 0 }}>
+      <div className="flex items-center justify-between gap-8">
+        <p className="page-eyebrow m-0">
           The Bucket List
         </p>
         <Link href="/settings" aria-label="הגדרות" className="icon-btn">
@@ -94,7 +94,7 @@ export default async function HomePage() {
           </svg>
         </Link>
       </div>
-      <h1 className="page-title" style={{ marginTop: 2 }}>היי, {greetingName}</h1>
+      <h1 className="page-title mt-2">היי, {greetingName}</h1>
       {!home.waitingForPartner && (home.matchesCount > 0 || home.ideasCount > 0) && (
         <div className="home-stats">
           <Link href="/ideas?view=matches">{home.matchesCount === 1 ? "מאצ' אחד" : `${home.matchesCount} מאצ'ים`}</Link>
@@ -110,7 +110,7 @@ export default async function HomePage() {
       <HeroCard kind={hero} home={home} unread={unread} from={from} />
 
       {rows.length > 0 && (
-        <section aria-labelledby="more-for-you" style={{ marginBottom: 12 }}>
+        <section className="mb-12" aria-labelledby="more-for-you">
           <p id="more-for-you" className="home-more-h">
             עוד בשבילך
           </p>
@@ -131,24 +131,22 @@ export default async function HomePage() {
       {home.ideasCount === 0 && (
         <Link
           href="/ideas/new"
-          className="card"
-          style={{ display: "block", textDecoration: "none", marginBottom: 12 }}
+          className="card block no-underline mb-12"
         >
-          <p style={{ margin: 0, fontWeight: 700 }}>מה הדבר הראשון שבא לכם לעשות?</p>
-          <p className="status-msg" style={{ margin: "4px 0 0" }}>הוספת רעיון ראשון &larr;</p>
+          <p className="m-0 fw-700">מה הדבר הראשון שבא לכם לעשות?</p>
+          <p className="status-msg m-0 mt-4">הוספת רעיון ראשון &larr;</p>
         </Link>
       )}
 
       {home.waitingForPartner && (
         <Link
           href="/settings#invite"
-          className="card"
-          style={{ display: "block", textDecoration: "none", background: "var(--color-primary-soft)" }}
+          className="card block no-underline bg-soft"
         >
-          <p style={{ margin: 0, fontWeight: 700, color: "var(--color-primary)" }}>
+          <p className="m-0 fw-700 c-primary">
             מחכים לבן/בת הזוג שלך
           </p>
-          <p className="status-msg" style={{ margin: "4px 0 0" }}>
+          <p className="status-msg m-0 mt-4">
             הזמנת בן/בת הזוג &larr;
           </p>
         </Link>

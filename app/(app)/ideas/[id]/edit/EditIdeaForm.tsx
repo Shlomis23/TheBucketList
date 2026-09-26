@@ -64,7 +64,7 @@ export function EditIdeaForm({ idea }: { idea: IdeaDetailDto }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <form className="flex flex-col gap-16" onSubmit={handleSubmit}>
       <div className="field">
         <label htmlFor="title">כותרת</label>
         <input
@@ -141,8 +141,8 @@ export function EditIdeaForm({ idea }: { idea: IdeaDetailDto }) {
         )}
       </div>
 
-      <div style={{ display: "flex", gap: 12 }}>
-        <div className="field" style={{ flex: 1 }}>
+      <div className="flex gap-12">
+        <div className="field flex-1">
           <label htmlFor="cost">עלות משוערת (₪)</label>
           <input
             id="cost"
@@ -154,7 +154,7 @@ export function EditIdeaForm({ idea }: { idea: IdeaDetailDto }) {
             className="input"
           />
         </div>
-        <div className="field" style={{ flex: 1 }}>
+        <div className="field flex-1">
           <label htmlFor="duration">משך</label>
           <select
             id="duration"
@@ -172,14 +172,13 @@ export function EditIdeaForm({ idea }: { idea: IdeaDetailDto }) {
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: 12 }}>
+      <div className="flex gap-12">
         <button type="submit" className="btn btn-primary btn-block" disabled={status === "busy"}>
           {status === "busy" ? "שומר..." : "שמירת שינויים"}
         </button>
         <button
           type="button"
-          className="btn"
-          style={{ background: "transparent", border: "1.5px solid var(--color-border)" }}
+          className="btn btn-outline"
           onClick={() => router.push(`/ideas/${idea.id}`)}
           disabled={status === "busy"}
         >

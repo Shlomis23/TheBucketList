@@ -108,11 +108,11 @@ export function InvitationPanel({ initialStatus }: { initialStatus: InvitationSt
   // עדיין לא הונפקה הזמנה, או שהאחרונה בוטלה — טופס יצירה.
   if (!status || status.status === "revoked") {
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <p className="status-msg" style={{ margin: 0 }}>
+      <div className="flex flex-col gap-16">
+        <p className="status-msg m-0">
           מזמינים את בן/בת הזוג להצטרף למרחב המשותף. הקישור תקף ל-48 שעות.
         </p>
-        <form onSubmit={submitCreate} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <form className="flex flex-col gap-16" onSubmit={submitCreate}>
           <div className="field">
             <label htmlFor="targetEmail">האימייל של בן/בת הזוג</label>
             <input
@@ -140,26 +140,25 @@ export function InvitationPanel({ initialStatus }: { initialStatus: InvitationSt
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <p className="status-msg" style={{ margin: 0 }}>
+    <div className="flex flex-col gap-16">
+      <p className="status-msg m-0">
         הזמנה ל-{status.maskedEmail} — {maskedStatusLabel(status.status)}
         {status.status === "pending" && ` · בתוקף עד ${formatExpiry(status.expiresAt)}`}
       </p>
 
       {freshLink && (
-        <div className="card" style={{ background: "var(--color-primary-soft)", padding: 14 }}>
-          <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13.5 }}>
+        <div className="card bg-soft" style={{ padding: 14 }}>
+          <p className="status-msg m-0 mb-12 text-sm">
             הקישור מוצג רק עכשיו — לא נשמור אותו כדי להראות שוב. אפשר להעתיק או לשתף עכשיו.
           </p>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button type="button" className="btn btn-primary" style={{ flex: 1 }} onClick={copyLink}>
+          <div className="flex gap-8">
+            <button type="button" className="btn btn-primary flex-1" onClick={copyLink}>
               {copied ? "הועתק ✓" : "העתקת קישור"}
             </button>
             {showShareButton && (
               <button
                 type="button"
-                className="btn"
-                style={{ flex: 1, background: "transparent", border: "1.5px solid var(--color-border)" }}
+                className="btn btn-outline flex-1"
                 onClick={shareLink}
               >
                 שיתוף
@@ -170,20 +169,19 @@ export function InvitationPanel({ initialStatus }: { initialStatus: InvitationSt
       )}
 
       {status.status === "pending" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div className="flex flex-col gap-8">
           {!confirmingRevoke ? (
             <button
               type="button"
-              className="link-plain"
-              style={{ textAlign: "center" }}
+              className="link-plain text-center"
               disabled={pending}
               onClick={() => setConfirmingRevoke(true)}
             >
               ביטול ההזמנה
             </button>
           ) : (
-            <div style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: "center" }}>
-              <span className="status-msg" style={{ fontSize: 13.5 }}>לבטל את ההזמנה?</span>
+            <div className="flex gap-8 items-center justify-center">
+              <span className="status-msg text-sm">לבטל את ההזמנה?</span>
               <button type="button" className="link-plain" disabled={pending} onClick={runRevoke}>
                 כן
               </button>

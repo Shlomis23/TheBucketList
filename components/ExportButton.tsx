@@ -193,7 +193,7 @@ export function ExportButton({ label = "הורדת הזיכרונות (ZIP)" }: 
           <button type="button" className="btn btn-primary btn-block" onClick={save}>
             שמירת הקובץ ({file.size < 1024 * 1024 ? `${Math.max(1, Math.round(file.size / 1024))}KB` : `${(file.size / 1024 / 1024).toFixed(1)}MB`})
           </button>
-          <p className="status-msg" style={{ margin: "8px 0 0", fontSize: 12.5 }}>
+          <p className="status-msg m-0 mt-8 text-xs">
             {isIOS() ? "באייפון: בחלון השיתוף בוחרים \"שמירה בקבצים\"." : "הקובץ יישמר בתיקיית ההורדות."}
             {missing > 0 && (missing === 1 ? " תמונה אחת לא ירדה — אפשר לנסות שוב." : ` ${missing} תמונות לא ירדו — אפשר לנסות שוב.`)}
           </p>
@@ -201,8 +201,7 @@ export function ExportButton({ label = "הורדת הזיכרונות (ZIP)" }: 
       ) : (
         <button
           type="button"
-          className="btn btn-block"
-          style={{ background: "var(--color-primary-soft)", color: "var(--color-primary)" }}
+          className="btn btn-block bg-soft c-primary"
           onClick={build}
           disabled={phase === "working"}
         >
@@ -214,7 +213,7 @@ export function ExportButton({ label = "הורדת הזיכרונות (ZIP)" }: 
         </button>
       )}
       {error && (
-        <p role="alert" className="alert-error" style={{ marginTop: 8 }}>
+        <p role="alert" className="alert-error mt-8">
           {error}
         </p>
       )}

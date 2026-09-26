@@ -23,11 +23,11 @@ function PinIcon() {
 export function NavigateTile({
   place,
   placeId,
-  style,
+  className,
 }: {
   place: string;
   placeId: string | null;
-  style?: React.CSSProperties;
+  className?: string;
 }) {
   const [choosing, setChoosing] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -54,8 +54,8 @@ export function NavigateTile({
     (placeId ? `&query_place_id=${encodeURIComponent(placeId)}` : "");
 
   return choosing ? (
-    <div className="link-tile nav-choice" role="group" aria-label={`ניווט אל ${place}`} style={style}>
-      <span className="link-tile-text" style={{ color: "var(--color-text)" }}>
+    <div className={`link-tile nav-choice${className ? ` ${className}` : ""}`} role="group" aria-label={`ניווט אל ${place}`}>
+      <span className="link-tile-text c-text">
         לנווט עם:
       </span>
       <a href={waze} target="_blank" rel="noopener noreferrer" className="nav-option" onClick={() => setChoosing(false)}>
@@ -64,12 +64,12 @@ export function NavigateTile({
       <a href={google} target="_blank" rel="noopener noreferrer" className="nav-option" onClick={() => setChoosing(false)}>
         Google Maps
       </a>
-      <button type="button" className="link-plain" style={{ fontSize: 13.5, minHeight: 36, minWidth: 0 }} onClick={() => setChoosing(false)}>
+      <button type="button" className="link-plain text-sm min-w-0" style={{ minHeight: 36 }} onClick={() => setChoosing(false)}>
         ביטול
       </button>
     </div>
   ) : (
-    <button type="button" className="link-tile" onClick={open} aria-expanded={false} style={style}>
+    <button type="button" className={`link-tile${className ? ` ${className}` : ""}`} onClick={open} aria-expanded={false}>
       <PinIcon />
       <span className="link-tile-text">{place} · ניווט</span>
     </button>

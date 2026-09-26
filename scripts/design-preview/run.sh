@@ -10,7 +10,7 @@ NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321 NEXT_PUBLIC_SUPABASE_ANON_KEY=fa
 SUPABASE_SERVICE_ROLE_KEY=fake-service-role-key \
   npx next dev -p 3200 > /tmp/design-preview-next.log 2>&1 &
 NEXT=$!
-trap 'kill $FAKE $NEXT 2>/dev/null || true' EXIT
+trap 'kill $FAKE $NEXT 2>/dev/null; pkill -f "next dev -p 320[0]"; pkill -f "next-serve[r]"; true' EXIT
 for i in $(seq 1 60); do curl -s -o /dev/null http://localhost:3200/login && break; sleep 1; done
 # חימום: קומפילציה ראשונה של כל מסך לפני הצילום
 node scripts/design-preview/shoot.mjs "$OUT.warmup" > /dev/null 2>&1 || true

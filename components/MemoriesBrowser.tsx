@@ -79,7 +79,7 @@ export function MemoriesBrowser({
 
   return (
     <>
-      <p className="page-subtitle" style={{ marginBottom: 16 }} aria-live="polite">
+      <p className="page-subtitle mb-16" aria-live="polite">
         {isFiltering && filtered.length > 0
           ? `${filtered.length} מתוך ${memories.length} זיכרונות`
           : memories.length === 1
@@ -88,17 +88,16 @@ export function MemoriesBrowser({
       </p>
 
       {showControls && (
-        <form
+        <form className="flex gap-8 mb-16"
           role="search"
           onSubmit={(e) => {
             e.preventDefault();
             (document.activeElement as HTMLElement | null)?.blur(); // סוגר את המקלדת בטלפון
           }}
-          style={{ display: "flex", gap: 8, marginBottom: 16 }}
         >
           <input
             type="search"
-            className="input"
+            className="input flex-1 min-w-0"
             placeholder="חיפוש: מקום, מילה, חודש"
             aria-label="חיפוש בזיכרונות"
             enterKeyHint="search"
@@ -108,11 +107,11 @@ export function MemoriesBrowser({
               setQuery(e.target.value);
               syncUrl(e.target.value.trim(), category);
             }}
-            style={{ minHeight: 42, flex: 1, minWidth: 0 }}
+            style={{ minHeight: 42 }}
           />
           {presentCategories.length >= 2 && (
             <select
-              className={category ? "chip chip-select is-set" : "chip chip-select"}
+              className={`${category ? "chip chip-select is-set" : "chip chip-select"} flex-none`}
               aria-label="סינון לפי קטגוריה"
               value={category ?? ""}
               onChange={(e) => {
@@ -120,7 +119,7 @@ export function MemoriesBrowser({
                 setCategory(next);
                 syncUrl(query.trim(), next);
               }}
-              style={{ minHeight: 42, flex: "none" }}
+              style={{ minHeight: 42 }}
             >
               <option value="">הכול</option>
               {presentCategories.map((c) => (
@@ -134,11 +133,11 @@ export function MemoriesBrowser({
       )}
 
       {filtered.length === 0 ? (
-        <div className="card" style={{ textAlign: "center" }}>
-          <p style={{ margin: "0 0 4px", fontWeight: 700 }}>
+        <div className="card text-center">
+          <p className="m-0 mb-4 fw-700">
             {query.trim() ? `לא מצאנו זיכרון עם "${query.trim()}"` : "אין זיכרונות בקטגוריה הזו"}
           </p>
-          <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13.5 }}>
+          <p className="status-msg m-0 mb-12 text-sm">
             אפשר לחפש לפי מקום, מילה מהסיפור או חודש.
           </p>
           <button type="button" className="link-plain" onClick={clear}>
@@ -147,8 +146,8 @@ export function MemoriesBrowser({
         </div>
       ) : (
         groups.map((g) => (
-          <section key={g.month} aria-label={g.month} style={{ marginBottom: 16 }}>
-            <p className="page-eyebrow" style={{ color: "var(--color-muted)", margin: "4px 0 8px" }}>
+          <section className="mb-16" key={g.month} aria-label={g.month}>
+            <p className="page-eyebrow c-muted m-0 mt-4 mb-8">
               {g.month}
             </p>
             <div className="album-grid">

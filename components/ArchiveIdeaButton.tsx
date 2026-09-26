@@ -39,27 +39,26 @@ export function ArchiveIdeaButton({
 
   if (mode === "archive" && blockedByActivePlan) {
     return (
-      <p className="status-msg" style={{ textAlign: "center", fontSize: 12.5 }}>
+      <p className="status-msg text-center text-xs">
         אי אפשר להעביר לארכיון רעיון עם תוכנית פעילה — בטלו או השלימו אותה קודם.
       </p>
     );
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+    <div className="flex flex-col gap-8">
       {!confirming ? (
         <button
           type="button"
-          className="link-plain"
-          style={{ textAlign: "center" }}
+          className="link-plain text-center"
           disabled={isPending}
           onClick={() => setConfirming(true)}
         >
           {mode === "archive" ? "העברה לארכיון" : "שחזור מהארכיון"}
         </button>
       ) : (
-        <div style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: "center" }}>
-          <span className="status-msg" style={{ fontSize: 13.5 }}>
+        <div className="flex gap-8 items-center justify-center">
+          <span className="status-msg text-sm">
             {mode === "archive" ? "להעביר את הרעיון לארכיון?" : "לשחזר את הרעיון מהארכיון?"}
           </span>
           <button type="button" className="link-plain" disabled={isPending} onClick={run}>
@@ -71,7 +70,7 @@ export function ArchiveIdeaButton({
         </div>
       )}
       {errorMsg && (
-        <p role="alert" className="alert-error" style={{ textAlign: "center" }}>
+        <p role="alert" className="alert-error text-center">
           {errorMsg}
         </p>
       )}

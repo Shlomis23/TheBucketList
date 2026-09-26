@@ -15,13 +15,10 @@ export default async function AppLayout({
   // (AppLifecycle) — כך בן/בת הזוג רואים את החגיגה כשחוזרים לאפליקציה.
   const match = await getMatchCelebrationState();
   return (
-    <div style={{ display: "flex", flexDirection: "column", minHeight: "100dvh" }}>
+    <div className="flex flex-col" style={{ minHeight: "100dvh" }}>
       {/* ריווח תחתון בגובה הניווט הקבוע (BottomNav הוא position: fixed). */}
-      <main
-        style={{
-          flex: 1,
-          paddingBottom: "calc(var(--bottom-nav-height) + var(--safe-area-bottom) + 8px)",
-        }}
+      <main className="flex-1"
+        style={{ paddingBottom: "calc(var(--bottom-nav-height) + var(--safe-area-bottom) + 8px)" }}
       >
         {children}
       </main>

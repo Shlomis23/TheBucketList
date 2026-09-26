@@ -36,8 +36,8 @@ export default async function IdeasPage({
 
   return (
     <div className="page">
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-        <h1 className="page-title" style={{ marginBottom: 0 }}>
+      <div className="flex items-center justify-between mb-12">
+        <h1 className="page-title mb-0">
           {archived ? "ארכיון רעיונות" : "רעיונות"}
         </h1>
         {!archived && (
@@ -51,7 +51,7 @@ export default async function IdeasPage({
         archived ? (
           <>
             <EmptyState title="עוד אין רעיונות בארכיון." />
-            <p style={{ textAlign: "center", margin: 0 }}>
+            <p className="text-center m-0">
               <Link href="/ideas" className="link-plain">
                 חזרה לרעיונות הפעילים &larr;
               </Link>
@@ -71,26 +71,18 @@ export default async function IdeasPage({
         <>
           <IdeaSearch filters={filters} />
 
-          <div className="chip-scroll" role="group" aria-label="סינון רעיונות" style={{ marginBottom: 8 }}>
+          <div className="chip-scroll mb-8" role="group" aria-label="סינון רעיונות">
             {!archived && <ViewChips filters={filters} counts={counts} partner={partner} />}
             <CategorySelect filters={filters} />
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 8,
-              marginBottom: 8,
-            }}
+          <div className="flex items-center justify-between gap-8 mb-8"
           >
-            <p className="status-msg" style={{ margin: 0, fontSize: 12.5 }}>
+            <p className="status-msg m-0 text-xs">
               {ideas.length === 1 ? "רעיון אחד" : `${ideas.length} רעיונות`}
               {" · "}
-              <Link
+              <Link className="c-inherit"
                 href={archived ? "/ideas" : buildIdeasHref(filters, { status: "archived", view: "all" })}
-                style={{ color: "inherit" }}
               >
                 {archived ? "לפעילים" : "לארכיון"}
               </Link>

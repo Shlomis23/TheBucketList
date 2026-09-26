@@ -1,0 +1,52 @@
+/* בסיס — איפוס, גוף הדף, פוקוס, הפחתת תנועה. הטוקנים ב-tokens.css. */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-width: 320px;
+  overflow-x: hidden; /* אין גלילה אופקית ב-320px (AC12) */
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-rubik), system-ui, -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.5;
+}
+
+a,
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+[dir="ltr"] {
+  unicode-bidi: isolate;
+}

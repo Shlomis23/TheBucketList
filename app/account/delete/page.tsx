@@ -25,15 +25,15 @@ export default async function DeleteAccountPage() {
 
   return (
     <div className="page" style={{ paddingTop: "calc(24px + var(--safe-area-top))" }}>
-      <Link href={back} className="link-plain" style={{ fontSize: 13.5 }}>
+      <Link href={back} className="link-plain text-sm">
         &rarr; חזרה
       </Link>
-      <h1 className="page-title" style={{ marginTop: 8 }}>
+      <h1 className="page-title mt-8">
         מחיקת החשבון
       </h1>
 
-      <div className="card" style={{ marginBottom: 12 }}>
-        <p className="page-eyebrow" style={{ marginBottom: 8 }}>
+      <div className="card mb-12">
+        <p className="page-eyebrow mb-8">
           מה יקרה
         </p>
         <ul className="plain-list">
@@ -68,8 +68,8 @@ export default async function DeleteAccountPage() {
       </div>
 
       {mode !== "no-space" && (
-        <div className="card" style={{ marginBottom: 12 }}>
-          <p className="page-eyebrow" style={{ marginBottom: 8 }}>
+        <div className="card mb-12">
+          <p className="page-eyebrow mb-8">
             לפני הכול
           </p>
           <ExportButton />

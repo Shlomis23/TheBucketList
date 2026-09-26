@@ -1,143 +1,4 @@
-/* בסיס עיצוב — RTL, נגישות, מובייל תחילה.
-   ראו docs/The-Bucket-List-Technical-Spec-HE.md סעיף 4.
-   שימוש ב-CSS logical properties (inset-inline, padding-inline וכו')
-   כדי שהעיצוב יעבוד נכון גם אם יתווסף אי-פעם מסך LTR.
-
-   מערכת עיצוב — "סגול דמדומים": כיוון ויזואלי חם, צבעוני ומזמין
-   לפי הפניה שהוצגה (אמטיסט עמוק + פינות מעוגלות + badges צבעוניים לפי משמעות).
-   רק על מה שכבר בנוי — אין הוספת פיצ'רים חדשים דרך ה-CSS הזה. */
-
-:root {
-  --color-bg: #faf8ff;
-  --color-surface: #ffffff;
-  --color-text: #241b3a;
-  --color-primary: #5b3e9e;
-  --color-primary-strong: #46307d;
-  --color-primary-contrast: #ffffff;
-  --color-primary-soft: #efe9fb;
-  --color-border: #e6e0f2;
-  --color-muted: #6e6584;
-  --color-danger: #c23a63;
-  --color-danger-soft: #fce4ea;
-
-  --badge-pink-bg: #ffe1e9;
-  --badge-pink-text: #c23a63;
-  --badge-yellow-bg: #fef1cf;
-  --badge-yellow-text: #9a6b0a;
-  --badge-green-bg: #ddf3e4;
-  --badge-green-text: #1f7a45;
-
-  --radius-lg: 22px;
-  --radius-md: 14px;
-  --radius-pill: 999px;
-  --shadow-card: 0 10px 28px -18px rgba(70, 40, 130, 0.45);
-
-  --touch-target-min: 44px;
-  /* גובה הניווט התחתון (בלי safe-area) — BottomNav הוא position: fixed,
-     אז ה-main צריך ריווח תחתון בגובה הזה כדי שהפריט האחרון לא יוסתר. */
-  --bottom-nav-height: 68px;
-  --safe-area-top: env(safe-area-inset-top, 0px);
-  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --color-bg: #17122b;
-    --color-surface: #1f1a38;
-    --color-text: #f1ecff;
-    --color-primary: #a58af0;
-    --color-primary-strong: #c3b0f7;
-    --color-primary-contrast: #17122b;
-    --color-primary-soft: #2c2350;
-    --color-border: #342b57;
-    --color-muted: #b3a8cf;
-    --color-danger: #ff8fae;
-    --color-danger-soft: #3a2036;
-
-    --badge-pink-bg: #3a2036;
-    --badge-pink-text: #ff8fae;
-    --badge-yellow-bg: #3a2f14;
-    --badge-yellow-text: #e8c268;
-    --badge-green-bg: #16311f;
-    --badge-green-text: #7fd89b;
-
-    --shadow-card: 0 10px 28px -16px rgba(0, 0, 0, 0.6);
-  }
-}
-
-:root[data-theme="dark"] {
-  --color-bg: #17122b;
-  --color-surface: #1f1a38;
-  --color-text: #f1ecff;
-  --color-primary: #a58af0;
-  --color-primary-strong: #c3b0f7;
-  --color-primary-contrast: #17122b;
-  --color-primary-soft: #2c2350;
-  --color-border: #342b57;
-  --color-muted: #b3a8cf;
-  --color-danger: #ff8fae;
-  --color-danger-soft: #3a2036;
-
-  --badge-pink-bg: #3a2036;
-  --badge-pink-text: #ff8fae;
-  --badge-yellow-bg: #3a2f14;
-  --badge-yellow-text: #e8c268;
-  --badge-green-bg: #16311f;
-  --badge-green-text: #7fd89b;
-
-  --shadow-card: 0 10px 28px -16px rgba(0, 0, 0, 0.6);
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  min-width: 320px;
-  overflow-x: hidden; /* אין גלילה אופקית ב-320px (AC12) */
-}
-
-body {
-  margin: 0;
-  background: var(--color-bg);
-  color: var(--color-text);
-  font-family: var(--font-rubik), system-ui, -apple-system, "Segoe UI", sans-serif;
-  line-height: 1.5;
-}
-
-a,
-button,
-input,
-select,
-textarea {
-  font: inherit;
-  color: inherit;
-}
-
-button {
-  min-height: var(--touch-target-min);
-  min-width: var(--touch-target-min);
-}
-
-:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-[dir="ltr"] {
-  unicode-bidi: isolate;
-}
+/* רכיבים משותפים — כרטיסים, כפתורים, שדות, צ'יפים, שורות, תמונות, שלדי טעינה. */
 
 /* ---------- מחלקות עזר משותפות ---------- */
 
@@ -150,23 +11,23 @@ button {
 }
 
 .page-eyebrow {
-  font-size: 12.5px;
+  font-size: var(--fs-xs);
   font-weight: 700;
   color: var(--color-primary);
-  margin: 0 0 8px;
+  margin: 0 0 var(--sp-2);
 }
 
 .page-title {
-  font-size: 24px;
+  font-size: var(--fs-2xl);
   font-weight: 800;
-  margin: 0 0 8px;
+  margin: 0 0 var(--sp-2);
   text-wrap: balance;
 }
 
 .page-subtitle {
-  font-size: 14.5px;
+  font-size: var(--fs-md);
   color: var(--color-muted);
-  margin: 0 0 20px;
+  margin: 0 0 var(--sp-5);
   line-height: 1.6;
 }
 
@@ -185,7 +46,7 @@ button {
 .card-cover-img {
   display: block;
   width: calc(100% + 36px);
-  margin: -18px -18px 12px;
+  margin: -18px -18px var(--sp-3);
   object-fit: cover;
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   background: var(--color-primary-soft);
@@ -204,7 +65,7 @@ button {
   height: 180px;
   object-fit: cover;
   border-radius: var(--radius-lg);
-  margin-bottom: 16px;
+  margin-bottom: var(--sp-4);
   background: var(--color-primary-soft);
 }
 
@@ -212,12 +73,12 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--sp-2);
   min-height: var(--touch-target-min);
   padding-inline: 24px;
   border-radius: var(--radius-pill);
   font-weight: 700;
-  font-size: 14.5px;
+  font-size: var(--fs-md);
   border: none;
   cursor: pointer;
   text-decoration: none; /* <Link className="btn"> — בלי קו תחתון */
@@ -246,7 +107,7 @@ button {
 .field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--sp-2);
   min-width: 0;
   /* כאן היה overflow-x: hidden כ"רשת ביטחון" לשדות תאריך רחבים באייפון —
      בפועל הוא רק גזם את הצד השמאלי של התיבה (צילום מסך 25.9). הוסר; שדות
@@ -254,7 +115,7 @@ button {
 }
 
 .field label {
-  font-size: 13.5px;
+  font-size: var(--fs-sm);
   font-weight: 700;
   color: var(--color-muted);
 }
@@ -267,7 +128,7 @@ button {
   background: var(--color-surface);
   /* 16px ולא 15: Safari באייפון עושה זום אוטומטי על כל שדה שהכתב בו קטן
      מ-16px, ולא יוצא ממנו — חלק מהמסך "בורח" הצידה (דיווח 25.9). */
-  font-size: 16px;
+  font-size: var(--fs-base);
   width: 100%;
   box-sizing: border-box;
   min-width: 0;
@@ -314,15 +175,15 @@ button {
 }
 .datetime-field legend {
   padding: 0;
-  margin-bottom: 8px;
-  font-size: 13.5px;
+  margin-bottom: var(--sp-2);
+  font-size: var(--fs-sm);
   font-weight: 700;
   color: var(--color-muted);
 }
 .datetime-row {
   display: grid;
   grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-  gap: 8px;
+  gap: var(--sp-2);
 }
 
 /* רשימה נפתחת שנראית כמו .input (משך וכו') — חץ משמאל, כי זה RTL. */
@@ -347,7 +208,7 @@ button {
   align-items: center;
   padding: 4px 11px;
   border-radius: var(--radius-pill);
-  font-size: 12.5px;
+  font-size: var(--fs-xs);
   font-weight: 700;
 }
 
@@ -371,13 +232,13 @@ button {
   background: var(--color-danger-soft);
   border-radius: var(--radius-md);
   padding: 10px 14px;
-  font-size: 13.5px;
+  font-size: var(--fs-sm);
   margin: 0;
 }
 
 .status-msg {
   color: var(--color-muted);
-  font-size: 14.5px;
+  font-size: var(--fs-md);
   line-height: 1.6;
 }
 
@@ -389,7 +250,7 @@ button {
 .chip-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--sp-2);
 }
 
 .chip {
@@ -402,7 +263,7 @@ button {
   border-radius: var(--radius-pill);
   border: 1.5px solid var(--color-border);
   background: var(--color-surface);
-  font-size: 13.5px;
+  font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--color-text);
   cursor: pointer;
@@ -417,7 +278,7 @@ button {
 
 .reaction-group {
   display: flex;
-  gap: 8px;
+  gap: var(--sp-2);
 }
 
 .reaction-btn {
@@ -427,7 +288,7 @@ button {
   border: 1.5px solid var(--color-border);
   background: var(--color-surface);
   font-weight: 700;
-  font-size: 13.5px;
+  font-size: var(--fs-sm);
   cursor: pointer;
   color: var(--color-text);
 }
@@ -452,14 +313,14 @@ button {
 
 /* גרסה קומפקטית (size="sm" ב-ReactionControl) — לשורות ברשימת /ideas. */
 .reaction-group.sm {
-  gap: 8px;
+  gap: var(--sp-2);
 }
 .reaction-group.sm .reaction-btn {
   flex: 0 0 auto;
   min-height: 36px;
   min-width: 52px;
   padding-inline: 14px;
-  font-size: 12.5px;
+  font-size: var(--fs-xs);
 }
 
 /* ---------- שורת רעיון קומפקטית (/ideas) ----------
@@ -469,11 +330,11 @@ button {
 .idea-row {
   display: grid;
   grid-template-columns: 64px minmax(0, 1fr);
-  column-gap: 12px;
-  row-gap: 8px;
+  column-gap: var(--sp-3);
+  row-gap: var(--sp-2);
   align-items: center;
   padding: 10px;
-  margin-bottom: 8px;
+  margin-bottom: var(--sp-2);
 }
 .idea-row-thumb-link {
   grid-row: 1 / span 2;
@@ -500,35 +361,30 @@ button {
 .idea-row-title-line {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-2);
   min-width: 0;
 }
 .idea-row-title {
   margin: 0;
   font-weight: 800;
-  font-size: 14.5px;
+  font-size: var(--fs-md);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .idea-row-meta {
   margin: 1px 0 0;
-  font-size: 12.5px;
+  font-size: var(--fs-xs);
   color: var(--color-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.badge-sm {
-  padding: 2px 8px;
-  font-size: 11px;
-  flex: none;
-}
 
 /* שורת צ'יפים שנגללת לרוחב (בלי לשבור את רוחב העמוד — AC12). */
 .chip-scroll {
   display: flex;
-  gap: 8px;
+  gap: var(--sp-2);
   overflow-x: auto;
   scrollbar-width: none;
   margin-inline: -18px;
@@ -563,7 +419,7 @@ button {
   padding-block: 0;
   padding-inline: 2px 16px;
   min-height: 32px;
-  font-size: 12.5px;
+  font-size: var(--fs-xs);
   font-weight: 700;
   color: var(--color-primary);
   cursor: pointer;
@@ -571,8 +427,8 @@ button {
 
 /* תקציר סיפור בכרטיס זיכרון — שתי שורות ואז "…". */
 .memory-excerpt {
-  margin: 8px 0 0;
-  font-size: 13.5px;
+  margin: var(--sp-2) 0 0;
+  font-size: var(--fs-sm);
   line-height: 1.55;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -590,7 +446,7 @@ button {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--sp-3);
 }
 .msg-row {
   display: flex;
@@ -607,7 +463,7 @@ button {
   max-width: 86%;
   padding: 9px 12px;
   border-radius: 16px;
-  font-size: 14.5px;
+  font-size: var(--fs-md);
   line-height: 1.55;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -631,21 +487,21 @@ button {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px 12px;
-  margin-top: 4px;
-  font-size: 11px;
+  gap: var(--sp-1) var(--sp-3);
+  margin-top: var(--sp-1);
+  font-size: var(--fs-2xs);
   color: var(--color-muted);
 }
 .msg-action {
-  font-size: 12.5px;
+  font-size: var(--fs-xs);
   min-height: 32px;
   min-width: 0;
 }
 .composer {
   display: flex;
-  gap: 8px;
+  gap: var(--sp-2);
   align-items: flex-end;
-  margin-top: 12px;
+  margin-top: var(--sp-3);
 }
 .composer-input {
   flex: 1;
@@ -656,7 +512,7 @@ button {
   border-radius: 22px;
   border: 1.5px solid var(--color-border);
   background: var(--color-surface);
-  font-size: 16px; /* סף הזום האוטומטי באייפון, ראו .input */
+  font-size: var(--fs-base); /* סף הזום האוטומטי באייפון, ראו .input */
   line-height: 1.45;
   resize: none;
 }
@@ -687,17 +543,17 @@ button {
 .link-tile {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-2);
   width: 100%;
   min-height: var(--touch-target-min);
   padding: 10px 14px;
-  margin-bottom: 8px;
+  margin-bottom: var(--sp-2);
   border-radius: var(--radius-md);
   border: 1.5px solid var(--color-border);
   background: var(--color-surface);
   color: var(--color-primary);
   font-weight: 700;
-  font-size: 14.5px;
+  font-size: var(--fs-md);
   text-align: start;
   text-decoration: none;
   cursor: pointer;
@@ -730,7 +586,7 @@ button {
   border-radius: var(--radius-pill);
   background: var(--color-primary);
   color: var(--color-primary-contrast);
-  font-size: 13.5px;
+  font-size: var(--fs-sm);
   font-weight: 700;
   text-decoration: none;
 }
@@ -739,19 +595,13 @@ button {
 .comment-count {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--sp-1);
   flex: none;
-  font-size: 12.5px;
+  font-size: var(--fs-xs);
   font-weight: 600;
   color: var(--color-muted);
 }
 
-.idea-card {
-  display: block;
-  text-decoration: none;
-  color: inherit;
-  margin-bottom: 12px;
-}
 
 .textarea {
   min-height: 88px;
@@ -759,7 +609,7 @@ button {
   border-radius: var(--radius-md);
   border: 1.5px solid var(--color-border);
   background: var(--color-surface);
-  font-size: 16px; /* 16px — סף הזום האוטומטי באייפון, ראו .input */
+  font-size: var(--fs-base); /* 16px — סף הזום האוטומטי באייפון, ראו .input */
   resize: vertical;
   width: 100%;
   box-sizing: border-box;
@@ -793,7 +643,7 @@ button {
   text-decoration: none; /* גם כשזה <Link> — נראה ככפתור טקסט, לא קישור בתוך משפט */
   color: var(--color-primary);
   font-weight: 700;
-  font-size: 14.5px;
+  font-size: var(--fs-md);
   background: none;
   border: none;
   padding: 0;
@@ -830,7 +680,7 @@ button {
   height: 22px;
   width: 55%;
   border-radius: var(--radius-pill);
-  margin-bottom: 12px;
+  margin-bottom: var(--sp-3);
 }
 
 /* אותה גיאומטריה בדיוק כמו .card-cover-img / .hero-banner, כדי שהדף לא
@@ -839,13 +689,13 @@ button {
   display: block;
   width: calc(100% + 36px);
   height: 92px;
-  margin: -18px -18px 12px;
+  margin: -18px -18px var(--sp-3);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 .skeleton-cover.skeleton-hero {
   width: 100%;
   height: 180px;
-  margin: 0 0 16px;
+  margin: 0 0 var(--sp-4);
   border-radius: var(--radius-lg);
 }
 
@@ -856,7 +706,7 @@ button {
   padding: 0;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: var(--sp-2);
 }
 .photo-tile {
   position: relative;
@@ -884,10 +734,10 @@ button {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: var(--sp-1);
   color: var(--color-primary);
   font: inherit;
-  font-size: 12.5px;
+  font-size: var(--fs-xs);
   font-weight: 700;
   border: 1.5px dashed var(--color-primary);
   background: transparent;
@@ -902,7 +752,7 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-2);
   padding: 22px 12px;
   border: 1.5px dashed var(--color-primary);
   border-radius: var(--radius-md);
@@ -910,7 +760,7 @@ button {
   color: var(--color-primary);
   font: inherit;
   font-weight: 700;
-  font-size: 14.5px;
+  font-size: var(--fs-md);
   cursor: pointer;
 }
 .photo-spinner {
@@ -942,7 +792,7 @@ button {
   border-radius: var(--radius-pill);
   background: rgba(20, 14, 40, 0.62);
   color: #fff;
-  font-size: 12.5px;
+  font-size: var(--fs-xs);
   font-weight: 700;
 }
 
@@ -964,7 +814,7 @@ button {
   padding: calc(var(--safe-area-top) + 8px) 10px 8px;
 }
 .viewer-count {
-  font-size: 14.5px;
+  font-size: var(--fs-md);
   font-weight: 700;
   opacity: 0.85;
 }
@@ -980,7 +830,7 @@ button {
   background: rgba(255, 255, 255, 0.12);
   color: #fff;
   font: inherit;
-  font-size: 14.5px;
+  font-size: var(--fs-md);
   font-weight: 700;
   cursor: pointer;
 }
@@ -1033,7 +883,7 @@ button {
   border-radius: var(--radius-md);
   background: #c23a63;
   color: #fff;
-  font-size: 14.5px;
+  font-size: var(--fs-md);
   text-align: center;
 }
 
@@ -1042,7 +892,7 @@ button {
    מעליהם; כך היא לא נחתכת בתוך כרטיס ולא מסתתרת מאחורי המקלדת. */
 .place-list {
   list-style: none;
-  margin: 8px 0 0;
+  margin: var(--sp-2) 0 0;
   padding: 4px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -1065,10 +915,10 @@ button {
 }
 .place-main {
   font-weight: 700;
-  font-size: 14.5px;
+  font-size: var(--fs-md);
 }
 .place-secondary {
-  font-size: 12.5px;
+  font-size: var(--fs-xs);
   color: var(--color-muted);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1076,7 +926,7 @@ button {
 }
 .place-attribution {
   padding: 4px 10px 2px;
-  font-size: 11px;
+  font-size: var(--fs-2xs);
   color: var(--color-muted);
   text-align: left;
   direction: ltr;
@@ -1084,9 +934,9 @@ button {
 .place-hint {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin: 8px 0 0;
-  font-size: 12.5px;
+  gap: var(--sp-1);
+  margin: var(--sp-2) 0 0;
+  font-size: var(--fs-xs);
   color: var(--color-muted);
 }
 .place-hint.is-linked {
@@ -1124,7 +974,7 @@ button {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--sp-2);
   background: rgba(20, 14, 40, 0.62);
 }
 .photo-confirm button {
@@ -1133,7 +983,7 @@ button {
   border: 0;
   border-radius: var(--radius-pill);
   font: inherit;
-  font-size: 13.5px;
+  font-size: var(--fs-sm);
   font-weight: 700;
   cursor: pointer;
 }
@@ -1143,18 +993,18 @@ button {
 }
 .photo-confirm-no {
   background: rgba(255, 255, 255, 0.9);
-  color: #241b3a;
+  color: var(--brand-ink);
 }
 
 /* ---------- סגירת מרחב / מחיקת חשבון ---------- */
 .plain-list {
   margin: 0;
   padding-inline-start: 18px;
-  font-size: 14.5px;
+  font-size: var(--fs-md);
   line-height: 1.6;
 }
 .plain-list li {
-  margin-bottom: 8px;
+  margin-bottom: var(--sp-2);
 }
 .plain-list li:last-child {
   margin-bottom: 0;
@@ -1182,7 +1032,7 @@ button {
   border-top: 1px solid var(--color-border);
   color: var(--color-danger);
   font-weight: 700;
-  font-size: 14.5px;
+  font-size: var(--fs-md);
   text-decoration: none;
 }
 .danger-link:first-of-type {
@@ -1200,7 +1050,7 @@ button {
 .status-screen-icon {
   width: 84px;
   height: 84px;
-  margin: 0 auto 20px;
+  margin: 0 auto var(--sp-5);
   border-radius: 26px;
   background: var(--color-primary-soft);
   color: var(--color-primary);
@@ -1213,8 +1063,8 @@ button {
 .check-row {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  font-size: 14.5px;
+  gap: var(--sp-3);
+  font-size: var(--fs-md);
   font-weight: 600;
   cursor: pointer;
 }
@@ -1239,754 +1089,4 @@ button {
   border-radius: 50%;
   background: var(--badge-pink-text);
   margin-inline-start: 2px;
-}
-.unread-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 0;
-  border-top: 1px solid var(--color-border);
-  text-decoration: none;
-  color: inherit;
-}
-.unread-row:first-of-type {
-  border-top: 0;
-  padding-top: 0;
-}
-.unread-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--badge-pink-text);
-  flex: none;
-}
-
-/* ---------- מסך כניסה (app/(auth)/login) — "אופציה א", 25.9 ---------- */
-.auth-screen {
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  background: var(--color-bg);
-}
-.auth-hero {
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  color: #fff;
-  min-height: 42dvh;
-  padding: calc(40px + var(--safe-area-top)) 20px 64px;
-  background: radial-gradient(120% 90% at 50% 0%, #7a58c4 0%, #4b3290 55%, #2e1f5c 100%);
-}
-.auth-star {
-  position: absolute;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: #fff;
-  opacity: 0.55;
-}
-.auth-star.is-small {
-  width: 2px;
-  height: 2px;
-  opacity: 0.4;
-}
-.auth-logo {
-  width: 92px;
-  height: 92px;
-  border-radius: 26px;
-  margin-bottom: 16px;
-  box-shadow: 0 14px 34px -10px rgba(0, 0, 0, 0.5);
-}
-.auth-title {
-  margin: 0;
-  font-size: 32px;
-  font-weight: 800;
-  letter-spacing: 0.2px;
-}
-.auth-tagline {
-  margin: 8px 0 0;
-  font-size: 16px;
-  opacity: 0.88;
-}
-.auth-sheet {
-  position: relative;
-  flex: 1;
-  margin-top: -32px;
-  padding: 28px 22px calc(32px + var(--safe-area-bottom));
-  border-radius: 28px 28px 0 0;
-  background: var(--color-bg);
-  width: 100%;
-  max-width: 480px;
-  margin-inline: auto;
-}
-.auth-sheet-title {
-  margin: 0 0 4px;
-  font-size: 22px;
-  font-weight: 800;
-}
-.auth-sheet-sub {
-  margin: 0 0 20px;
-  font-size: 14.5px;
-  color: var(--color-muted);
-}
-.auth-notice {
-  margin: 0 0 16px;
-  padding: 12px 14px;
-  border-radius: var(--radius-md);
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
-  font-size: 14.5px;
-  font-weight: 600;
-}
-@media (min-width: 540px) {
-  /* במחשב: הגיליון ברוחב של טלפון, ממורכז, עם פינות מלאות */
-  .auth-sheet {
-    border-radius: 28px;
-    flex: none;
-    margin-bottom: 40px;
-    box-shadow: 0 18px 40px -26px rgba(70, 40, 130, 0.45);
-  }
-}
-
-/* ---------------------------------------------------------------------------
-   רגע המאצ' — מסך חגיגה מלא (components/MatchCelebration.tsx, 0030).
-   אותם צבעים כמו מסך הכניסה. ב"הפחתת תנועה" הכול מופיע מיד, בלי קונפטי.
-   --------------------------------------------------------------------------- */
-.match-overlay {
-  outline: none;
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  overflow: hidden;
-  padding: calc(32px + var(--safe-area-top)) 28px calc(32px + var(--safe-area-bottom));
-  color: #fff;
-  background: radial-gradient(120% 80% at 50% 20%, #7a58c4 0%, #4b3290 55%, #2e1f5c 100%);
-  animation: match-fade 0.3s ease-out both;
-}
-@keyframes match-fade {
-  from { opacity: 0; }
-}
-.match-duo {
-  position: relative;
-  width: 196px;
-  height: 100px;
-  margin-bottom: 24px;
-}
-.match-av {
-  position: absolute;
-  top: 8px;
-  width: 84px;
-  height: 84px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32px;
-  font-weight: 800;
-  border: 3px solid rgba(255, 255, 255, 0.9);
-}
-.match-av.me {
-  right: 0;
-  background: #f3edff;
-  color: #5b3e9e;
-  animation: match-from-right 0.6s 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
-}
-.match-av.partner {
-  left: 0;
-  background: #fef1cf;
-  color: #8a5a00;
-  animation: match-from-left 0.6s 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
-}
-@keyframes match-from-right {
-  from { transform: translateX(60px); opacity: 0; }
-}
-@keyframes match-from-left {
-  from { transform: translateX(-60px); opacity: 0; }
-}
-.match-heart {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 56px;
-  height: 56px;
-  margin: -28px 0 0 -28px;
-  border-radius: 50%;
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-  animation: match-pop 0.5s 0.8s cubic-bezier(0.2, 0.9, 0.3, 1.6) both;
-}
-@keyframes match-pop {
-  from { transform: scale(0); }
-}
-.match-title,
-.match-sub,
-.match-idea,
-.match-actions {
-  animation: match-up 0.5s both;
-}
-.match-title { margin: 0 0 4px; font-size: 32px; font-weight: 800; animation-delay: 1.05s; }
-.match-sub { margin: 0; font-size: 16px; opacity: 0.88; animation-delay: 1.2s; }
-.match-idea {
-  margin: 12px 0 32px;
-  max-width: 100%;
-  font-size: 19px;
-  font-weight: 700;
-  padding: 10px 18px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.13);
-  overflow-wrap: anywhere;
-  animation-delay: 1.35s;
-}
-.match-actions { width: 100%; max-width: 360px; animation-delay: 1.5s; }
-@keyframes match-up {
-  from { opacity: 0; transform: translateY(10px); }
-}
-.match-btn-primary {
-  background: #fff;
-  color: #5b3e9e;
-  text-decoration: none;
-}
-.match-btn-later {
-  margin-top: 8px;
-  background: transparent;
-  color: #fff;
-}
-.match-more {
-  display: inline-block;
-  margin-top: 12px;
-  color: #fef1cf;
-  font-size: 14.5px;
-  font-weight: 600;
-}
-.match-confetti {
-  position: absolute;
-  top: -16px;
-  width: 8px;
-  height: 14px;
-  border-radius: 2px;
-  opacity: 0.9;
-  animation: match-fall 2.8s linear infinite;
-}
-@keyframes match-fall {
-  to { transform: translateY(110dvh) rotate(540deg); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .match-confetti { display: none; }
-}
-
-/* ---------------------------------------------------------------------------
-   "לפני שנה בדיוק" בבית (components/OnThisDayCard.tsx)
-   --------------------------------------------------------------------------- */
-.otd-card {
-  position: relative;
-  display: block;
-  height: 210px;
-  margin-bottom: 16px;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: linear-gradient(135deg, #46307d, #5b3e9e);
-  box-shadow: 0 14px 28px -18px rgba(40, 20, 90, 0.7);
-  color: #fff;
-  text-decoration: none;
-}
-.otd-img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.otd-shade {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(20, 10, 50, 0.12) 0%, rgba(20, 10, 50, 0.05) 40%, rgba(20, 10, 50, 0.82) 100%);
-}
-.otd-pill {
-  position: absolute;
-  top: 12px;
-  inset-inline-start: 12px;
-  padding: 4px 11px;
-  border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.94);
-  color: #5b3e9e;
-  font-size: 12.5px;
-  font-weight: 800;
-}
-.otd-meta {
-  position: absolute;
-  inset-inline: 14px;
-  bottom: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.otd-title {
-  font-size: 19px;
-  font-weight: 800;
-}
-.otd-quote {
-  font-size: 13.5px;
-  opacity: 0.92;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* ---------------------------------------------------------------------------
-   אלבום הזיכרונות (/memories, components/MemoryTile.tsx) — גריד 2 עמודות.
-   --------------------------------------------------------------------------- */
-.album-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-.album-tile {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  border-radius: 18px;
-  overflow: hidden;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  box-shadow: 0 8px 18px -14px rgba(40, 20, 90, 0.55);
-  color: inherit;
-  text-decoration: none;
-}
-.album-tile.wide {
-  grid-column: span 2;
-}
-.album-img-wrap {
-  position: relative;
-  display: block;
-  aspect-ratio: 1;
-  background: linear-gradient(135deg, #46307d, #5b3e9e);
-}
-.album-tile.wide .album-img-wrap {
-  aspect-ratio: 16 / 9;
-}
-.album-img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.album-count {
-  position: absolute;
-  top: 8px;
-  inset-inline-end: 8px;
-  padding: 2px 8px;
-  border-radius: var(--radius-pill);
-  background: rgba(0, 0, 0, 0.5);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-}
-.album-nostory {
-  position: absolute;
-  inset-inline: 8px;
-  bottom: 8px;
-  padding: 3px 8px;
-  border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.92);
-  color: #5b3e9e;
-  font-size: 11px;
-  font-weight: 700;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.album-cap {
-  display: flex;
-  flex-direction: column;
-  padding: 8px 10px 10px;
-  min-width: 0;
-}
-.album-title {
-  font-size: 13.5px;
-  font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.album-tile.wide .album-title {
-  font-size: 16px;
-}
-.album-date {
-  font-size: 11px;
-  color: var(--color-muted);
-}
-
-/* ---------------------------------------------------------------------------
-   באנר עליון בדף זיכרון (components/MemoryHero.tsx) — מקצה לקצה.
-   --------------------------------------------------------------------------- */
-.mhero {
-  position: relative;
-  height: clamp(260px, 46dvh, 380px);
-  margin: -20px -18px 32px;
-  background: linear-gradient(135deg, #46307d, #5b3e9e);
-  color: #fff;
-}
-.mhero-scroller {
-  display: flex;
-  height: 100%;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  overscroll-behavior-x: contain;
-}
-.mhero-scroller::-webkit-scrollbar {
-  display: none;
-}
-.mhero-slide {
-  flex: 0 0 100%;
-  height: 100%;
-  padding: 0;
-  border: 0;
-  background: none;
-  scroll-snap-align: center;
-  cursor: zoom-in;
-}
-.mhero-slide img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  background-size: cover;
-  background-position: center;
-}
-.mhero-fallback {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.mhero-shade {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.28) 0%, rgba(0, 0, 0, 0) 26%, rgba(0, 0, 0, 0) 52%, rgba(18, 10, 40, 0.82) 100%);
-}
-.mhero-back {
-  position: absolute;
-  top: 12px;
-  inset-inline-start: 14px;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.92);
-  color: #5b3e9e;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
-}
-.mhero-meta {
-  position: absolute;
-  inset-inline: 18px;
-  bottom: 16px;
-  pointer-events: none;
-}
-.mhero-date {
-  margin: 0;
-  font-size: 13.5px;
-  font-weight: 600;
-  opacity: 0.92;
-}
-.mhero-title {
-  margin: 2px 0 0;
-  font-size: 24px;
-  font-weight: 800;
-  line-height: 1.2;
-  overflow-wrap: anywhere;
-  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.25);
-}
-.mhero-dots {
-  position: absolute;
-  bottom: -18px;
-  inset-inline: 0;
-  display: flex;
-  justify-content: center;
-  gap: 2px;
-}
-.mhero-dots button {
-  width: 18px;
-  height: 18px;
-  padding: 0;
-  border: 0;
-  background: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
-  min-height: 0;
-}
-.mhero-dots button::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 3px;
-  background: var(--color-border);
-  transition: width 0.2s ease, background-color 0.2s ease;
-}
-.mhero-dots button.on::before {
-  width: 16px;
-  background: var(--color-primary);
-}
-
-/* ---------------------------------------------------------------------------
-   מסך הבית — כרטיס עליון אחד + "עוד בשבילך" (26.9, אפשרות א)
-   --------------------------------------------------------------------------- */
-.home-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 4px 0 16px;
-}
-.home-stats a {
-  padding: 5px 11px;
-  border-radius: var(--radius-pill);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  color: var(--color-primary);
-  font-size: 12.5px;
-  font-weight: 700;
-  text-decoration: none;
-}
-.hero-card {
-  position: relative;
-  overflow: hidden;
-  margin-bottom: 16px;
-  padding: 18px;
-  border-radius: 22px;
-  color: #fff;
-  background: linear-gradient(135deg, #46307d, #6a49b3);
-  box-shadow: 0 16px 30px -20px rgba(40, 20, 90, 0.8);
-}
-.hero-card::before {
-  content: "";
-  position: absolute;
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  inset-inline-end: -40px;
-  top: -55px;
-  pointer-events: none;
-}
-.hero-card > * {
-  position: relative;
-}
-.hero-card.tonight {
-  background: linear-gradient(135deg, #2e1f5c, #5b3e9e 60%, #8a5ad0);
-}
-.hero-card.howwas {
-  background: linear-gradient(135deg, #7a3b61, #c2567f);
-}
-.hero-card.idle {
-  text-align: center;
-}
-.hero-card.light {
-  background: var(--color-surface);
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-card);
-}
-.hero-card.light::before {
-  background: var(--color-primary-soft);
-  opacity: 0.6;
-}
-.hero-kicker {
-  display: inline-block;
-  margin-bottom: 8px;
-  padding: 3px 11px;
-  border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.18);
-  font-size: 12.5px;
-  font-weight: 800;
-}
-.hero-kicker.yellow {
-  background: var(--badge-yellow-bg);
-  color: var(--badge-yellow-text);
-}
-.hero-kicker.soft {
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
-}
-.hero-title {
-  margin: 0 0 4px;
-  font-size: 22px;
-  font-weight: 800;
-  line-height: 1.25;
-  overflow-wrap: anywhere;
-}
-.hero-sub {
-  margin: 0 0 16px;
-  font-size: 13.5px;
-  line-height: 1.45;
-  opacity: 0.9;
-}
-.hero-card.light .hero-sub {
-  color: var(--color-muted);
-  opacity: 1;
-}
-.hero-link {
-  display: block;
-  color: inherit;
-  text-decoration: none;
-}
-.hero-actions {
-  display: flex;
-  gap: 8px;
-}
-.hero-actions .btn {
-  flex: 1;
-}
-.hero-btn-white {
-  background: #fff;
-  color: #5b3e9e;
-}
-.hero-btn-glass {
-  background: rgba(255, 255, 255, 0.18);
-  color: #fff;
-}
-.home-more-h {
-  margin: 4px 2px 8px;
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--color-muted);
-}
-.home-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
-  padding: 11px 13px;
-  border-radius: 16px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  color: inherit;
-  text-decoration: none;
-}
-.home-row-ic {
-  flex: none;
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
-}
-.home-row-ic.how {
-  background: var(--badge-pink-bg);
-  color: var(--badge-pink-text);
-}
-.home-row-ic.idea {
-  background: var(--badge-yellow-bg);
-  color: var(--badge-yellow-text);
-}
-.home-row-ic.plan {
-  background: var(--badge-green-bg);
-  color: var(--badge-green-text);
-}
-.home-row-ic.memory {
-  background: var(--badge-pink-bg);
-  color: var(--badge-pink-text);
-}
-.home-row-thumb {
-  flex: none;
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
-  object-fit: cover;
-}
-.home-row-text {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-.home-row-title {
-  font-size: 14.5px;
-  font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.home-row-sub {
-  font-size: 12.5px;
-  color: var(--color-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.home-row-chev {
-  flex: none;
-  font-size: 20px;
-  color: var(--color-muted);
-}
-.home-choose {
-  margin: 4px 0 12px;
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
-}
-/* NavigateTile בתוך כרטיס כהה — אותו אריח, על רקע לבן */
-.hero-card:not(.light) .link-tile {
-  background: #fff;
-  border-color: transparent;
-  color: #5b3e9e;
-}
-.hero-card:not(.light) .link-tile .link-tile-text {
-  color: #241b3a !important; /* גם במצב כהה — האריח לבן */
-}
-.hero-card:not(.light) .nav-option {
-  background: #5b3e9e;
-  color: #fff;
-}
-
-/* תגית מצב ברשימת הרעיונות (26.9, אפשרות א) — ideaStatusTag */
-.status-tag {
-  flex: none;
-  padding: 2px 8px;
-  border-radius: var(--radius-pill);
-  font-size: 11px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-.status-tag.match {
-  background: var(--badge-green-bg);
-  color: var(--badge-green-text);
-}
-.status-tag.you {
-  background: var(--badge-yellow-bg);
-  color: var(--badge-yellow-text);
-}
-.status-tag.partner {
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
-}
-.status-tag.plan {
-  background: var(--color-primary);
-  color: var(--color-primary-contrast);
-}
-.status-tag.answered {
-  background: var(--color-bg);
-  color: var(--color-muted);
-  box-shadow: inset 0 0 0 1px var(--color-border);
 }

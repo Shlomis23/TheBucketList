@@ -68,7 +68,7 @@ export function PlanDetail({
         // eslint-disable-next-line @next/next/no-img-element -- SVG עיצוב סטטי לפי קטגוריה, לא תוכן דינמי
         <img src={getIdeaCoverImage(plan.ideaCategory)} alt="" className="hero-banner" />
       )}
-      <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
+      <div className="flex gap-8 items-center mb-8">
         <StatusBadge plan={plan} />
       </div>
       <h1 className="page-title">{plan.title}</h1>
@@ -95,34 +95,32 @@ export function PlanDetail({
       ) : (
         <>
           {past && (
-            <div className="card" style={{ marginBottom: 16, background: "var(--color-primary-soft)", borderColor: "transparent" }}>
-              <p style={{ margin: "0 0 4px", fontWeight: 800, color: "var(--color-primary)" }}>המועד עבר — איך היה?</p>
-              <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13.5 }}>
+            <div className="card mb-16 bg-soft" style={{ borderColor: "transparent" }}>
+              <p className="m-0 mb-4 fw-800 c-primary">המועד עבר — איך היה?</p>
+              <p className="status-msg m-0 mb-12 text-sm">
                 {plan.startsAt ? `זה היה ${pastWhenLabel(plan.startsAt)}. ` : ""}עשיתם את זה? שומרים כזיכרון. לא יצא? אפשר
                 לדחות או לבטל.
               </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <div className="flex flex-col gap-8">
                 <button type="button" className="btn btn-primary btn-block" disabled={isPending} onClick={() => setMode("complete")}>
                   עשינו את זה! לשמור כזיכרון
                 </button>
                 {weekLater && (
                   <button
                     type="button"
-                    className="btn btn-block"
-                    style={{ background: "var(--color-surface)", color: "var(--color-primary)" }}
+                    className="btn btn-block bg-surface c-primary"
                     disabled={isPending}
                     onClick={() => runAction(() => postponePlanWeekAction({ id: plan.id, expectedVersion: plan.version }))}
                   >
-                    <span style={{ display: "flex", flexDirection: "column", lineHeight: 1.3 }}>
+                    <span className="flex flex-col leading-tight">
                       <span>לא יצא — לדחות בשבוע</span>
-                      <span style={{ fontSize: 12.5, fontWeight: 600, color: "var(--color-muted)" }}>ל{weekLater}</span>
+                      <span className="text-xs fw-600 c-muted">ל{weekLater}</span>
                     </span>
                   </button>
                 )}
                 <button
                   type="button"
-                  className="btn btn-block"
-                  style={{ background: "transparent", border: "1.5px solid var(--color-border)" }}
+                  className="btn btn-block btn-outline"
                   disabled={isPending}
                   onClick={() => setMode("edit")}
                 >
@@ -141,34 +139,34 @@ export function PlanDetail({
           />
 
           {(budget || plan.notes) && (
-            <div className="card" style={{ marginBottom: 16 }}>
+            <div className="card mb-16">
               {budget && (
-                <p style={{ margin: "0 0 8px" }}>
+                <p className="m-0 mb-8">
                   <span className="page-eyebrow">תקציב</span>
                   <br />
                   {budget}
                 </p>
               )}
               {plan.notes && (
-                <p style={{ margin: 0, whiteSpace: "pre-wrap", lineHeight: 1.6 }}>{plan.notes}</p>
+                <p className="m-0 pre-wrap leading-relaxed">{plan.notes}</p>
               )}
             </div>
           )}
 
           {errorMsg && (
-            <p role="alert" className="alert-error" style={{ marginBottom: 12 }}>
+            <p role="alert" className="alert-error mb-12">
               {errorMsg}
             </p>
           )}
 
           {memoryId && (
-            <Link href={`/memories/${memoryId}`} className="btn btn-primary btn-block" style={{ marginBottom: 12 }}>
+            <Link href={`/memories/${memoryId}`} className="btn btn-primary btn-block mb-12">
               לזיכרון &larr;
             </Link>
           )}
 
           {isProposed && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div className="flex flex-col gap-12">
               {/* כשהמועד עבר, הכפתור הזה כבר בבאנר "איך היה?" למעלה. */}
               {!past && (
                 <button
@@ -185,8 +183,7 @@ export function PlanDetail({
               {!past && (
                 <button
                   type="button"
-                  className="btn"
-                  style={{ background: "transparent", border: "1.5px solid var(--color-border)" }}
+                  className="btn btn-outline"
                   disabled={isPending}
                   onClick={() => setMode("edit")}
                 >
@@ -232,8 +229,7 @@ function CancelPlanButton({
     return (
       <button
         type="button"
-        className="link-plain"
-        style={{ color: "var(--color-danger, #c0392b)", textAlign: "center" }}
+        className="link-plain text-center c-danger"
         disabled={disabled}
         onClick={() => setConfirming(true)}
       >
@@ -243,8 +239,8 @@ function CancelPlanButton({
   }
 
   return (
-    <div style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: "center" }}>
-      <span className="status-msg" style={{ fontSize: 13.5 }}>לבטל סופית את &quot;{plan.title}&quot;?</span>
+    <div className="flex gap-8 items-center justify-center">
+      <span className="status-msg text-sm">לבטל סופית את &quot;{plan.title}&quot;?</span>
       <button type="button" className="link-plain" disabled={disabled} onClick={onCancel}>
         כן, לבטל
       </button>
@@ -308,7 +304,7 @@ function EditPlanForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <form onSubmit={handleSubmit} className="card flex flex-col gap-16">
       <DateTimeRangeFields
         idPrefix="edit-plan"
         start={start}
@@ -354,14 +350,13 @@ function EditPlanForm({
         />
       </div>
 
-      <div style={{ display: "flex", gap: 12 }}>
+      <div className="flex gap-12">
         <button type="submit" className="btn btn-primary btn-block" disabled={status === "busy"}>
           {status === "busy" ? "שומר..." : "שמירת שינויים"}
         </button>
         <button
           type="button"
-          className="btn"
-          style={{ background: "transparent", border: "1.5px solid var(--color-border)" }}
+          className="btn btn-outline"
           onClick={onCancel}
           disabled={status === "busy"}
         >
@@ -418,8 +413,8 @@ function CompletePlanForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <p style={{ margin: 0, fontWeight: 700 }}>איזה כיף — ספרו לנו על זה</p>
+    <form onSubmit={handleSubmit} className="card flex flex-col gap-16">
+      <p className="m-0 fw-700">איזה כיף — ספרו לנו על זה</p>
       <div className="field">
         <label htmlFor="happenedOn">מתי זה קרה</label>
         <input
@@ -441,7 +436,7 @@ function CompletePlanForm({
           className="textarea"
         />
       </div>
-      <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14.5 }}>
+      <label className="flex items-center gap-8 text-md">
         <input
           type="checkbox"
           checked={archiveIdea}
@@ -449,14 +444,13 @@ function CompletePlanForm({
         />
         להעביר את הרעיון לארכיון
       </label>
-      <div style={{ display: "flex", gap: 12 }}>
+      <div className="flex gap-12">
         <button type="submit" className="btn btn-primary btn-block" disabled={status === "busy"}>
           {status === "busy" ? "שומר..." : "שמירה בזיכרונות"}
         </button>
         <button
           type="button"
-          className="btn"
-          style={{ background: "transparent", border: "1.5px solid var(--color-border)" }}
+          className="btn btn-outline"
           onClick={onCancel}
           disabled={status === "busy"}
         >

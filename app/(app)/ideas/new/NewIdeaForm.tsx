@@ -62,7 +62,7 @@ export function NewIdeaForm({ partnerName = null }: { partnerName?: string | nul
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <form className="flex flex-col gap-16" onSubmit={handleSubmit}>
       <div className="field">
         <label htmlFor="title">מה בא לכם לעשות?</label>
         <input
@@ -85,7 +85,7 @@ export function NewIdeaForm({ partnerName = null }: { partnerName?: string | nul
         <input type="checkbox" checked={selfYes} onChange={(e) => setSelfYes(e.target.checked)} />
         <span>
           גם אני רוצה את זה
-          <span className="status-msg" style={{ display: "block", fontSize: 12.5, margin: 0 }}>
+          <span className="status-msg block text-xs m-0">
             {selfYes
               ? `יסומן אצלך "כן". "כן" ${partnerName ? `מ${partnerName}` : "גם מבן/בת הזוג"} = מאצ'.`
               : "רק מציעים — בלי תגובה שלך בינתיים."}
@@ -165,8 +165,8 @@ export function NewIdeaForm({ partnerName = null }: { partnerName?: string | nul
             )}
           </div>
 
-          <div style={{ display: "flex", gap: 12 }}>
-            <div className="field" style={{ flex: 1 }}>
+          <div className="flex gap-12">
+            <div className="field flex-1">
               <label htmlFor="cost">עלות משוערת (₪)</label>
               <input
                 id="cost"
@@ -178,7 +178,7 @@ export function NewIdeaForm({ partnerName = null }: { partnerName?: string | nul
                 className="input"
               />
             </div>
-            <div className="field" style={{ flex: 1 }}>
+            <div className="field flex-1">
               <label htmlFor="duration">משך</label>
               <select
                 id="duration"
@@ -198,14 +198,13 @@ export function NewIdeaForm({ partnerName = null }: { partnerName?: string | nul
         </>
       )}
 
-      <div style={{ display: "flex", gap: 12 }}>
+      <div className="flex gap-12">
         <button type="submit" className="btn btn-primary btn-block" disabled={status === "busy"}>
           {status === "busy" ? "שומר..." : "שמירת רעיון"}
         </button>
         <button
           type="button"
-          className="btn"
-          style={{ background: "transparent", border: "1.5px solid var(--color-border)" }}
+          className="btn btn-outline"
           onClick={() => router.push("/ideas")}
           disabled={status === "busy"}
         >

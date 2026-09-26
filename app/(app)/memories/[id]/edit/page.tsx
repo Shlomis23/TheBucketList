@@ -12,7 +12,7 @@ export default async function EditMemoryPage({ params }: { params: Promise<{ id:
     <div className="page">
       <p className="page-eyebrow">עריכת זיכרון</p>
       <h1 className="page-title">{memory.title}</h1>
-      <div className="card" style={{ marginTop: 12 }}>
+      <div className="card mt-12">
         <EditMemoryForm memory={memory} />
       </div>
     </div>

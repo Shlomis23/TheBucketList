@@ -9,7 +9,7 @@ import { markMatchesSeenAction } from "@/app/(app)/match-actions";
 //   2. בן/בת הזוג: ה-layout מעביר מאצ'ים שעוד לא נחגגו (unseen) — בפתיחה או
 //      ברענון (AppLifecycle). מסמנים "נראה" מיד כשהמסך מוצג, כך שהוא מופיע
 //      פעם אחת בלבד. כמה מאצ'ים יחד -> האחרון, ו"עוד N" לרשימת המאצ'ים.
-// "הפחתת תנועה" בטלפון: בלי קונפטי ובלי אנימציות (globals.css).
+// "הפחתת תנועה" בטלפון: בלי קונפטי ובלי אנימציות (app/styles/screens.css).
 
 export const MATCH_EVENT = "bucket:match";
 

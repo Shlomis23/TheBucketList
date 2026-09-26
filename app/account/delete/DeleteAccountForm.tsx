@@ -28,11 +28,11 @@ export function DeleteAccountForm({ immediate }: { immediate: boolean }) {
   if (step === "start") {
     return (
       <>
-        <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13.5 }}>
+        <p className="status-msg m-0 mb-12 text-sm">
           כדי לוודא שזה באמת את/ה, נשלח קוד למייל של החשבון.
         </p>
         {error && (
-          <p role="alert" className="alert-error" style={{ marginBottom: 12 }}>
+          <p role="alert" className="alert-error mb-12">
             {error}
           </p>
         )}
@@ -60,25 +60,25 @@ export function DeleteAccountForm({ immediate }: { immediate: boolean }) {
         <label htmlFor="delete-code">הקוד שנשלח ל-<span dir="ltr">{maskedEmail}</span></label>
         <input
           id="delete-code"
-          className="input"
+          className="input text-center text-lg"
           inputMode="numeric"
           autoComplete="one-time-code"
           maxLength={10}
           dir="ltr"
-          style={{ textAlign: "center", letterSpacing: 4, fontSize: 19 }}
+          style={{ letterSpacing: 4 }}
           value={code}
           onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
         />
       </div>
       {error && (
-        <p role="alert" className="alert-error" style={{ marginTop: 12 }}>
+        <p role="alert" className="alert-error mt-12">
           {error}
         </p>
       )}
-      <button type="submit" className="btn btn-block btn-danger" disabled={!valid || pending} style={{ marginTop: 12 }}>
+      <button type="submit" className="btn btn-block btn-danger mt-12" disabled={!valid || pending}>
         {pending ? "מוחק…" : immediate ? "מחיקת החשבון לצמיתות" : "מחיקת החשבון"}
       </button>
-      <button type="button" className="link-plain" style={{ marginTop: 12, fontSize: 13.5 }} onClick={sendCode} disabled={pending}>
+      <button type="button" className="link-plain mt-12 text-sm" onClick={sendCode} disabled={pending}>
         לא הגיע? שליחה מחדש
       </button>
     </form>

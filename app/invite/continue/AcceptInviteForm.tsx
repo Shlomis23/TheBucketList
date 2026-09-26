@@ -27,7 +27,7 @@ export function AcceptInviteForm({ needsName }: { needsName: boolean }) {
 
   if (!needsName) {
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div className="flex flex-col gap-16">
         <button
           type="button"
           className="btn btn-primary btn-block"
@@ -46,7 +46,7 @@ export function AcceptInviteForm({ needsName }: { needsName: boolean }) {
   }
 
   return (
-    <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <form className="flex flex-col gap-16" onSubmit={submit}>
       <div className="field">
         <label htmlFor="displayName">השם שלי</label>
         <input

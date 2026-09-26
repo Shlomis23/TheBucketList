@@ -36,13 +36,12 @@ export default function ErrorPage({ error, retry }: { error: Error & { digest?: 
       </button>
       <Link
         href="/"
-        className="btn btn-block"
-        style={{ background: "transparent", border: "1.5px solid var(--color-border)", color: "var(--color-text)" }}
+        className="btn btn-block btn-outline c-text"
       >
         לדף הבית
       </Link>
       {error.digest && (
-        <p className="status-msg" style={{ margin: "8px 0 0", fontSize: 11 }} dir="ltr">
+        <p className="status-msg m-0 mt-8 text-2xs" dir="ltr">
           {error.digest}
         </p>
       )}

@@ -75,7 +75,7 @@ export function ReactionControl({
         </button>
       </div>
       {error && (
-        <p role="alert" className="alert-error" style={{ marginTop: 8 }}>
+        <p role="alert" className="alert-error mt-8">
           {error}
         </p>
       )}

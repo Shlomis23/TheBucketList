@@ -125,30 +125,30 @@ export function PushSettings({ publicKey, partnerName }: { publicKey: string | n
 
   return (
     <div>
-      {state === "loading" && <p className="status-msg" style={{ margin: 0 }}>בודק…</p>}
+      {state === "loading" && <p className="status-msg m-0">בודק…</p>}
 
       {state === "ios-install" && (
-        <p className="status-msg" style={{ margin: 0, fontSize: 13.5 }}>
+        <p className="status-msg m-0 text-sm">
           באייפון התראות עובדות רק כשהאפליקציה מותקנת: בספארי לוחצים על כפתור השיתוף ← &quot;הוספה למסך הבית&quot;,
           ופותחים את האפליקציה מהאייקון. אז אפשר להפעיל כאן.
         </p>
       )}
 
       {state === "unsupported" && (
-        <p className="status-msg" style={{ margin: 0, fontSize: 13.5 }}>
+        <p className="status-msg m-0 text-sm">
           הדפדפן הזה לא תומך בהתראות. בטלפון זה עובד בכרום (אנדרואיד) או באפליקציה המותקנת (אייפון).
         </p>
       )}
 
       {state === "denied" && (
-        <p className="status-msg" style={{ margin: 0, fontSize: 13.5 }}>
+        <p className="status-msg m-0 text-sm">
           ההתראות חסומות במכשיר הזה. כדי לפתוח: בהגדרות הטלפון/הדפדפן ← התראות ← The Bucket List ← לאפשר.
         </p>
       )}
 
       {state === "off" && (
         <>
-          <p className="status-msg" style={{ margin: "0 0 12px", fontSize: 13.5 }}>
+          <p className="status-msg m-0 mb-12 text-sm">
             התראה על כל דבר חדש {partnerName ? `מ${partnerName}` : "מבן/בת הזוג"} — רעיון, הודעה בשיחה, תוכנית או זיכרון — וגם על מאצ&apos; ותזכורת יום לפני תוכנית.
           </p>
           <button type="button" className="btn btn-primary btn-block" onClick={enable} disabled={pending}>
@@ -159,14 +159,13 @@ export function PushSettings({ publicKey, partnerName }: { publicKey: string | n
 
       {state === "on" && (
         <>
-          <p style={{ margin: "0 0 12px", fontSize: 14.5, fontWeight: 700, color: "var(--color-primary)" }}>
+          <p className="m-0 mb-12 text-md fw-700 c-primary">
             ההתראות פעילות במכשיר הזה
           </p>
-          <div style={{ display: "flex", gap: 8 }}>
+          <div className="flex gap-8">
             <button
               type="button"
-              className="btn"
-              style={{ flex: 1, background: "var(--color-primary-soft)", color: "var(--color-primary)" }}
+              className="btn flex-1 bg-soft c-primary"
               onClick={test}
               disabled={pending}
             >
@@ -174,8 +173,7 @@ export function PushSettings({ publicKey, partnerName }: { publicKey: string | n
             </button>
             <button
               type="button"
-              className="btn"
-              style={{ flex: 1, background: "transparent", border: "1.5px solid var(--color-border)" }}
+              className="btn btn-outline flex-1"
               onClick={disable}
               disabled={pending}
             >
@@ -186,12 +184,12 @@ export function PushSettings({ publicKey, partnerName }: { publicKey: string | n
       )}
 
       {message && (
-        <p role="status" className="status-msg" style={{ margin: "12px 0 0", fontSize: 13.5 }}>
+        <p role="status" className="status-msg m-0 mt-12 text-sm">
           {message}
         </p>
       )}
       {error && (
-        <p role="alert" className="alert-error" style={{ marginTop: 12 }}>
+        <p role="alert" className="alert-error mt-12">
           {error}
         </p>
       )}

@@ -68,7 +68,7 @@ export function ChooseForm({ waitingForPartner }: { waitingForPartner: boolean }
 
   return (
     <>
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <form className="flex flex-col gap-16" onSubmit={handleSubmit}>
         <div className="field">
           <label>מתוך</label>
           <div className="chip-group" role="group" aria-label="scope">
@@ -85,7 +85,7 @@ export function ChooseForm({ waitingForPartner }: { waitingForPartner: boolean }
             </button>
           </div>
           {scope === "all" && (
-            <p className="status-msg" style={{ fontSize: 12.5, marginTop: 2 }}>
+            <p className="status-msg text-xs mt-2">
               זו הצעה שעוד לא אושרה על ידי שניכם.
             </p>
           )}
@@ -111,8 +111,8 @@ export function ChooseForm({ waitingForPartner }: { waitingForPartner: boolean }
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 12 }}>
-          <div className="field" style={{ flex: 1 }}>
+        <div className="flex gap-12">
+          <div className="field flex-1">
             <label htmlFor="maxBudget">תקציב עד (₪)</label>
             <input
               id="maxBudget"
@@ -124,7 +124,7 @@ export function ChooseForm({ waitingForPartner }: { waitingForPartner: boolean }
               className="input"
             />
           </div>
-          <div className="field" style={{ flex: 1 }}>
+          <div className="field flex-1">
             <label htmlFor="maxDuration">משך</label>
             <select
               id="maxDuration"
@@ -152,7 +152,7 @@ export function ChooseForm({ waitingForPartner }: { waitingForPartner: boolean }
           />
         </div>
 
-        <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14.5 }}>
+        <label className="flex items-center gap-8 text-md">
           <input type="checkbox" checked={allowUnknown} onChange={(e) => setAllowUnknown(e.target.checked)} />
           לכלול גם רעיונות בלי תקציב/זמן/מקום ידוע
         </label>
@@ -168,11 +168,11 @@ export function ChooseForm({ waitingForPartner }: { waitingForPartner: boolean }
       </form>
 
       {candidate !== undefined && (
-        <div style={{ marginTop: 20 }}>
+        <div className="mt-20">
           {candidate === null ? (
             <div className="card">
               <p className="status-msg">אין מועמדים לפי התנאים האלה. אפשר להרחיב תנאים, או:</p>
-              <button type="button" className="link-plain" style={{ marginTop: 8 }} onClick={handleRestartRound}>
+              <button type="button" className="link-plain mt-8" onClick={handleRestartRound}>
                 לנסות שוב מההתחלה
               </button>
             </div>
@@ -202,30 +202,29 @@ function CandidateCard({
       {/* eslint-disable-next-line @next/next/no-img-element -- SVG עיצוב סטטי לפי קטגוריה, לא תוכן דינמי */}
       <img src={getIdeaCoverImage(candidate.category)} alt="" className="card-cover-img cover-lg" />
       <p className="page-eyebrow">מה דעתכם על</p>
-      <p style={{ margin: "0 0 8px", fontWeight: 800, fontSize: 19 }}>{candidate.title}</p>
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+      <p className="m-0 mb-8 fw-800 text-lg">{candidate.title}</p>
+      <div className="flex gap-8 flex-wrap mb-8">
         <span className="badge badge-neutral">{categoryLabels[candidate.category]}</span>
       </div>
       {(cost || duration || candidate.locationText) && (
-        <p className="status-msg" style={{ marginBottom: 12 }}>
+        <p className="status-msg mb-12">
           {[cost, duration, candidate.locationText].filter(Boolean).join(" · ")}
         </p>
       )}
       {candidate.reasons.length > 0 && (
-        <ul style={{ margin: "0 0 16px", paddingInlineStart: 18, color: "var(--color-muted)", fontSize: 13.5 }}>
+        <ul className="m-0 mb-16 c-muted text-sm" style={{ paddingInlineStart: 18 }}>
           {candidate.reasons.map((r) => (
             <li key={r}>{r}</li>
           ))}
         </ul>
       )}
-      <div style={{ display: "flex", gap: 12 }}>
-        <Link href={`/plans/new?ideaId=${candidate.id}`} className="btn btn-primary" style={{ flex: 1 }}>
+      <div className="flex gap-12">
+        <Link href={`/plans/new?ideaId=${candidate.id}`} className="btn btn-primary flex-1">
           בואו נתכנן את זה
         </Link>
         <button
           type="button"
-          className="btn"
-          style={{ flex: 1, background: "transparent", border: "1.5px solid var(--color-border)" }}
+          className="btn btn-outline flex-1"
           onClick={onAnother}
           disabled={busy}
         >

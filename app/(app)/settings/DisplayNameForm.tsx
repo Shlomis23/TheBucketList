@@ -33,7 +33,7 @@ export function DisplayNameForm({ initialName, partnerName }: { initialName: str
 
   return (
     <form onSubmit={handleSubmit} noValidate>
-      <div className="field" style={{ marginBottom: 12 }}>
+      <div className="field mb-12">
         <label htmlFor="displayName">איך לקרוא לך</label>
         <input
           id="displayName"
@@ -49,18 +49,18 @@ export function DisplayNameForm({ initialName, partnerName }: { initialName: str
           aria-describedby="displayName-hint"
         />
       </div>
-      <p id="displayName-hint" className="status-msg" style={{ margin: "0 0 12px", fontSize: 12.5 }}>
+      <p id="displayName-hint" className="status-msg m-0 mb-12 text-xs">
         כך השם שלך מופיע אצל {partnerName ?? "בן/בת הזוג"} באפליקציה.
       </p>
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <div className="flex items-center gap-12">
         <button type="submit" className="btn btn-primary" disabled={pending || unchanged || invalid}>
           {pending ? "שומרים…" : "שמירה"}
         </button>
         {message && (
           <p
             role={message.kind === "error" ? "alert" : "status"}
-            className={message.kind === "error" ? "alert-error" : "status-msg"}
-            style={{ margin: 0, fontSize: 13.5, color: message.kind === "ok" ? "var(--badge-green-text)" : undefined }}
+            className={`${message.kind === "error" ? "alert-error" : "status-msg"} m-0 text-sm`}
+            style={{ color: message.kind === "ok" ? "var(--badge-green-text)" : undefined }}
           >
             {message.text}
           </p>
