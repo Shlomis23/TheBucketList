@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { setReactionAction } from "@/app/(app)/ideas/actions";
@@ -29,6 +29,16 @@ export type ReviewCard = {
 
 type Match = { id: string; title: string };
 const FLY_MS = 220;
+const HINT_KEY = "bl.reviewHintSeen";
+const noopSubscribe = () => () => {};
+function readHintSeen() {
+  try {
+    return localStorage.getItem(HINT_KEY) === "1";
+  } catch {
+    return true; // בלי אחסון (מצב פרטי) — בלי הסבר, לא קריטי
+  }
+}
+const MAX_DOTS = 12; // יותר מזה — פס התקדמות במקום נקודה לכל כרטיס
 
 export function ReviewDeck({ cards, partnerName }: { cards: ReviewCard[]; partnerName: string | null }) {
   const router = useRouter();
@@ -44,6 +54,20 @@ export function ReviewDeck({ cards, partnerName }: { cards: ReviewCard[]; partne
 
   const card = queue[index];
   const next = queue[index + 1];
+  const next2 = queue[index + 2];
+  // הסבר ההחלקה — רק בכניסה הראשונה (27.9). נעלם בהחלקה/תשובה הראשונה.
+  // בשרת "כבר ראו" (בלי הסבר) — כך אין אי-התאמה בהידרציה; בדפדפן נקרא מהאחסון.
+  const hintSeen = useSyncExternalStore(noopSubscribe, readHintSeen, () => true);
+  const [hintDismissed, setHintDismissed] = useState(false);
+  const hint = !hintSeen && !hintDismissed;
+  const hideHint = useCallback(() => {
+    setHintDismissed(true);
+    try {
+      localStorage.setItem(HINT_KEY, "1");
+    } catch {
+      // ראו למעלה
+    }
+  }, []);
   const done = !card;
 
   const close = useCallback(() => goBack(router, "/ideas"), [router]);
@@ -52,6 +76,7 @@ export function ReviewDeck({ cards, partnerName }: { cards: ReviewCard[]; partne
     (pref: ReviewPref) => {
       if (!card || flying) return;
       setError("");
+      hideHint();
       setAnswers((a) => [...a, { id: card.id, pref }]);
       const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
       setFlying(pref);
@@ -80,7 +105,7 @@ export function ReviewDeck({ cards, partnerName }: { cards: ReviewCard[]; partne
         })
         .catch(failed);
     },
-    [card, flying],
+    [card, flying, hideHint],
   );
 
   // מקלדת (מחשב): חצים. Escape — יציאה.
@@ -109,6 +134,7 @@ export function ReviewDeck({ cards, partnerName }: { cards: ReviewCard[]; partne
       if (Math.abs(mx) < 8 || Math.abs(mx) < Math.abs(my)) return;
       d.active = true;
       setDragging(true);
+      hideHint();
       (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
     }
     setDx(mx);
@@ -152,14 +178,30 @@ export function ReviewDeck({ cards, partnerName }: { cards: ReviewCard[]; partne
         </span>
         <span className="review-close-spacer" />
       </div>
-      <div className="review-progress" aria-hidden="true">
-        <i style={{ width: `${(index / total) * 100}%` }} />
-      </div>
+      {total <= MAX_DOTS ? (
+        <div className="review-dots" aria-hidden="true">
+          {queue.map((q, i) => (
+            <i key={q.id} className={i < index ? "done" : i === index ? "on" : undefined} />
+          ))}
+        </div>
+      ) : (
+        <div className="review-progress" aria-hidden="true">
+          <i style={{ width: `${(index / total) * 100}%` }} />
+        </div>
+      )}
 
       <div className="review-stage">
+        {/* ערימה (27.9): שני הכרטיסים הבאים מציצים מאחור. */}
+        {next2 && (
+          <div className="review-card is-next2" aria-hidden="true">
+            <CoverImg category={next2.category} className="review-cover" />
+            <span className="review-shade" />
+          </div>
+        )}
         {next && (
           <div className="review-card is-next" aria-hidden="true">
             <CoverImg category={next.category} className="review-cover" />
+            <span className="review-shade" />
           </div>
         )}
         <article
@@ -171,26 +213,51 @@ export function ReviewDeck({ cards, partnerName }: { cards: ReviewCard[]; partne
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
         >
+          {/* כרטיס "גיבור" (27.9): האיור ממלא את הכרטיס והטקסט יושב עליו —
+              אותה שפה כמו באנר הזיכרון וכרטיס "לפני שנה". */}
+          <CoverImg category={card.category} className="review-cover" />
+          <span className="review-shade" />
+          <span className="review-glow yes" style={{ opacity: yesOpacity }} aria-hidden="true" />
+          <span className="review-glow no" style={{ opacity: noOpacity }} aria-hidden="true" />
           <span className="review-stamp yes" style={{ opacity: yesOpacity }} aria-hidden="true">
+            <HeartIcon size={22} />
             כן
           </span>
           <span className="review-stamp no" style={{ opacity: noOpacity }} aria-hidden="true">
+            <XIcon size={20} />
             לא
           </span>
-          <CoverImg category={card.category} className="review-cover" />
+          <div className="review-chips">
+            <span className="review-chip">{card.categoryLabel}</span>
+            {card.partnerAnswered && (
+              <span className="review-chip partner">
+                <i aria-hidden="true" />
+                יש תשובה מ{partnerName ?? "בן/בת הזוג"}
+              </span>
+            )}
+          </div>
           <div className="review-body">
-            <span className="badge badge-neutral">{card.categoryLabel}</span>
             <h2 className="review-title">{card.title}</h2>
-            {card.meta && <p className="review-meta">{card.meta}</p>}
+            {card.meta && (
+              <div className="review-meta">
+                {card.meta.split(" · ").map((m) => (
+                  <span key={m}>{m}</span>
+                ))}
+              </div>
+            )}
             {card.description && <p className="review-desc">{card.description}</p>}
-            <div className="review-foot">
-              {card.partnerAnswered && <span>כבר יש תשובה מ{partnerName ?? "בן/בת הזוג"}</span>}
-              <Link href={`/ideas/${card.id}`} className="review-more">
-                לכל הפרטים
-              </Link>
-            </div>
+            <Link href={`/ideas/${card.id}`} className="review-more">
+              לכל הפרטים &larr;
+            </Link>
           </div>
         </article>
+        {hint && (
+          <p className="review-hint" aria-hidden="true">
+            <span className="yes">כן &rarr;</span>
+            <span>החליקו</span>
+            <span className="no">&larr; לא</span>
+          </p>
+        )}
       </div>
 
       {error && (
@@ -204,12 +271,7 @@ export function ReviewDeck({ cards, partnerName }: { cards: ReviewCard[]; partne
       <div className="review-actions">
         <button type="button" className="review-btn yes" onClick={() => answer("yes")} disabled={!!flying}>
           <i aria-hidden="true">
-            <svg width="26" height="26" viewBox="0 0 24 24">
-              <path
-                d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.3 5 6.6 5c2 0 3.4 1.1 4.4 2.6C12 6.1 13.4 5 15.4 5 18.7 5 21 8.3 19.5 11.8 17.5 16.4 12 21 12 21z"
-                fill="currentColor"
-              />
-            </svg>
+            <HeartIcon size={28} />
           </i>
           כן
         </button>
@@ -223,14 +285,11 @@ export function ReviewDeck({ cards, partnerName }: { cards: ReviewCard[]; partne
         </button>
         <button type="button" className="review-btn no" onClick={() => answer("no")} disabled={!!flying}>
           <i aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
-              <path d="M6 6l12 12M18 6 6 18" />
-            </svg>
+            <XIcon size={22} />
           </i>
           לא
         </button>
       </div>
-      <p className="review-hint">אפשר גם להחליק: ימינה = כן, שמאלה = לא</p>
     </div>
   );
 }
@@ -285,5 +344,24 @@ function ReviewDone({
         </button>
       </div>
     </div>
+  );
+}
+
+function HeartIcon({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.3 5 6.6 5c2 0 3.4 1.1 4.4 2.6C12 6.1 13.4 5 15.4 5 18.7 5 21 8.3 19.5 11.8 17.5 16.4 12 21 12 21z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+function XIcon({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true">
+      <path d="M6 6l12 12M18 6 6 18" />
+    </svg>
   );
 }
