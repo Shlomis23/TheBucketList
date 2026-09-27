@@ -50,3 +50,14 @@ export function daysUntilLabel(startsAt: string | null, now = new Date()): strin
   if (d === 7) return "בעוד שבוע";
   return `בעוד ${d} ימים`;
 }
+
+// שורת השמות בראש הבית (27.9, כיוון ג'): קודם מי שמשתמש, אחר כך בן/בת הזוג
+// — אצל שלומי "שלומי וגואל", אצל גואל "גואל ושלומי". בלי בן/בת זוג עדיין —
+// רק השם שלי. שם שלא מתחיל באות עברית ("Dan") מקבל ו- עם מקף ("שלומי ו-Dan").
+export function coupleTitle(me: string, partner: string | null): string {
+  const a = me.trim();
+  const b = partner?.trim() ?? "";
+  if (!b) return a;
+  if (!a) return b;
+  return /^[֐-׿]/.test(b) ? `${a} ו${b}` : `${a} ו-${b}`;
+}

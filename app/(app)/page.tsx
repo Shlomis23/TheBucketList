@@ -4,12 +4,13 @@ import { getVerifiedUserId } from "@/lib/supabase/server";
 import { getMySpaceId } from "@/lib/dal/space";
 import { getHome } from "@/lib/dal/home";
 import { pastWhenLabel, upcomingWhenLabel } from "@/lib/validation/plan";
-import { pickHeroKind } from "@/lib/validation/home";
+import { coupleTitle, pickHeroKind } from "@/lib/validation/home";
 import { HeroCard, HomeRow, LatestMemoryRow, type Row } from "@/components/HomeHero";
 import { getLatestMemory, getOnThisDay } from "@/lib/dal/memories";
 import { OnThisDayCard } from "@/components/OnThisDayCard";
 import { getUnreadConversations } from "@/lib/dal/conversations";
 import { PageTransition } from "@/components/PageTransition";
+import { HomeBrand } from "@/components/HomeBrand";
 
 // בית `/` — כרטיס עליון אחד (26.9, אפשרות א): הדבר הכי חשוב עכשיו בכרטיס
 // גדול (lib/validation/home.ts — סדר העדיפויות), וכל השאר בשורות קצרות
@@ -87,9 +88,7 @@ export default async function HomePage() {
             כמו שהוחלט, ובלי הכפתור הזה ההגדרות היו נגישות רק במצב "מחכים
             לבן/בת הזוג". */}
         <div className="flex items-center justify-between gap-8">
-          <p className="page-eyebrow m-0">
-            The Bucket List
-          </p>
+          <HomeBrand title={coupleTitle(greetingName, home.partnerName)} />
           <Link href="/settings" aria-label="הגדרות" className="icon-btn">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="3" />
