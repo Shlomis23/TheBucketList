@@ -11,9 +11,17 @@ updates:
       time: "08:00"
       timezone: Asia/Jerusalem
     open-pull-requests-limit: 3
+    # רק עדכונים קטנים (minor/patch) ב-PR המקובץ. קפיצת גרסה ראשית (TypeScript
+    # 5->6, vitest 3->4 וכו') שוברת את הבנייה ודורשת עבודה ייעודית — 27.9:
+    # ה-PR הראשון של Dependabot נכשל בדיוק על זה. עדכוני אבטחה מגיעים בכל
+    # מקרה בנפרד (GitHub security updates), גם אם הם גרסה ראשית.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       all-npm:
         patterns: ["*"]
+        update-types: ["minor", "patch"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
