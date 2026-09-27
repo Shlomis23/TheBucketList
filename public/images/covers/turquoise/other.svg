@@ -1,19 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-label="אחר">
-  <defs>
-    <linearGradient id="gOtherBg" x1="0" y1="0" x2="480" y2="300" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#075a5e"/>
-      <stop offset="1" stop-color="#0a7479"/>
-    </linearGradient>
-    <radialGradient id="gOtherGlow" cx="0.5" cy="0.45" r="0.55">
-      <stop offset="0" stop-color="#dcf3f4" stop-opacity="0.28"/>
-      <stop offset="1" stop-color="#dcf3f4" stop-opacity="0"/>
-    </radialGradient>
-  </defs>
-  <rect width="480" height="300" fill="url(#gOtherBg)"/>
-  <rect width="480" height="300" fill="url(#gOtherGlow)"/>
-  <g fill="#e0fafa">
-    <path d="M240 90 l10 34 34 10 -34 10 -10 34 -10 -34 -34 -10 34 -10 Z" opacity="0.95"/>
-    <path d="M340 170 l6 18 18 6 -18 6 -6 18 -6 -18 -18 -6 18 -6 Z" opacity="0.75"/>
-    <path d="M150 190 l5 15 15 5 -15 5 -5 15 -5 -15 -15 -5 15 -5 Z" opacity="0.7"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" role="img" aria-label="אחר">
+<defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#06292b"/><stop offset="0.75" stop-color="#0fa3a8"/><stop offset="1" stop-color="#3cc3c7"/></linearGradient>
+<linearGradient id="skyDeep" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#06292b"/><stop offset="1" stop-color="#0a6a6e"/></linearGradient>
+<radialGradient id="glow"><stop offset="0" stop-color="#fff" stop-opacity="0.6"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+<radialGradient id="warm"><stop offset="0" stop-color="#ffd27a" stop-opacity="0.7"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient>
+<linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.4"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
+<rect width="400" height="400" fill="url(#sky)"/>
+<circle cx="200" cy="200" r="160" fill="url(#glow)" opacity="0.45"/>
+<path d="M200 116 218 182 284 200 218 218 200 284 182 218 116 200 182 182Z" fill="#ffd27a"/>
+<path d="M200 150 208 192 250 200 208 208 200 250 192 208 150 200 192 192Z" fill="#fff" opacity="0.6"/>
+<g fill="#fff" opacity="0.85"><path d="M96 120 102 140 122 146 102 152 96 172 90 152 70 146 90 140Z"/><path d="M308 250 313 266 329 271 313 276 308 292 303 276 287 271 303 266Z"/></g>
+<g fill="#d6426f"><rect x="112" y="258" width="12" height="6" rx="2" transform="rotate(30 118 261)"/><circle cx="300" cy="130" r="6"/><rect x="250" y="310" width="12" height="6" rx="2" transform="rotate(-20 256 313)"/></g>
+<g fill="#7fd1a1"><circle cx="330" cy="200" r="5"/><rect x="66" y="210" width="12" height="6" rx="2" transform="rotate(50 72 213)"/></g>
+<g fill="#ffe7c2"><circle cx="150" cy="320" r="4"/><circle cx="270" cy="90" r="4"/><circle cx="60" cy="300" r="3"/></g>
 </svg>

@@ -14,7 +14,8 @@ describe("ערכות צבע", () => {
     for (const theme of colorThemes) {
       for (const c of ideaCategories) {
         const path = getIdeaCoverImage(c, theme);
-        expect(existsSync(`public${path}`), path).toBe(true);
+        expect(path).toMatch(/\?v=\d+$/); // גרסה בכתובת — בלי איור ישן מהמטמון
+        expect(existsSync(`public${path.split("?")[0]}`), path).toBe(true);
       }
     }
     expect(getIdeaCoverImage("food", "mango")).not.toBe(getIdeaCoverImage("food", "purple"));

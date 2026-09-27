@@ -1,18 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-label="למידה">
-  <defs>
-    <linearGradient id="gLearningBg" x1="0" y1="0" x2="480" y2="300" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#075a5e"/>
-      <stop offset="1" stop-color="#0a7479"/>
-    </linearGradient>
-  </defs>
-  <rect width="480" height="300" fill="url(#gLearningBg)"/>
-  <circle cx="380" cy="230" r="80" fill="#ddf3e4" opacity="0.12"/>
-  <circle cx="330" cy="90" r="24" fill="#fef1cf" opacity="0.9"/>
-  <path d="M330 118 v14 M320 138 h20" stroke="#fef1cf" stroke-width="3" stroke-linecap="round" opacity="0.75"/>
-  <g opacity="0.92">
-    <path d="M150 130 C 190 118, 232 122, 240 138 C 248 122, 290 118, 330 130 L330 210 C 290 198, 248 202, 240 216 C 232 202, 190 198, 150 210 Z" fill="#e0fafa"/>
-    <path d="M240 138 L240 216" stroke="#0a7479" stroke-width="3" opacity="0.5"/>
-    <path d="M168 150 h50 M168 168 h50 M168 186 h44" stroke="#0a7479" stroke-width="3" stroke-linecap="round" opacity="0.35"/>
-    <path d="M262 150 h50 M262 168 h50 M268 186 h44" stroke="#0a7479" stroke-width="3" stroke-linecap="round" opacity="0.35"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" role="img" aria-label="למידה">
+<defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#06292b"/><stop offset="0.75" stop-color="#0fa3a8"/><stop offset="1" stop-color="#3cc3c7"/></linearGradient>
+<linearGradient id="skyDeep" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#06292b"/><stop offset="1" stop-color="#0a6a6e"/></linearGradient>
+<radialGradient id="glow"><stop offset="0" stop-color="#fff" stop-opacity="0.6"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+<radialGradient id="warm"><stop offset="0" stop-color="#ffd27a" stop-opacity="0.7"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient>
+<linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.4"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
+<rect width="400" height="400" fill="url(#sky)"/>
+<circle cx="200" cy="150" r="140" fill="url(#warm)" opacity="0.7"/>
+<circle cx="70" cy="80" r="2" fill="#fff" opacity="0.8"/><circle cx="330" cy="70" r="2" fill="#fff" opacity="0.8"/><circle cx="120" cy="170" r="1.6" fill="#fff" opacity="0.8"/><circle cx="290" cy="190" r="1.6" fill="#fff" opacity="0.8"/>
+<g stroke="#ffd27a" stroke-width="6" stroke-linecap="round" opacity="0.8"><path d="M200 70v-18M140 96l-12-12M260 96l12-12M118 150h-18M282 150h18"/></g>
+<path d="M200 100a46 46 0 0 1 28 82v14h-56v-14a46 46 0 0 1 28-82Z" fill="#ffd27a"/><path d="M190 180q10-30 20 0" stroke="#d9a23a" stroke-width="4" fill="none"/>
+<rect x="176" y="198" width="48" height="10" rx="4" fill="#fff"/><rect x="182" y="210" width="36" height="9" rx="4" fill="#fff"/>
+<path d="M56 236q72-24 144 6q72-30 144-6v96q-72-24-144 6q-72-30-144-6Z" fill="#000" opacity="0.18" transform="translate(0 8)"/>
+<path d="M56 236q72-24 144 6q72-30 144-6v96q-72-24-144 6q-72-30-144-6Z" fill="#fff"/><path d="M200 242v96" stroke="#cfc8dd" stroke-width="4"/>
+<g stroke="#cfc8dd" stroke-width="4" stroke-linecap="round"><path d="M84 262q46-12 92 4M84 282q46-12 92 4M84 302q46-12 92 4M224 266q50-14 92-4M224 286q50-14 92-4M224 306q50-14 92-4"/></g>
 </svg>

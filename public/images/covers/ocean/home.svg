@@ -1,19 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-label="בית">
-  <defs>
-    <linearGradient id="gHomeBg" x1="0" y1="0" x2="480" y2="300" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#1f4a85"/>
-      <stop offset="1" stop-color="#2a5fa8"/>
-    </linearGradient>
-  </defs>
-  <rect width="480" height="300" fill="url(#gHomeBg)"/>
-  <circle cx="360" cy="70" r="70" fill="#fef1cf" opacity="0.14"/>
-  <circle cx="90" cy="240" r="60" fill="#ffe1e9" opacity="0.12"/>
-  <g opacity="0.92">
-    <path d="M170 190 L240 130 L310 190 Z" fill="#eaf2ff"/>
-    <rect x="182" y="190" width="116" height="70" fill="#eaf2ff" opacity="0.88"/>
-    <rect x="222" y="220" width="36" height="40" fill="#1f4a85" opacity="0.85"/>
-    <path d="M198 205 l16 0 0 16 -16 0 z" fill="#2a5fa8" opacity="0.6"/>
-    <path d="M264 205 l16 0 0 16 -16 0 z" fill="#2a5fa8" opacity="0.6"/>
-    <path d="M232 146 l6 8 -12 0 z" fill="#c23a63" opacity="0.85"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" role="img" aria-label="בית">
+<defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16283f"/><stop offset="0.75" stop-color="#3b78c9"/><stop offset="1" stop-color="#5b93dd"/></linearGradient>
+<linearGradient id="skyDeep" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16283f"/><stop offset="1" stop-color="#22508f"/></linearGradient>
+<radialGradient id="glow"><stop offset="0" stop-color="#fff" stop-opacity="0.6"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+<radialGradient id="warm"><stop offset="0" stop-color="#ffd27a" stop-opacity="0.7"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient>
+<linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.4"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
+<rect width="400" height="400" fill="url(#skyDeep)"/>
+<circle cx="40" cy="40" r="1.8" fill="#fff" opacity="0.8"/><circle cx="100" cy="70" r="1.4" fill="#fff" opacity="0.8"/><circle cx="350" cy="40" r="1.8" fill="#fff" opacity="0.8"/><circle cx="370" cy="110" r="1.4" fill="#fff" opacity="0.8"/>
+<circle cx="330" cy="80" r="24" fill="#ffe7c2"/><circle cx="340" cy="74" r="22" fill="#16283f" opacity="0.55"/>
+<rect x="60" y="100" width="280" height="300" rx="8" fill="#16283f"/>
+<circle cx="200" cy="190" r="150" fill="url(#warm)" opacity="0.55"/>
+<rect x="112" y="124" width="176" height="136" rx="8" fill="#f6c96a"/><path d="M200 124v136M112 192h176" stroke="#7a5238" stroke-width="8"/>
+<rect x="104" y="258" width="192" height="12" rx="4" fill="#7a5238"/>
+<g transform="translate(130 258)"><path d="M-12 0h24l-4-18h-16Z" fill="#b8324f"/><path d="M0-18q-18-22-4-40M0-18q14-20 2-38M0-18q-2-24 20-30" stroke="#5fb85c" stroke-width="6" fill="none" stroke-linecap="round"/></g>
+<g transform="translate(262 258)"><path d="M0 0v-46" stroke="#ffe7c2" stroke-width="4"/><path d="M-16-46h32l-6-22h-20Z" fill="#ffe7c2"/><circle cx="0" cy="-40" r="30" fill="url(#warm)"/></g>
+<path d="M80 330q0-26 26-26h188q26 0 26 26v40H80Z" fill="#22508f"/><rect x="92" y="316" width="96" height="30" rx="12" fill="#3b78c9" opacity="0.8"/><rect x="212" y="316" width="96" height="30" rx="12" fill="#3b78c9" opacity="0.8"/>
 </svg>

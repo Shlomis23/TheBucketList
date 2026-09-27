@@ -1,15 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-label="טבע וחוץ">
-  <defs>
-    <linearGradient id="gOutdoorsBg" x1="0" y1="0" x2="480" y2="300" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#46307d"/>
-      <stop offset="1" stop-color="#5b3e9e"/>
-    </linearGradient>
-  </defs>
-  <rect width="480" height="300" fill="url(#gOutdoorsBg)"/>
-  <circle cx="110" cy="90" r="46" fill="#fef1cf" opacity="0.85"/>
-  <circle cx="110" cy="90" r="80" fill="#fef1cf" opacity="0.12"/>
-  <circle cx="420" cy="60" r="60" fill="#ddf3e4" opacity="0.12"/>
-  <path d="M0 230 L110 130 L180 195 L240 120 L330 230 Z" fill="#efe9fb" opacity="0.9"/>
-  <path d="M150 230 L260 100 L340 200 L400 150 L480 230 Z" fill="#f3edff" opacity="0.65"/>
-  <rect x="0" y="228" width="480" height="72" fill="#3a2870" opacity="0.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" role="img" aria-label="טבע וחוץ">
+<defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2e1f5c"/><stop offset="0.75" stop-color="#6a49b3"/><stop offset="1" stop-color="#8a5ad0"/></linearGradient>
+<linearGradient id="skyDeep" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2e1f5c"/><stop offset="1" stop-color="#4b3290"/></linearGradient>
+<radialGradient id="glow"><stop offset="0" stop-color="#fff" stop-opacity="0.6"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+<radialGradient id="warm"><stop offset="0" stop-color="#ffd27a" stop-opacity="0.7"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient>
+<linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.4"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
+<rect width="400" height="400" fill="url(#sky)"/>
+<circle cx="296" cy="128" r="120" fill="url(#glow)" opacity="0.55"/><circle cx="296" cy="128" r="40" fill="#ffd27a"/>
+<circle cx="60" cy="50" r="1.8" fill="#fff" opacity="0.8"/><circle cx="140" cy="36" r="1.4" fill="#fff" opacity="0.8"/><circle cx="220" cy="60" r="1.6" fill="#fff" opacity="0.8"/>
+<path d="M0 250 116 136 196 214 280 146 400 256V400H0Z" fill="#2e1f5c"/>
+<path d="M116 136 196 214 168 218 116 164Z" fill="#000" opacity="0.2"/><path d="M280 146 400 256 360 256 280 176Z" fill="#000" opacity="0.2"/>
+<path d="M116 136 140 162 128 158 118 170 104 156 92 160Z" fill="#fff"/><path d="M280 146 302 172 290 168 280 180 268 166 256 170Z" fill="#fff"/>
+<path d="M0 262q100-34 200-8t200-16V400H0Z" fill="#4b3290"/>
+<path d="M0 296q120-26 240-6t160-6V400H0Z" fill="#2f6b4f"/>
+<g fill="#1f4d39"><path d="M36 300l20-60 20 60Z"/><path d="M70 306l15-46 15 46Z"/><path d="M318 300l20-62 20 62Z"/><path d="M350 306l14-44 14 44Z"/></g>
+<path d="M150 330q50-10 100 0q-50 8-100 0Z" fill="#5fb0e0" opacity="0.7"/>
 </svg>
