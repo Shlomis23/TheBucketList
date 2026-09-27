@@ -8,8 +8,28 @@ html,
 body {
   min-width: 320px;
   overflow-x: hidden; /* אין גלילה אופקית ב-320px (AC12) */
-  /* משיכה לרענון שלנו (PullToRefresh) — בלי רענון הדפדפן בכרום במקביל. */
+}
+/* clip ולא hidden (27.9): hidden על body הופך אותו ל"אזור גלילה" משלו
+   (overflow-y מחושב ל-auto). באייפון, יחד עם overscroll-behavior, זה גרם
+   ל-body להיגלל כמיכל נפרד — והניווט התחתון (position: fixed, בתוך body)
+   עלה יחד עם הרשימה בזמן גלילה וקפץ חזרה בסוף. clip חותך באותה צורה בלי
+   ליצור אזור גלילה. דפדפן ישן בלי clip נשאר עם hidden. */
+@supports (overflow-x: clip) {
+  html,
+  body {
+    overflow-x: clip;
+  }
+}
+/* משיכה לרענון שלנו (PullToRefresh) — בלי רענון הדפדפן בכרום באנדרואיד
+   במקביל. רק על html (שם הדפדפן בודק), ולא באייפון: אין שם רענון במשיכה
+   באפליקציה מהמסך הבית, והמאפיין הזה על body הוא מה ששבר את הניווט. */
+html {
   overscroll-behavior-y: contain;
+}
+@supports (-webkit-touch-callout: none) {
+  html {
+    overscroll-behavior-y: auto;
+  }
 }
 
 body {
