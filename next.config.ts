@@ -13,6 +13,29 @@ const nextConfig: NextConfig = {
   // שכבר נוקה, אבל גם /invite/continue לא אמור לדלוף) ל-Referer של אתר יעד.
   async headers() {
     return [
+      // כותרות אבטחה לכל האתר (27.9, סקירת OWASP — A02). ראשונות ברשימה:
+      // כשכמה כללים מתאימים לאותה כתובת, האחרון גובר — כך שהכללים
+      // הספציפיים למטה (הזמנות: no-referrer; sw.js: CSP מחמיר) נשארים.
+      {
+        source: "/:path*",
+        headers: [
+          // אסור להטמיע את האפליקציה בתוך אתר אחר (clickjacking — לחיצה
+          // "מוסתרת" על כפתור כמו "מחיקת המרחב"). שתי הדרכים, לדפדפנים ישנים.
+          { key: "X-Frame-Options", value: "DENY" },
+          // CSP חלקי: רק הנחיות שלא יכולות לשבור כלום. script-src מלא דורש
+          // nonce לכל דף (הסקריפטים של Next) — לא כאן.
+          {
+            key: "Content-Security-Policy",
+            value: "frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'",
+          },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          // אין שימוש במיקום/מיקרופון/תשלומים — חוסמים גם לסקריפט זר.
+          // (מצלמה לא: בחירת תמונה מהמצלמה עוברת דרך input רגיל.)
+          { key: "Permissions-Policy", value: "geolocation=(), microphone=(), payment=(), usb=(), browsing-topics=()" },
+          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
+        ],
+      },
       {
         source: "/invite/:path*",
         headers: [{ key: "Referrer-Policy", value: "no-referrer" }],

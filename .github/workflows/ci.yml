@@ -25,3 +25,7 @@ jobs:
         run: npm run lint
       - name: Unit tests
         run: npm test
+      # פגיעויות ידועות בחבילות שרצות בשרת (27.9, סקירת OWASP — A03).
+      # high ומעלה בלבד, כדי שהתראה קטנה בחבילת פיתוח לא תעצור הכל.
+      - name: Dependency audit
+        run: npm audit --omit=dev --audit-level=high

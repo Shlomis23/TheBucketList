@@ -1,0 +1,20 @@
+# עדכוני תלויות אוטומטיים (27.9, סקירת OWASP — A03 שרשרת אספקה).
+# פעם בשבוע: Pull Request לחבילות npm עם עדכון אבטחה או גרסה חדשה,
+# מקובצים ל-PR אחד כדי לא להציף. ה-CI (ci.yml) רץ על כל PR כזה.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: sunday
+      time: "08:00"
+      timezone: Asia/Jerusalem
+    open-pull-requests-limit: 3
+    groups:
+      all-npm:
+        patterns: ["*"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
