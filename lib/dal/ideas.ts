@@ -72,6 +72,7 @@ export async function listIdeas(
   const supabase = await createSupabaseServerClient();
   const userId = await getVerifiedUserId();
   const service = createSupabaseServiceClient();
+  const needle = filters.q.toLocaleLowerCase("he");
 
   const [{ data: rows }, { data: reactions }, { data: commentRows }, unread, { data: partnerRows }, { data: planRows }] = await Promise.all([
     supabase
@@ -87,7 +88,10 @@ export async function listIdeas(
       .select("idea_id, preference")
       .returns<{ idea_id: string; preference: "yes" | "maybe" | "no" }[]>(),
     // מונה הודעות לכל רעיון (member_read) — באותה קפיצה, סופרים בזיכרון.
-    supabase.from("idea_comments").select("idea_id").returns<{ idea_id: string }[]>(),
+    // Fetch message text only while searching, using the same member-read RLS.
+    supabase.from("idea_comments")
+      .select(needle ? "idea_id, body" : "idea_id")
+      .returns<{ idea_id: string; body?: string }[]>(),
     getUnreadConversations(),
     // התגובות של בן/בת הזוג (גלויות לשניכם — החלטה 24.9) ותוכניות פעילות.
     userId
@@ -120,8 +124,12 @@ export async function listIdeas(
   );
 
   const commentCountByIdea = new Map<string, number>();
+  const commentMatchIds = new Set<string>();
   for (const c of commentRows ?? []) {
     commentCountByIdea.set(c.idea_id, (commentCountByIdea.get(c.idea_id) ?? 0) + 1);
+    if (needle && c.body?.toLocaleLowerCase("he").includes(needle)) {
+      commentMatchIds.add(c.idea_id);
+    }
   }
 
   const all: IdeaListItemDto[] = rows.map((i) => ({
@@ -147,11 +155,11 @@ export async function listIdeas(
 
   // חיפוש + קטגוריה קודם, ורק אז המונים לפי תצוגה — כך "עוד לא הגבתי · 3"
   // תמיד מתאר את מה שיופיע בפועל בלחיצה, בתוך החיפוש/הקטגוריה הנוכחיים.
-  const needle = filters.q.toLocaleLowerCase("he");
   const narrowed = all.filter(
     (i) =>
       (!filters.category || i.category === filters.category) &&
       (!needle ||
+        commentMatchIds.has(i.id) ||
         [i.title, i.locationText ?? "", i.description].some((t) =>
           t.toLocaleLowerCase("he").includes(needle),
         )),
