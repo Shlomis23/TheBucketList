@@ -15,6 +15,7 @@ import { strToU8, zipSync, type Zippable } from "fflate";
 
 type ExportData = {
   members: string[];
+  recipes?: { title: string; sourceUrl: string | null; body: string; note: string }[];
   memories: {
     id: string;
     title: string;
@@ -75,6 +76,8 @@ function buildHtml(data: ExportData, photoPaths: Map<string, string>) {
     )
     .join("\n");
 
+  const recipes = (data.recipes ?? []).map((r) => `<article><h2>${esc(r.title)}</h2>${r.body ? `<p class="story">${esc(r.body)}</p>` : ""}${r.note ? `<p class="story">${esc(r.note)}</p>` : ""}${r.sourceUrl?.startsWith("https://") ? `<a href="${esc(r.sourceUrl)}">המתכון המקורי</a>` : ""}</article>`).join("\n");
+
   return `<!doctype html>
 <html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>הזיכרונות שלנו</title>
@@ -93,6 +96,7 @@ ul{padding-inline-start:20px}li{margin-bottom:10px}li span{color:#6e6584}
 <p class="sub">${names ? `${esc(names)} · ` : ""}The Bucket List · ירד ב-${esc(new Date().toLocaleDateString("he-IL"))}</p>
 ${memories || "<p>עוד לא היו זיכרונות.</p>"}
 ${ideas ? `<h1 style="margin-top:32px">הרעיונות שלנו</h1><ul>${ideas}</ul>` : ""}
+${recipes ? `<h1>ספר המתכונים שלנו</h1>${recipes}` : ""}
 </main></body></html>`;
 }
 

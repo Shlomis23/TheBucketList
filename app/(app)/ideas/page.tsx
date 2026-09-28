@@ -52,6 +52,9 @@ export default async function IdeasPage({
           )}
         </div>
   
+        {nothingAtAll && (
+          <p className="status-msg text-xs mb-12">0 רעיונות · <Link className="c-inherit" href={archived ? "/ideas" : "/ideas?status=archived"}>{archived ? "לפעילים" : "לארכיון"}</Link> · <Link className="c-inherit" href="/ideas/recipes">מתכונים</Link></p>
+        )}
         {nothingAtAll ? (
           archived ? (
             <>
@@ -85,7 +88,7 @@ export default async function IdeasPage({
               <CategorySelect filters={filters} />
             </div>
   
-            <div className="flex items-center justify-between gap-8 mb-8"
+            <div className="flex flex-wrap items-center justify-between gap-8 mb-8"
             >
               <p className="status-msg m-0 text-xs">
                 {ideas.length === 1 ? "רעיון אחד" : `${ideas.length} רעיונות`}
@@ -95,6 +98,8 @@ export default async function IdeasPage({
                 >
                   {archived ? "לפעילים" : "לארכיון"}
                 </Link>
+                {" · "}
+                <Link className="c-inherit" href="/ideas/recipes">מתכונים</Link>
               </p>
               <SortSelect filters={filters} />
             </div>
