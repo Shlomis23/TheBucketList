@@ -68,7 +68,7 @@ export type IdeaListItemDto = IdeaDto & {
 
 export async function listIdeas(
   filters: IdeaListFilters,
-): Promise<{ ideas: IdeaListItemDto[]; counts: IdeaListCounts }> {
+): Promise<{ ideas: IdeaListItemDto[]; counts: IdeaListCounts; availableCategories: IdeaCategory[] }> {
   const supabase = await createSupabaseServerClient();
   const userId = await getVerifiedUserId();
   const service = createSupabaseServiceClient();
@@ -109,7 +109,7 @@ export async function listIdeas(
   const planByIdea = new Map((planRows ?? []).map((p) => [p.idea_id, p.starts_at]));
   const unreadByIdea = new Map(unread.map((u) => [u.ideaId, u.unreadCount]));
 
-  if (!rows || rows.length === 0) return { ideas: [], counts: { all: 0, unreacted: 0, waiting: 0, matches: 0 } };
+  if (!rows || rows.length === 0) return { ideas: [], availableCategories: [], counts: { all: 0, unreacted: 0, waiting: 0, matches: 0 } };
 
   const myReactionByIdea = new Map((reactions ?? []).map((r) => [r.idea_id, r.preference]));
 
@@ -182,7 +182,7 @@ export async function listIdeas(
           : true,
   );
 
-  return { ideas: sortIdeas(visible, filters.sort), counts };
+  return { ideas: sortIdeas(visible, filters.sort), counts, availableCategories: [...new Set(all.map(idea => idea.category))] };
 }
 
 // "מחכה ל[בן/בת הזוג]": עניתי, והם עוד לא.

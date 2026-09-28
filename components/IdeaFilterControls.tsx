@@ -73,19 +73,19 @@ export function IdeaSearch({ filters }: { filters: IdeaListFilters }) {
   );
 }
 
-export function CategorySelect({ filters }: { filters: IdeaListFilters }) {
+export function CategorySelect({ filters, availableCategories }: { filters: IdeaListFilters; availableCategories: IdeaCategory[] }) {
   const { navigate } = useFilterNavigation();
   return (
     <select
       className={filters.category ? "chip chip-select is-set" : "chip chip-select"}
       aria-label="סינון לפי קטגוריה"
-      value={filters.category ?? ""}
+      value={filters.category && availableCategories.includes(filters.category) ? filters.category : ""}
       onChange={(e) =>
         navigate(buildIdeasHref(filters, { category: (e.target.value || null) as IdeaCategory | null }))
       }
     >
       <option value="">כל הקטגוריות</option>
-      {ideaCategories.map((c) => (
+      {ideaCategories.filter(c => availableCategories.includes(c)).map((c) => (
         <option key={c} value={c}>
           {categoryLabels[c]}
         </option>
