@@ -11,6 +11,8 @@ export function RecipeList({ recipes }: { recipes: Recipe[] }) {
   const [course, setCourse] = useState("");
   const [classification, setClassification] = useState("");
   function reset() { setQuery(""); setCourse(""); setClassification(""); }
+  const availableCourses = new Set(recipes.map(recipe => recipe.course));
+  const availableClassifications = new Set(recipes.map(recipe => recipe.classification));
   const visible = recipes.filter((recipe) => recipeMatchesFilters(recipe, query, course, classification));
   if (!recipes.length) return <EmptyState title="עוד אין מתכונים בספר שלכם" action={<Link href="/ideas/recipes/new" className="btn btn-primary">שמירת המתכון הראשון</Link>} />;
   return <>
@@ -18,13 +20,13 @@ export function RecipeList({ recipes }: { recipes: Recipe[] }) {
     <div className="flex flex-wrap gap-8 mb-12">
       <select className={`chip chip-select${course ? " is-set" : ""}`} aria-label="סינון לפי סוג מנה" value={course} onChange={e => setCourse(e.target.value)}>
         <option value="">כל סוגי המנות</option>
-        {recipeCourses.map(value => <option key={value} value={value}>{courseLabels[value]}</option>)}
-        <option value="unclassified">ללא סוג מנה</option>
+        {recipeCourses.filter(value => availableCourses.has(value)).map(value => <option key={value} value={value}>{courseLabels[value]}</option>)}
+        {availableCourses.has(null) && <option value="unclassified">ללא סוג מנה</option>}
       </select>
       <select className={`chip chip-select${classification ? " is-set" : ""}`} aria-label="סינון לפי סיווג" value={classification} onChange={e => setClassification(e.target.value)}>
         <option value="">כל הסיווגים</option>
-        {recipeClassifications.map(value => <option key={value} value={value}>{classificationLabels[value]}</option>)}
-        <option value="unclassified">ללא סיווג</option>
+        {recipeClassifications.filter(value => availableClassifications.has(value)).map(value => <option key={value} value={value}>{classificationLabels[value]}</option>)}
+        {availableClassifications.has(null) && <option value="unclassified">ללא סיווג</option>}
       </select>
     </div>
     {visible.length > 0 && (query || course || classification) && <button className="link-plain mb-12" onClick={reset}>ניקוי החיפוש והסינון</button>}
