@@ -31,7 +31,7 @@ export default async function IdeasPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const filters = parseIdeaListParams(await searchParams);
-  const [{ ideas, counts }, partnerName, spaceId] = await Promise.all([listIdeas(filters), getPartnerName(), getMySpaceId()]);
+  const [{ ideas, counts, availableCategories }, partnerName, spaceId] = await Promise.all([listIdeas(filters), getPartnerName(), getMySpaceId()]);
   // תגית מצב (26.9): "מחכה ל[שם]" רק כשיש בן/בת זוג במרחב.
   const partner = { present: spaceId ? await hasPartner(spaceId) : false, name: partnerName };
   const archived = filters.status === "archived";
@@ -85,7 +85,7 @@ export default async function IdeasPage({
   
             <div className="chip-scroll mb-8" role="group" aria-label="סינון רעיונות">
               {!archived && <ViewChips filters={filters} counts={counts} partner={partner} />}
-              <CategorySelect filters={filters} />
+              <CategorySelect filters={filters} availableCategories={availableCategories} />
             </div>
   
             <div className="flex flex-wrap items-center justify-between gap-8 mb-8"
