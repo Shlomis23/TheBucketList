@@ -5,8 +5,10 @@ import { getMySpaceId } from "@/lib/dal/space";
 import { fail, ok } from "@/lib/errors/result";
 import type { RecipeInput } from "@/lib/validation/recipe";
 
-export type Recipe = { id: string; title: string; source_url: string | null; body: string; note: string; version: number; created_at: string };
-const columns = "id,title,source_url,body,note,version,created_at";
+import type { RecipeCourse, RecipeClassification } from "@/lib/recipes";
+
+export type Recipe = { course: RecipeCourse | null; classification: RecipeClassification | null; id: string; title: string; source_url: string | null; body: string; note: string; version: number; created_at: string };
+const columns = "id,title,source_url,body,note,course,classification,version,created_at";
 
 export async function listRecipes(): Promise<Recipe[]> {
   const spaceId = await getMySpaceId();
@@ -41,8 +43,9 @@ function recipeError(message?: string) {
 export async function saveRecipe(input: RecipeInput) {
   const actor = await getVerifiedUserId();
   if (!actor) return fail("UNAUTHENTICATED", "צריך להתחבר קודם", crypto.randomUUID());
-  const { data, error } = await createSupabaseServiceClient().rpc("save_recipe", {
+  const { data, error } = await createSupabaseServiceClient().rpc("save_classified_recipe", {
     p_actor: actor, p_id: input.id, p_expected_version: input.expectedVersion,
+    p_course: input.course, p_classification: input.classification,
     p_title: input.title, p_source_url: input.sourceUrl || null, p_body: input.body, p_note: input.note,
   });
   if (error || !data) return recipeError(error?.message);

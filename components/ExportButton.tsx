@@ -1,5 +1,6 @@
 "use client";
 
+import { recipeClassificationText, type RecipeCourse, type RecipeClassification } from "@/lib/recipes";
 import { useState } from "react";
 import { strToU8, zipSync, type Zippable } from "fflate";
 
@@ -15,7 +16,7 @@ import { strToU8, zipSync, type Zippable } from "fflate";
 
 type ExportData = {
   members: string[];
-  recipes?: { title: string; sourceUrl: string | null; body: string; note: string }[];
+  recipes?: { course?: RecipeCourse | null; classification?: RecipeClassification | null; title: string; sourceUrl: string | null; body: string; note: string }[];
   memories: {
     id: string;
     title: string;
@@ -76,7 +77,7 @@ function buildHtml(data: ExportData, photoPaths: Map<string, string>) {
     )
     .join("\n");
 
-  const recipes = (data.recipes ?? []).map((r) => `<article><h2>${esc(r.title)}</h2>${r.body ? `<p class="story">${esc(r.body)}</p>` : ""}${r.note ? `<p class="story">${esc(r.note)}</p>` : ""}${r.sourceUrl?.startsWith("https://") ? `<a href="${esc(r.sourceUrl)}">המתכון המקורי</a>` : ""}</article>`).join("\n");
+  const recipes = (data.recipes ?? []).map((r) => `<article><h2>${esc(r.title)}</h2>${recipeClassificationText(r) ? `<p>${esc(recipeClassificationText(r))}</p>` : ""}${r.body ? `<p class="story">${esc(r.body)}</p>` : ""}${r.note ? `<p class="story">${esc(r.note)}</p>` : ""}${r.sourceUrl?.startsWith("https://") ? `<a href="${esc(r.sourceUrl)}">המתכון המקורי</a>` : ""}</article>`).join("\n");
 
   return `<!doctype html>
 <html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">

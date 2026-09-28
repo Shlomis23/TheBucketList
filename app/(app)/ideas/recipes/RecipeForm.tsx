@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Recipe } from "@/lib/dal/recipes";
+import { recipeCourses, recipeClassifications, courseLabels, classificationLabels } from "@/lib/recipes";
 import { saveRecipeAction } from "./actions";
 
 export function RecipeForm({ recipe }: { recipe?: Recipe }) {
@@ -20,6 +21,7 @@ export function RecipeForm({ recipe }: { recipe?: Recipe }) {
     inFlight.current = true; setBusy(true); setError(""); setFields({});
     try {
       const result = await saveRecipeAction({ id, expectedVersion: recipe?.version ?? null,
+        course: data.get("course") || null, classification: data.get("classification") || null,
         title: data.get("title"), sourceUrl: data.get("sourceUrl"), body: data.get("body"), note: data.get("note") });
       if (!result.ok) { setError(result.error.message); setFields(result.error.fieldErrors ?? {}); }
       else { router.replace(`/ideas/recipes/${result.data.id}`); router.refresh(); }
@@ -30,6 +32,20 @@ export function RecipeForm({ recipe }: { recipe?: Recipe }) {
     <div className="field"><label htmlFor="recipe-title">שם המתכון</label>
       <input id="recipe-title" name="title" className="input" required maxLength={120} defaultValue={recipe?.title} aria-invalid={!!fields.title} />
       {fields.title && <p className="alert-error" role="alert">{fields.title[0]}</p>}
+    </div>
+    <div className="field"><label htmlFor="recipe-course">סוג מנה (לא חובה)</label>
+      <select id="recipe-course" name="course" className="input select-input" defaultValue={recipe?.course ?? ""} aria-invalid={!!fields.course}>
+        <option value="">ללא סוג מנה</option>
+        {recipeCourses.map(value => <option key={value} value={value}>{courseLabels[value]}</option>)}
+      </select>
+      {fields.course && <p className="alert-error" role="alert">{fields.course[0]}</p>}
+    </div>
+    <div className="field"><label htmlFor="recipe-classification">סיווג (לא חובה)</label>
+      <select id="recipe-classification" name="classification" className="input select-input" defaultValue={recipe?.classification ?? ""} aria-invalid={!!fields.classification}>
+        <option value="">ללא סיווג</option>
+        {recipeClassifications.map(value => <option key={value} value={value}>{classificationLabels[value]}</option>)}
+      </select>
+      {fields.classification && <p className="alert-error" role="alert">{fields.classification[0]}</p>}
     </div>
     <div className="field"><label htmlFor="recipe-source">קישור למתכון (לא חובה)</label>
       <input id="recipe-source" name="sourceUrl" type="url" dir="ltr" className="input" placeholder="https://" maxLength={2048} defaultValue={recipe?.source_url ?? ""} aria-invalid={!!fields.sourceUrl} />

@@ -9,7 +9,7 @@ beforeEach(()=>{vi.clearAllMocks();mocks.save.mockResolvedValue({ok:true,data:{i
 describe("quiet recipe actions",()=>{
  it("saves and invalidates recipes without notifying the partner",async()=>{
   expect((await saveRecipeAction({id,expectedVersion:null,title:"סלט"})).ok).toBe(true);
-  expect(mocks.save).toHaveBeenCalledWith({id,expectedVersion:null,title:"סלט",body:"",note:"",sourceUrl:""});
+  expect(mocks.save).toHaveBeenCalledWith({id,expectedVersion:null,title:"סלט",body:"",note:"",sourceUrl:"",course:null,classification:null});
   expect(mocks.revalidate).toHaveBeenCalledWith("/ideas/recipes","layout");expect(mocks.notify).not.toHaveBeenCalled();
  });
  it("rejects invalid input before writing",async()=>{
