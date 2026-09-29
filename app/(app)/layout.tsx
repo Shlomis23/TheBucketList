@@ -14,17 +14,11 @@ import { parseTheme, THEME_COOKIE } from "@/lib/themes";
 // עטיפה משותפת למסכי האפליקציה המחוברת (בית/רעיונות/בחירה/תוכניות/זיכרונות/הגדרות).
 // מסכי Auth/onboarding/invite/offline/space-closed נשארים מחוץ לקבוצה הזו בכוונה —
 // אין להם ניווט תחתון.
-export default async function AppLayout({
+export default function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // מאצ'ים שעוד לא נחגגו אצלי (0030). ה-layout מתרנדר מחדש גם ב-router.refresh
-  // (AppLifecycle) — כך בן/בת הזוג רואים את החגיגה כשחוזרים לאפליקציה.
-  const [match, profile, cookieStore] = await Promise.all([getMatchCelebrationState(), getMyProfile(), cookies()]);
-  // ערכת הצבע בפרופיל שונה מהעוגייה — מסנכרנים (ThemeSync).
-  const themeMismatch =
-    profile !== null && profile.colorTheme !== parseTheme(cookieStore.get(THEME_COOKIE)?.value);
   return (
     <div className="flex flex-col" style={{ minHeight: "100dvh" }}>
       {/* ריווח תחתון בגובה הניווט הקבוע (BottomNav הוא position: fixed). */}
@@ -41,8 +35,27 @@ export default async function AppLayout({
       <Suspense fallback={null}>
         <NavMemory />
       </Suspense>
-      {themeMismatch && profile && <ThemeSync theme={profile.colorTheme} />}
-      {match && <MatchCelebration me={match.me} partner={match.partner} unseen={match.unseen} />}
+      {/* הבדיקות האלה אינן מעכבות יותר את תוכן המסך והניווט. כל אחת זורמת
+          בנפרד כשהקריאה שלה מסתיימת. */}
+      <Suspense fallback={null}>
+        <ThemeSyncSlot />
+      </Suspense>
+      <Suspense fallback={null}>
+        <MatchCelebrationSlot />
+      </Suspense>
     </div>
   );
+}
+
+async function ThemeSyncSlot() {
+  const [profile, cookieStore] = await Promise.all([getMyProfile(), cookies()]);
+  if (!profile || profile.colorTheme === parseTheme(cookieStore.get(THEME_COOKIE)?.value)) return null;
+  return <ThemeSync theme={profile.colorTheme} />;
+}
+
+async function MatchCelebrationSlot() {
+  // ה-layout מתרנדר מחדש גם ב-router.refresh (AppLifecycle), לכן החגיגה עדיין
+  // מופיעה כשבן/בת הזוג חוזרים לאפליקציה — רק בלי לחסום את המסך בדרך.
+  const match = await getMatchCelebrationState();
+  return match ? <MatchCelebration me={match.me} partner={match.partner} unseen={match.unseen} /> : null;
 }

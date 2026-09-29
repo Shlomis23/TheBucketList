@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { onTabTap } from "@/lib/nav/memory";
+import { nextTabToPrefetch } from "@/lib/nav/prefetch";
 
 // ניווט תחתון — בית / רעיונות / תוכניות / זיכרונות.
 // כפתור "מה עושים?" ו-"+" הגלובליים חיים במסך הבית עצמו, לא כאן.
@@ -17,6 +19,19 @@ const TABS = [
 export function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
+
+  useEffect(() => {
+    const href = nextTabToPrefetch(pathname);
+    const prefetch = () => router.prefetch(href);
+
+    if ("requestIdleCallback" in window) {
+      const id = window.requestIdleCallback(prefetch, { timeout: 1_500 });
+      return () => window.cancelIdleCallback(id);
+    }
+
+    const id = globalThis.setTimeout(prefetch, 1_000);
+    return () => globalThis.clearTimeout(id);
+  }, [pathname, router]);
 
   return (
     <nav className="flex gap-4 bg-surface bottom-nav"
@@ -35,9 +50,9 @@ export function BottomNav() {
           <Link className="flex-1 flex flex-col items-center justify-center gap-2 rounded-pill no-underline text-2xs"
             key={tab.href}
             href={tab.href}
-            // טעינה מראש מלאה (לא רק שלד הטעינה) — הלשוניות נפתחות מיד.
-            // נשמר בטלפון 60 שניות (staleTimes.static ב-next.config.ts).
-            prefetch={true}
+            // כל ארבעת הקישורים נמצאים תמיד ב-viewport. מבטלים את הטעינה
+            // האוטומטית שלהם, וה-effect למעלה טוען רק יעד סביר אחד בזמן idle.
+            prefetch={false}
             // כמו באפליקציות אייפון: ברשימה — לראש הרשימה; בתוך רעיון — חזרה
             // לרשימה לנקודה שבה עצרנו (lib/nav/memory.ts).
             onClick={(e) => {

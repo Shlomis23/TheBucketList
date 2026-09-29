@@ -1,14 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getVerifiedUserId } from "@/lib/supabase/server";
-import { getMySpaceId } from "@/lib/dal/space";
-import { getHome } from "@/lib/dal/home";
+import { getHome, getHomeOnThisDay, getLatestHomeMemory } from "@/lib/dal/home";
 import { pastWhenLabel, upcomingWhenLabel } from "@/lib/validation/plan";
 import { coupleTitle, pickHeroKind } from "@/lib/validation/home";
 import { HeroCard, HomeRow, LatestMemoryRow, type Row } from "@/components/HomeHero";
-import { getLatestMemory, getOnThisDay } from "@/lib/dal/memories";
 import { OnThisDayCard } from "@/components/OnThisDayCard";
-import { getUnreadConversations } from "@/lib/dal/conversations";
 import { PageTransition } from "@/components/PageTransition";
 import { HomeBrand } from "@/components/HomeBrand";
 
@@ -17,17 +14,17 @@ import { HomeBrand } from "@/components/HomeBrand";
 // ב"עוד בשבילך". "לפני שנה בדיוק" נשאר כרטיס נפרד מעל, רק בימים שיש.
 // מאצ' בלי תוכנית לא מופיע בבית בכוונה (בנק רעיונות, לא רשימת משימות).
 export default async function HomePage() {
-  // userId ו-spaceId לא תלויים זה בזה — במקביל, בלי קפיצת רשת מיותרת.
-  const [userId, spaceId] = await Promise.all([getVerifiedUserId(), getMySpaceId()]);
+  const userId = await getVerifiedUserId();
   if (!userId) redirect("/login");
-  if (!spaceId) redirect("/onboarding");
 
-  const [home, latestMemory, unread, onThisDay] = await Promise.all([
-    getHome(spaceId, userId),
-    getLatestMemory(),
-    getUnreadConversations(),
-    getOnThisDay(),
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem" }).format(new Date());
+  const [dashboard, latestMemory, onThisDay] = await Promise.all([
+    getHome(userId),
+    getLatestHomeMemory(userId),
+    getHomeOnThisDay(userId, today),
   ]);
+  if (!dashboard) redirect("/onboarding");
+  const { unread, ...home } = dashboard;
   const greetingName = home.displayName || "שם";
   const hero = pickHeroKind({
     upcomingPlan: home.upcomingPlan,
