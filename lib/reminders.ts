@@ -3,6 +3,7 @@ import "server-only";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { sendPayload, type PushTarget } from "@/lib/push";
 import { yearsAgoLabel } from "@/lib/validation/memory";
+import { planHasTime } from "@/lib/validation/plan";
 import { reviewNudgeCopy } from "@/lib/validation/review";
 
 // התראות מתוזמנות — רצות מהמשימה היומית (וגם תזכורת הגיבוי החודשית, למטה) (app/api/cron/daily), בבוקר:
@@ -31,7 +32,7 @@ export async function sendPlanNotifications(): Promise<number> {
 
     const payload =
       d.kind === "reminder"
-        ? { title: `מחר ב-${timeIL(d.starts_at)}`, body: d.title, url: `/plans/${d.plan_id}`, tag: `plan-${d.plan_id}` }
+        ? { title: planHasTime(d.starts_at) ? `מחר ב-${timeIL(d.starts_at)}` : "מחר", body: d.title, url: `/plans/${d.plan_id}`, tag: `plan-${d.plan_id}` }
         : {
             title: "איך היה?",
             body: `${d.title} היה אתמול. שומרים כזיכרון?`,

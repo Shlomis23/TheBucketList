@@ -1,4 +1,5 @@
 import { googleMapsUrl, wazeUrl } from "@/lib/navLinks";
+import { jerusalemDate, jerusalemMidnightIso, planHasTime } from "@/lib/validation/plan";
 
 // יומן (26.9). פונקציות טהורות (לבדיקות):
 //   buildCalendar — יומן .ics (RFC 5545) עם כל התוכניות — היומן במינוי
@@ -25,7 +26,17 @@ export type CalendarEvent = {
 const DEFAULT_DURATION_MS = 2 * 60 * 60 * 1000;
 const REMIND_BEFORE = "-PT2H";
 
-export function eventEnd(e: Pick<CalendarEvent, "startsAt" | "endsAt">): string {
+// תוכנית בלי שעה (חצות ישראל) = אירוע "כל היום": DATE במקום DATE-TIME, והסיום
+// בלעדי (היום שאחרי היום האחרון), כמו ש-iCal וגוגל דורשים.
+type Span = Pick<CalendarEvent, "startsAt" | "endsAt">;
+
+function allDayRange(e: Span): { start: string; end: string } {
+  const startDate = jerusalemDate(e.startsAt);
+  const end = e.endsAt && e.endsAt > e.startsAt ? e.endsAt : jerusalemMidnightIso(startDate, 1);
+  return { start: startDate.replace(/-/g, ""), end: jerusalemDate(end).replace(/-/g, "") };
+}
+
+export function eventEnd(e: Span): string {
   return e.endsAt ?? new Date(new Date(e.startsAt).getTime() + DEFAULT_DURATION_MS).toISOString();
 }
 
@@ -83,22 +94,22 @@ export function eventDescription(e: CalendarEvent): string {
 }
 
 function veventLines(e: CalendarEvent, now: Date): string[] {
+  const allDay = !planHasTime(e.startsAt);
+  const range = allDay ? allDayRange(e) : null;
   return [
     "BEGIN:VEVENT",
     `UID:${e.uid}`,
     `DTSTAMP:${icsDate(now.toISOString())}`,
     ...(e.updatedAt ? [`LAST-MODIFIED:${icsDate(e.updatedAt)}`] : []),
-    `DTSTART:${icsDate(e.startsAt)}`,
-    `DTEND:${icsDate(eventEnd(e))}`,
+    range ? `DTSTART;VALUE=DATE:${range.start}` : `DTSTART:${icsDate(e.startsAt)}`,
+    range ? `DTEND;VALUE=DATE:${range.end}` : `DTEND:${icsDate(eventEnd(e))}`,
     `SUMMARY:${icsEscape(e.title)}`,
     ...(e.location ? [`LOCATION:${icsEscape(e.location)}`] : []),
     `DESCRIPTION:${icsEscape(eventDescription(e))}`,
     `URL:${e.url}`,
-    "BEGIN:VALARM",
-    "ACTION:DISPLAY",
-    `DESCRIPTION:${icsEscape(e.title)}`,
-    `TRIGGER:${REMIND_BEFORE}`,
-    "END:VALARM",
+    ...(allDay
+      ? []
+      : ["BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${icsEscape(e.title)}`, `TRIGGER:${REMIND_BEFORE}`, "END:VALARM"]),
     "END:VEVENT",
   ];
 }
@@ -125,10 +136,11 @@ export function buildIcs(e: CalendarEvent, now = new Date()): string {
 }
 
 export function googleCalendarUrl(e: CalendarEvent): string {
+  const range = planHasTime(e.startsAt) ? null : allDayRange(e);
   const params = new URLSearchParams({
     action: "TEMPLATE",
     text: e.title,
-    dates: `${icsDate(e.startsAt)}/${icsDate(eventEnd(e))}`,
+    dates: range ? `${range.start}/${range.end}` : `${icsDate(e.startsAt)}/${icsDate(eventEnd(e))}`,
     details: eventDescription(e),
   });
   if (e.location) params.set("location", e.location);

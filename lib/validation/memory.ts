@@ -1,15 +1,34 @@
 import { z } from "zod";
+import { ideaCategories } from "@/lib/validation/idea";
 
 // זיכרון — spec סעיף 6.1: תאריך ביצוע חובה (date), טקסט עד 5,000.
 // אלה בדיקות UX; האכיפה האמיתית ב-CHECK constraints וב-update_memory (0016).
 export const MEMORY_STORY_MAX = 5000;
 
+const memoryTitle = z.string().trim().min(1, "שם הזיכרון הוא שדה חובה").max(120, "שם עד 120 תווים");
+const memoryDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "תאריך לא תקין");
+const memoryStory = z.string().max(MEMORY_STORY_MAX, `עד ${MEMORY_STORY_MAX.toLocaleString("he-IL")} תווים`).default("");
+// קטגוריה אופציונלית: null/חסר = בלי קטגוריה (איור כללי).
+const memoryCategory = z.enum(ideaCategories).nullish();
+
 export const updateMemorySchema = z.object({
   memoryId: z.string().uuid(),
   expectedVersion: z.number().int().positive(),
-  happenedOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "תאריך לא תקין"),
-  story: z.string().max(MEMORY_STORY_MAX, `עד ${MEMORY_STORY_MAX.toLocaleString("he-IL")} תווים`).default(""),
+  title: memoryTitle,
+  category: memoryCategory,
+  happenedOn: memoryDate,
+  story: memoryStory,
 });
+
+// זיכרון עצמאי (בלי תוכנית) — create_memory, 20261010120000.
+export const createMemorySchema = z.object({
+  requestId: z.string().uuid(),
+  title: memoryTitle,
+  category: memoryCategory,
+  happenedOn: memoryDate,
+  story: memoryStory,
+});
+export type CreateMemoryInput = z.infer<typeof createMemorySchema>;
 
 export type UpdateMemoryInput = z.infer<typeof updateMemorySchema>;
 

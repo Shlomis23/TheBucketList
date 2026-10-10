@@ -10,6 +10,8 @@
 //
 // ב-DB לא השתנה כלום: התאריך והשעה מתאחדים ל-ISO אחד, כמו קודם.
 
+import { jerusalemDate, jerusalemMidnightIso, planHasTime } from "@/lib/validation/plan";
+
 export type DateTimeParts = { date: string; time: string };
 
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -40,6 +42,40 @@ export function partsToIso(p: DateTimeParts): { iso?: string; error?: string } {
 export function endPartsToIso(start: DateTimeParts, end: DateTimeParts): { iso?: string; error?: string } {
   if (!end.time && (!end.date || end.date === start.date)) return {};
   return partsToIso(end);
+}
+
+// מועד תוכנית: תאריך התחלה חובה; שעה וסיום אופציונליים (26.10).
+//   בלי שעה  -> כל היום: starts_at = חצות ישראל של התאריך, ends_at = חצות של
+//               היום שאחרי תאריך הסיום. בלי תאריך סיום, הסיום הוא יום ההתחלה.
+//   עם שעה   -> כמו קודם: בלי סיום אם לא נבחר, ואם נבחר תאריך סיום אחר —
+//               חייבת להיות גם שעת סיום.
+export function buildPlanTimes(
+  start: DateTimeParts,
+  end: DateTimeParts,
+): { startsAt?: string; endsAt?: string; startError?: string; endError?: string } {
+  if (!start.date) return { startError: "חובה לבחור תאריך" };
+  if (!start.time) {
+    const endDate = end.date || start.date;
+    if (endDate < start.date) return { endError: "הסיום לפני ההתחלה" };
+    return { startsAt: jerusalemMidnightIso(start.date), endsAt: jerusalemMidnightIso(endDate, 1) };
+  }
+  const s = partsToIso(start);
+  if (s.error) return { startError: s.error };
+  const e = endPartsToIso(start, { ...end, date: end.date || start.date });
+  if (e.error) return { endError: e.error === "חסרה שעה" ? "חסרה שעת סיום" : e.error };
+  if (e.iso && e.iso <= s.iso!) return { endError: "הסיום חייב להיות אחרי ההתחלה" };
+  return { startsAt: s.iso, endsAt: e.iso };
+}
+
+// הפוך מ-buildPlanTimes, לטופס עריכה. תוכנית בלי שעה קוראת בשעון ישראל.
+export function planToParts(startsAt: string | null, endsAt: string | null): { start: DateTimeParts; end: DateTimeParts } {
+  if (startsAt && !planHasTime(startsAt)) {
+    const date = jerusalemDate(startsAt);
+    // ends_at הוא חצות היום שאחרי הסיום -> דקה אחורה = היום האחרון.
+    const endDate = endsAt ? jerusalemDate(new Date(new Date(endsAt).getTime() - 60_000).toISOString()) : date;
+    return { start: { date, time: "" }, end: { date: endDate, time: "" } };
+  }
+  return { start: isoToParts(startsAt), end: isoToParts(endsAt) };
 }
 
 function PartsRow({
@@ -95,7 +131,7 @@ export function DateTimeRangeFields({
   onStartChange,
   onEndChange,
   startLabel = "מתי",
-  endLabel = "עד",
+  endLabel = "עד (אופציונלי)",
   startError,
   endError,
 }: {
@@ -129,7 +165,7 @@ export function DateTimeRangeFields({
       {/* הזזה שלילית מכוונת: ההסבר צמוד לשדות שמעליו */}
       {/* eslint-disable-next-line no-restricted-syntax */}
       <p className="status-msg text-xs" style={{ margin: "-6px 0 0" }}>
-        בוחרים תאריך ושעה — או משאירים ריק ומשלימים אחר כך.
+        חובה לבחור תאריך. שעה וסיום אופציונליים — בלי סיום, ההתחלה היא גם הסיום.
       </p>
     </>
   );

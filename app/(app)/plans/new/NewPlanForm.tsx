@@ -4,9 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createPlanAction } from "../actions";
 import { DEFAULT_PLAN_TIMEZONE } from "@/lib/validation/plan";
-import { DateTimeRangeFields, endPartsToIso, partsToIso, type DateTimeParts } from "@/components/DateTimeRangeFields";
+import { DateTimeRangeFields, buildPlanTimes, type DateTimeParts } from "@/components/DateTimeRangeFields";
 
-// טופס תכנון — spec סעיף 6.1: מועד/שעה אופציונליים לשלב הצעה, מקום מפגש
+// טופס תכנון — spec סעיף 6.1: תאריך חובה, שעה אופציונלית (26.10), מקום מפגש
 // עד 200, הערות עד 3,000, תקציב אופציונלי. תאריך+שעה (DateTimeRangeFields)
 // מומרים ל-ISO מלא (UTC) לפני השליחה — בדיקת isoDateTime ב-lib/validation/plan.ts.
 export function NewPlanForm({ ideaId }: { ideaId: string }) {
@@ -27,12 +27,11 @@ export function NewPlanForm({ ideaId }: { ideaId: string }) {
     setErrorMsg("");
     setFieldErrors({});
 
-    const startIso = partsToIso(start);
-    const endIso = endPartsToIso(start, end);
-    if (startIso.error || endIso.error) {
+    const times = buildPlanTimes(start, end);
+    if (times.startError || times.endError) {
       setFieldErrors({
-        ...(startIso.error ? { startsAt: [startIso.error] } : {}),
-        ...(endIso.error ? { endsAt: [endIso.error] } : {}),
+        ...(times.startError ? { startsAt: [times.startError] } : {}),
+        ...(times.endError ? { endsAt: [times.endError] } : {}),
       });
       return;
     }
@@ -44,8 +43,8 @@ export function NewPlanForm({ ideaId }: { ideaId: string }) {
     const result = await createPlanAction({
       requestId,
       ideaId,
-      startsAt: startIso.iso,
-      endsAt: endIso.iso,
+      startsAt: times.startsAt,
+      endsAt: times.endsAt,
       timezone: DEFAULT_PLAN_TIMEZONE,
       meetingPlace: meetingPlace.trim() === "" ? undefined : meetingPlace,
       notes,
@@ -68,8 +67,7 @@ export function NewPlanForm({ ideaId }: { ideaId: string }) {
         end={end}
         onStartChange={setStart}
         onEndChange={setEnd}
-        startLabel="מתי (אופציונלי)"
-        endLabel="עד (אופציונלי)"
+        startLabel="מתי"
         startError={fieldErrors.startsAt?.[0]}
         endError={fieldErrors.endsAt?.[0]}
       />

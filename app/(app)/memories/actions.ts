@@ -3,11 +3,30 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { updateMemory } from "@/lib/dal/memories";
+import { createMemory, updateMemory } from "@/lib/dal/memories";
 import { deletePhoto } from "@/lib/dal/photos";
 import { notifyPartner } from "@/lib/push";
-import { updateMemorySchema } from "@/lib/validation/memory";
+import { createMemorySchema, updateMemorySchema } from "@/lib/validation/memory";
 import { fail, type Result } from "@/lib/errors/result";
+
+// זיכרון חדש בלי תוכנית. הצלחה מפנה למסך הזיכרון (שם מעלים תמונות); בלי push.
+export async function createMemoryAction(input: unknown): Promise<Result<{ id: string }> | undefined> {
+  const parsed = createMemorySchema.safeParse(input);
+  if (!parsed.success) {
+    return fail(
+      "INVALID_INPUT",
+      "יש שגיאות בטופס",
+      crypto.randomUUID(),
+      parsed.error.flatten().fieldErrors as Record<string, string[]>,
+    );
+  }
+  const result = await createMemory(parsed.data);
+  if (!result.ok) return result;
+
+  revalidatePath("/memories");
+  revalidatePath("/");
+  redirect(`/memories/${result.data.id}`);
+}
 
 // עריכת זיכרון — שני בני הזוג יכולים (החלטה מ-25.9, spec סעיף 16 #3).
 // הצלחה מפנה חזרה למסך הזיכרון; כישלון מוחזר לטופס כדי שהטקסט יישאר.
