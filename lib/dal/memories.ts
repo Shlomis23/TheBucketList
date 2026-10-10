@@ -4,7 +4,7 @@ import { createSupabaseServerClient, getVerifiedUserId } from "@/lib/supabase/se
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { ok, fail, type Result } from "@/lib/errors/result";
 import type { IdeaCategory } from "@/lib/validation/idea";
-import { pickOnThisDay, type UpdateMemoryInput } from "@/lib/validation/memory";
+import { pickOnThisDay, type CreateMemoryInput, type UpdateMemoryInput } from "@/lib/validation/memory";
 
 // זיכרונות — F7, spec סעיף 6 ו-13.2/13.3 (listMemories/getMemory/updateMemory).
 // קריאה דרך client המשתמש + RLS (member_read על memories/plans/ideas,
@@ -19,7 +19,7 @@ import { pickOnThisDay, type UpdateMemoryInput } from "@/lib/validation/memory";
 
 export type MemoryDto = {
   id: string;
-  planId: string;
+  planId: string | null; // null = זיכרון עצמאי, בלי תוכנית
   title: string;
   category: IdeaCategory | null;
   happenedOn: string; // YYYY-MM-DD
@@ -33,14 +33,16 @@ export type MemoryDto = {
 
 type MemoryRow = {
   id: string;
-  plan_id: string;
+  plan_id: string | null;
   created_by: string;
   happened_on: string;
   story: string;
   version: number;
+  title: string;
+  category: IdeaCategory | null;
 };
 
-const MEMORY_COLUMNS = "id, plan_id, created_by, happened_on, story, version";
+const MEMORY_COLUMNS = "id, plan_id, created_by, happened_on, story, version, title, category";
 
 async function loadContext() {
   const supabase = await createSupabaseServerClient();
@@ -83,13 +85,13 @@ function toDtos(
   }
 
   return rows.map((m) => {
-    const plan = planById.get(m.plan_id);
+    const plan = m.plan_id ? planById.get(m.plan_id) : undefined;
     const idea = plan ? ideaById.get(plan.idea_id) : undefined;
     return {
       id: m.id,
       planId: m.plan_id,
-      title: plan?.title ?? "זיכרון",
-      category: idea?.category ?? null,
+      title: m.title,
+      category: m.category,
       happenedOn: m.happened_on,
       story: m.story,
       version: m.version,
@@ -160,6 +162,8 @@ export async function updateMemory(input: UpdateMemoryInput): Promise<Result<{ i
     p_expected_version: input.expectedVersion,
     p_happened_on: input.happenedOn,
     p_story: input.story ?? "",
+    p_title: input.title,
+    p_category: input.category ?? null,
   });
 
   if (error || !data) {
@@ -180,6 +184,31 @@ export async function updateMemory(input: UpdateMemoryInput): Promise<Result<{ i
 
   const memory = data as { id: string; version: number };
   return ok({ id: memory.id, version: memory.version }, traceId);
+}
+
+// זיכרון עצמאי — דברים שקרו בלי שתכננו מראש. בלי התראה לבן/בת הזוג (החלטה 10.10).
+export async function createMemory(input: CreateMemoryInput): Promise<Result<{ id: string }>> {
+  const traceId = crypto.randomUUID();
+  const userId = await getVerifiedUserId();
+  if (!userId) return fail("UNAUTHENTICATED", "צריך להתחבר קודם", traceId);
+
+  const { data, error } = await createSupabaseServiceClient().rpc("create_memory", {
+    p_actor: userId,
+    p_request_id: input.requestId,
+    p_title: input.title,
+    p_happened_on: input.happenedOn,
+    p_story: input.story ?? "",
+    p_category: input.category ?? null,
+  });
+
+  if (error || !data) {
+    const msg = error?.message;
+    if (msg?.includes("NOT_FOUND")) return fail("NOT_FOUND", "המרחב לא זמין", traceId);
+    if (msg?.includes("VERSION_CONFLICT")) return fail("VERSION_CONFLICT", "הבקשה הזו כבר נשלחה בנתונים אחרים — רעננו ונסו שוב", traceId);
+    if (msg?.includes("INVALID_INPUT")) return fail("INVALID_INPUT", "התאריך לא יכול להיות בעתיד, והסיפור עד 5,000 תווים", traceId);
+    return fail("UNEXPECTED", "שמירת הזיכרון נכשלה, נסו שוב", traceId);
+  }
+  return ok({ id: (data as { id: string }).id }, traceId);
 }
 
 // "לפני שנה בדיוק" בבית (26.9) — lib/validation/memory.ts pickOnThisDay.

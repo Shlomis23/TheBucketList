@@ -33,7 +33,7 @@ export type MemoryPreview = {
   category: IdeaCategory | null;
   dateLabel: string;
   coverPhotoId: string | null;
-  planId: string;
+  planId: string | null;
 };
 export type Preview = IdeaPreview | PlanPreview | MemoryPreview;
 export type PreviewKind = Preview["kind"];
@@ -84,7 +84,7 @@ export function planPreviewAttr(plan: {
 
 /** <Link {...memoryPreviewAttr(memory, formatMemoryDate(memory.happenedOn))} /> */
 export function memoryPreviewAttr(
-  memory: { title: string; category: IdeaCategory | null; coverPhotoId: string | null; planId: string },
+  memory: { title: string; category: IdeaCategory | null; coverPhotoId: string | null; planId: string | null },
   dateLabel: string,
 ): Attr {
   return attr({
@@ -133,7 +133,7 @@ function isPreview(v: unknown): v is Preview {
         (o.category === null || isCategory(o.category)) &&
         typeof o.dateLabel === "string" &&
         isStrOrNull(o.coverPhotoId) &&
-        typeof o.planId === "string"
+        isStrOrNull(o.planId)
       );
     default:
       return false;

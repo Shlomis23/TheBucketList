@@ -3,7 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { updateMemoryAction } from "../../actions";
+import { MemoryCategoryChips } from "@/components/MemoryCategoryChips";
 import { MEMORY_STORY_MAX } from "@/lib/validation/memory";
+import type { IdeaCategory } from "@/lib/validation/idea";
 import type { MemoryDto } from "@/lib/dal/memories";
 
 function todayDateInput(): string {
@@ -16,6 +18,8 @@ function todayDateInput(): string {
 // נלווים לכל שליחה (update_memory, 0016). בהתנגשות (בן/בת הזוג שמרו
 // בינתיים) הטקסט שהוקלד נשאר בתיבה — לא מאבדים אותו, ולא דורסים בשקט.
 export function EditMemoryForm({ memory }: { memory: MemoryDto }) {
+  const [title, setTitle] = useState(memory.title);
+  const [category, setCategory] = useState<IdeaCategory | null>(memory.category);
   const [happenedOn, setHappenedOn] = useState(memory.happenedOn);
   const [story, setStory] = useState(memory.story);
   const [status, setStatus] = useState<"idle" | "busy" | "error">("idle");
@@ -32,6 +36,8 @@ export function EditMemoryForm({ memory }: { memory: MemoryDto }) {
     const result = await updateMemoryAction({
       memoryId: memory.id,
       expectedVersion: memory.version,
+      title,
+      category,
       happenedOn,
       story,
     });
@@ -49,6 +55,20 @@ export function EditMemoryForm({ memory }: { memory: MemoryDto }) {
   return (
     <form onSubmit={handleSubmit} noValidate>
       <div className="field mb-16">
+        <label htmlFor="title">שם</label>
+        <input
+          id="title"
+          className="input"
+          maxLength={120}
+          required
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          aria-invalid={Boolean(fieldErrors.title)}
+        />
+        {fieldErrors.title && <p className="alert-error">{fieldErrors.title[0]}</p>}
+      </div>
+
+      <div className="field mb-16">
         <label htmlFor="happenedOn">מתי זה קרה</label>
         <input
           id="happenedOn"
@@ -61,6 +81,11 @@ export function EditMemoryForm({ memory }: { memory: MemoryDto }) {
           aria-invalid={Boolean(fieldErrors.happenedOn)}
         />
         {fieldErrors.happenedOn && <p className="alert-error">{fieldErrors.happenedOn[0]}</p>}
+      </div>
+
+      <div className="field mb-16">
+        <label>קטגוריה (אופציונלי)</label>
+        <MemoryCategoryChips value={category} onChange={setCategory} />
       </div>
 
       <div className="field mb-4">
@@ -90,7 +115,7 @@ export function EditMemoryForm({ memory }: { memory: MemoryDto }) {
         </p>
       )}
 
-      <button type="submit" className="btn btn-primary btn-block" disabled={status === "busy" || over}>
+      <button type="submit" className="btn btn-primary btn-block" disabled={status === "busy" || over || title.trim() === ""}>
         {status === "busy" ? "שומרים…" : "שמירה"}
       </button>
       <p className="text-center m-0 mt-12">

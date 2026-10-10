@@ -28,12 +28,14 @@ export default async function MemoryDetailPage({ params }: { params: Promise<{ i
           title={memory.title}
           dateLabel={formatMemoryDate(memory.happenedOn)}
         />
-        <p className="status-msg m-0 mb-16 text-sm">
-          מתוך{" "}
-          <Link href={`/plans/${memory.planId}`} className="link-plain text-sm">
-            התוכנית המקורית &larr;
-          </Link>
-        </p>
+        {memory.planId && (
+          <p className="status-msg m-0 mb-16 text-sm">
+            מתוך{" "}
+            <Link href={`/plans/${memory.planId}`} className="link-plain text-sm">
+              התוכנית המקורית &larr;
+            </Link>
+          </p>
+        )}
   
         {/* "איך היה" לפני התמונות (25.9): עם הרבה תמונות הסיפור נדחף רחוק למטה. */}
         <div className="card mb-16">

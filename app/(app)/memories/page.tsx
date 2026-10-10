@@ -27,9 +27,14 @@ export default async function MemoriesPage({
         <EmptyState
           title="הזיכרון הראשון עוד לפנינו."
           action={
-            <Link href="/plans" className="btn btn-primary">
-              לתוכניות
-            </Link>
+            <div className="flex gap-12">
+              <Link href="/memories/new" className="btn btn-primary">
+                זיכרון חדש
+              </Link>
+              <Link href="/plans" className="btn btn-outline">
+                לתוכניות
+              </Link>
+            </div>
           }
         />
       </div>
@@ -40,6 +45,11 @@ export default async function MemoriesPage({
     <PageTransition kind="list">
       <div className="page">
         <h1 className="page-title">זיכרונות</h1>
+        <p className="m-0 mb-12">
+          <Link href="/memories/new" className="btn btn-outline">
+            + זיכרון חדש
+          </Link>
+        </p>
         <MemoriesBrowser memories={memories} initialQuery={q} initialCategory={category} />
       </div>
     </PageTransition>
