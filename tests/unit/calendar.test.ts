@@ -87,3 +87,16 @@ describe("אירוע שעומד בפני עצמו", () => {
     expect(d.startsWith("לקחת אטמי")).toBe(true);
   });
 });
+
+describe("אירוע כל היום (תוכנית בלי שעה)", () => {
+  const ev = { uid: "u", title: "טיול", startsAt: "2026-10-12T21:00:00.000Z", endsAt: "2026-10-13T21:00:00.000Z", location: null, notes: "", url: "https://x/p" };
+  it("ICS עם DATE, סיום בלעדי ובלי התראה", () => {
+    const ics = buildIcs(ev, new Date("2026-10-01T00:00:00Z"));
+    expect(ics).toContain("DTSTART;VALUE=DATE:20261013");
+    expect(ics).toContain("DTEND;VALUE=DATE:20261014");
+    expect(ics).not.toContain("VALARM");
+  });
+  it("קישור גוגל", () => {
+    expect(decodeURIComponent(googleCalendarUrl(ev))).toContain("dates=20261013/20261014");
+  });
+});

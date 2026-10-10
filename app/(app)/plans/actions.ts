@@ -15,6 +15,7 @@ import {
   updatePlanSchema,
   planIdVersionSchema,
   completePlanSchema,
+  shiftPlanWeek,
 } from "@/lib/validation/plan";
 import type { Result } from "@/lib/errors/result";
 import { fail } from "@/lib/errors/result";
@@ -124,12 +125,11 @@ export async function postponePlanWeekAction(input: unknown) {
   if (!plan || plan.status !== "proposed") return fail("NOT_FOUND", "התוכנית כבר לא פעילה", crypto.randomUUID());
   if (!plan.startsAt) return fail("INVALID_INPUT", "לתוכנית אין מועד לדחות", crypto.randomUUID());
 
-  const week = 7 * 86_400_000;
-  const shift = (iso: string | null) => (iso ? new Date(new Date(iso).getTime() + week).toISOString() : undefined);
+  const shift = (iso: string | null) => (iso ? shiftPlanWeek(iso) : undefined);
   const result = await updatePlan({
     id: plan.id,
     expectedVersion: parsed.data.expectedVersion,
-    startsAt: shift(plan.startsAt),
+    startsAt: shiftPlanWeek(plan.startsAt),
     endsAt: shift(plan.endsAt),
     timezone: plan.timezone,
     meetingPlace: plan.meetingPlace ?? undefined,

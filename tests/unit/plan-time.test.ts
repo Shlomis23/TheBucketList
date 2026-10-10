@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatPlanWhen, isPlanPast, pastWhenLabel, upcomingWhenLabel } from "@/lib/validation/plan";
+import { formatPlanWhen, isPlanPast, pastWhenLabel, planHasTime, shiftPlanWeek, upcomingWhenLabel } from "@/lib/validation/plan";
 
 // שישי 25.9.2026, 18:00 בישראל
 const now = new Date("2026-09-25T15:00:00Z");
@@ -48,4 +48,25 @@ describe("upcomingWhenLabel", () => {
     expect(label).toContain("19:00");
   });
   it("בלי מועד", () => expect(upcomingWhenLabel(null, now)).toBe("מועד לא נקבע עדיין"));
+});
+
+describe("תוכנית בלי שעה (חצות ישראל)", () => {
+  const day = "2026-10-12T21:00:00.000Z"; // 13.10, 00:00 בישראל
+  it("planHasTime", () => {
+    expect(planHasTime(day)).toBe(false);
+    expect(planHasTime("2026-10-13T16:00:00Z")).toBe(true);
+  });
+  it("מוצג בלי שעה", () => {
+    expect(formatPlanWhen(day)).not.toMatch(/\d:\d/);
+    expect(upcomingWhenLabel(day, new Date("2026-10-13T06:00:00Z"))).toBe("היום");
+  });
+  it("עובר רק אחרי שהיום נגמר", () => {
+    expect(isPlanPast(day, null, Date.parse("2026-10-13T12:00:00Z"))).toBe(false);
+    expect(isPlanPast(day, null, Date.parse("2026-10-13T22:00:00Z"))).toBe(true);
+  });
+  it("דחייה בשבוע שומרת על חצות", () => {
+    expect(shiftPlanWeek(day)).toBe("2026-10-19T21:00:00.000Z");
+    // מעל מעבר שעון קיץ (25.10): חצות ישראל זז מ-21:00Z ל-22:00Z
+    expect(shiftPlanWeek("2026-10-21T21:00:00.000Z")).toBe("2026-10-28T22:00:00.000Z");
+  });
 });

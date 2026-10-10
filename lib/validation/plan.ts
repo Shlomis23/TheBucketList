@@ -8,10 +8,49 @@ export const DEFAULT_PLAN_TIMEZONE = "Asia/Jerusalem";
 // עם new Date(...).toISOString() לפני השליחה) — ראו PlanScheduleFields.
 const isoDateTime = z.string().datetime();
 
+// תאריך חובה, שעה לא (26.10): תוכנית בלי שעה נשמרת כ"חצות לפי שעון ישראל" של
+// התאריך (starts_at), וסיום בלעדי = חצות היום שאחרי היום האחרון (ends_at).
+// לא נדרשה עמודה חדשה: 00:00 בישראל = "בלי שעה" (planHasTime). תוכנית בשעה
+// 00:00 בדיוק תוצג בלי שעה — מחיר מודע, נדיר מאוד.
+function jerusalemOffsetMs(at: number): number {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: DEFAULT_PLAN_TIMEZONE,
+    hourCycle: "h23",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  }).formatToParts(new Date(at));
+  const v = (t: string) => Number(parts.find((p) => p.type === t)!.value);
+  return Date.UTC(v("year"), v("month") - 1, v("day"), v("hour"), v("minute"), v("second")) - Math.floor(at / 1000) * 1000;
+}
+
+// YYYY-MM-DD (+ימים) -> ISO של חצות באותו יום בשעון ישראל.
+export function jerusalemMidnightIso(date: string, addDays = 0): string {
+  const [y, m, d] = date.split("-").map(Number);
+  const wall = Date.UTC(y, m - 1, d + addDays);
+  let utc = wall - jerusalemOffsetMs(wall);
+  utc = wall - jerusalemOffsetMs(utc); // תיקון סביב מעבר שעון קיץ
+  return new Date(utc).toISOString();
+}
+
+// ISO -> YYYY-MM-DD לפי שעון ישראל.
+export function jerusalemDate(iso: string): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: DEFAULT_PLAN_TIMEZONE, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
+}
+
+// האם יש שעה למועד, או שזו רק תאריך (חצות שעון ישראל בדיוק).
+export function planHasTime(startsAt: string | null): boolean {
+  if (!startsAt) return true;
+  return jerusalemMidnightIso(jerusalemDate(startsAt)) !== new Date(startsAt).toISOString();
+}
+
 export const createPlanSchema = z.object({
   requestId: z.string().uuid(),
   ideaId: z.string().uuid(),
-  startsAt: isoDateTime.optional(),
+  startsAt: isoDateTime,
   endsAt: isoDateTime.optional(),
   timezone: z.string().trim().min(1).max(100).default(DEFAULT_PLAN_TIMEZONE),
   meetingPlace: z.string().trim().max(200).optional(),
@@ -23,7 +62,7 @@ export type CreatePlanInput = z.infer<typeof createPlanSchema>;
 export const updatePlanSchema = z.object({
   id: z.string().uuid(),
   expectedVersion: z.number().int().min(1),
-  startsAt: isoDateTime.optional(),
+  startsAt: isoDateTime,
   endsAt: isoDateTime.optional(),
   timezone: z.string().trim().min(1).max(100).default(DEFAULT_PLAN_TIMEZONE),
   meetingPlace: z.string().trim().max(200).optional(),
@@ -65,14 +104,20 @@ export function formatBudgetMinor(budgetMinor: number | null): string | null {
 
 export function formatPlanWhen(startsAt: string | null): string {
   if (!startsAt) return "מועד לא נקבע עדיין";
+  const withTime = planHasTime(startsAt);
   return new Intl.DateTimeFormat("he-IL", {
     timeZone: DEFAULT_PLAN_TIMEZONE,
     weekday: "long",
     day: "numeric",
     month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
+    ...(withTime ? { hour: "2-digit", minute: "2-digit" } : {}),
   }).format(new Date(startsAt));
+}
+
+// +7 ימים: באותה שעה על השעון (בלי שעה — אותו חצות ישראל, גם מעל מעבר שעון קיץ).
+export function shiftPlanWeek(iso: string): string {
+  if (!planHasTime(iso)) return jerusalemMidnightIso(jerusalemDate(iso), 7);
+  return new Date(new Date(iso).getTime() + 7 * 86_400_000).toISOString();
 }
 
 // "המועד עבר" (25.9): תוכנית שעוד מוצעת אבל הזמן שלה כבר מאחורינו —
@@ -83,6 +128,8 @@ const PAST_GRACE_MS = 3 * 60 * 60 * 1000;
 
 export function isPlanPast(startsAt: string | null, endsAt: string | null, now = Date.now()): boolean {
   if (endsAt) return new Date(endsAt).getTime() < now;
+  // בלי שעה: עובר רק אחרי שהיום נגמר, לא 3 שעות אחרי חצות.
+  if (startsAt && !planHasTime(startsAt)) return new Date(jerusalemMidnightIso(jerusalemDate(startsAt), 1)).getTime() < now;
   if (startsAt) return new Date(startsAt).getTime() + PAST_GRACE_MS < now;
   return false;
 }
@@ -109,6 +156,7 @@ export function upcomingWhenLabel(startsAt: string | null, now = new Date()): st
   const dayKey = (d: Date) =>
     new Intl.DateTimeFormat("en-CA", { timeZone: DEFAULT_PLAN_TIMEZONE, year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
   const days = Math.round((Date.parse(dayKey(new Date(startsAt))) - Date.parse(dayKey(now))) / 86_400_000);
+  if ((days === 0 || days === 1) && !planHasTime(startsAt)) return days === 0 ? "היום" : "מחר";
   if (days === 0 || days === 1) {
     const time = new Intl.DateTimeFormat("he-IL", { timeZone: DEFAULT_PLAN_TIMEZONE, hour: "2-digit", minute: "2-digit" }).format(new Date(startsAt));
     return `${days === 0 ? "היום" : "מחר"}, ${time}`;

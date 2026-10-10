@@ -9,13 +9,13 @@ import {
   completePlanAction,
   postponePlanWeekAction,
 } from "../actions";
-import { DEFAULT_PLAN_TIMEZONE, formatBudgetMinor, formatPlanWhen, isPlanPast, pastWhenLabel } from "@/lib/validation/plan";
+import { DEFAULT_PLAN_TIMEZONE, formatBudgetMinor, formatPlanWhen, isPlanPast, pastWhenLabel, shiftPlanWeek } from "@/lib/validation/plan";
 import { CoverImg } from "@/components/CoverImg";
 import { BackButton } from "@/components/BackButton";
 import { PlanStatusBadge } from "@/components/PlanStatusBadge";
 import { AddToCalendar } from "@/components/AddToCalendar";
 import { showToast } from "@/components/UndoToast";
-import { DateTimeRangeFields, endPartsToIso, isoToParts, partsToIso, type DateTimeParts } from "@/components/DateTimeRangeFields";
+import { DateTimeRangeFields, buildPlanTimes, planToParts, type DateTimeParts } from "@/components/DateTimeRangeFields";
 import type { PlanDetailDto, PlanDto } from "@/lib/dal/plans";
 import { FromIdeaCard } from "@/components/FromIdeaCard";
 
@@ -46,7 +46,7 @@ export function PlanDetail({
   const [mode, setMode] = useState<Mode>(startCompleting ? "complete" : "view");
   const past = plan.status === "proposed" && isPlanPast(plan.startsAt, plan.endsAt);
   // "לדחות בשבוע (יום שבת, 10 באוק׳, 19:30)" — אותה שעה, 7 ימים אחרי.
-  const weekLater = plan.startsAt ? formatPlanWhen(new Date(new Date(plan.startsAt).getTime() + 7 * 86_400_000).toISOString()) : null;
+  const weekLater = plan.startsAt ? formatPlanWhen(shiftPlanWeek(plan.startsAt)) : null;
   const [isPending, startTransition] = useTransition();
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -272,8 +272,8 @@ function EditPlanForm({
   onCancel: () => void;
   onSaved: () => void;
 }) {
-  const [start, setStart] = useState<DateTimeParts>(() => isoToParts(plan.startsAt));
-  const [end, setEnd] = useState<DateTimeParts>(() => isoToParts(plan.endsAt));
+  const [start, setStart] = useState<DateTimeParts>(() => planToParts(plan.startsAt, plan.endsAt).start);
+  const [end, setEnd] = useState<DateTimeParts>(() => planToParts(plan.startsAt, plan.endsAt).end);
   const [dateErrors, setDateErrors] = useState<{ start?: string; end?: string }>({});
   const [meetingPlace, setMeetingPlace] = useState(plan.meetingPlace ?? "");
   const [notes, setNotes] = useState(plan.notes);
@@ -288,10 +288,9 @@ function EditPlanForm({
     if (status === "busy") return;
     setErrorMsg("");
 
-    const startIso = partsToIso(start);
-    const endIso = endPartsToIso(start, end);
-    setDateErrors({ start: startIso.error, end: endIso.error });
-    if (startIso.error || endIso.error) return;
+    const times = buildPlanTimes(start, end);
+    setDateErrors({ start: times.startError, end: times.endError });
+    if (times.startError || times.endError) return;
     setStatus("busy");
 
     const budgetMinor = budgetShekels.trim() === "" ? undefined : Math.round(Number(budgetShekels) * 100);
@@ -299,8 +298,8 @@ function EditPlanForm({
     const result = await updatePlanAction({
       id: plan.id,
       expectedVersion: plan.version,
-      startsAt: startIso.iso,
-      endsAt: endIso.iso,
+      startsAt: times.startsAt,
+      endsAt: times.endsAt,
       timezone: DEFAULT_PLAN_TIMEZONE,
       meetingPlace: meetingPlace.trim() === "" ? undefined : meetingPlace,
       notes,
