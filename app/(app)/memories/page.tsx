@@ -44,12 +44,12 @@ export default async function MemoriesPage({
   return (
     <PageTransition kind="list">
       <div className="page">
-        <h1 className="page-title">זיכרונות</h1>
-        <p className="m-0 mb-12">
-          <Link href="/memories/new" className="btn btn-outline">
+        <div className="flex items-center justify-between mb-12">
+          <h1 className="page-title mb-0">זיכרונות</h1>
+          <Link href="/memories/new" className="btn btn-primary" style={{ padding: "0 18px", minHeight: 40 }}>
             + זיכרון חדש
           </Link>
-        </p>
+        </div>
         <MemoriesBrowser memories={memories} initialQuery={q} initialCategory={category} />
       </div>
     </PageTransition>
