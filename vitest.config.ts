@@ -10,6 +10,7 @@ export default defineConfig({
       "server-only": path.resolve(__dirname, "tests/helpers/empty.ts"),
     },
   },
+  esbuild: { jsx: "automatic" },
   test: {
     include: ["tests/unit/**/*.test.ts"],
     environment: "node",
