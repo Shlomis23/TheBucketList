@@ -26,6 +26,8 @@ export type MemoryDto = {
   story: string;
   version: number;
   createdByName: string;
+  lastEditedByName: string | null;
+  lastEditedAt: string | null;
   coverPhotoId: string | null; // הראשונה לפי הסדר — מוצגת במקום איור הקטגוריה
   photoCount: number;
   place: string | null; // מקום המפגש בתוכנית, או המיקום של הרעיון — לחיפוש
@@ -35,6 +37,8 @@ type MemoryRow = {
   id: string;
   plan_id: string | null;
   created_by: string;
+  last_edited_by: string | null;
+  last_edited_at: string | null;
   happened_on: string;
   story: string;
   version: number;
@@ -42,7 +46,7 @@ type MemoryRow = {
   category: IdeaCategory | null;
 };
 
-const MEMORY_COLUMNS = "id, plan_id, created_by, happened_on, story, version, title, category";
+const MEMORY_COLUMNS = "id, plan_id, created_by, last_edited_by, last_edited_at, happened_on, story, version, title, category";
 
 async function loadContext() {
   const supabase = await createSupabaseServerClient();
@@ -96,6 +100,8 @@ function toDtos(
       story: m.story,
       version: m.version,
       createdByName: nameById.get(m.created_by)?.trim() ?? "",
+      lastEditedByName: m.last_edited_by ? nameById.get(m.last_edited_by)?.trim() || null : null,
+      lastEditedAt: m.last_edited_at,
       coverPhotoId: photosByMemory.get(m.id)?.coverId ?? null,
       photoCount: photosByMemory.get(m.id)?.count ?? 0,
       place: plan?.meeting_place?.trim() || idea?.location_text?.trim() || null,

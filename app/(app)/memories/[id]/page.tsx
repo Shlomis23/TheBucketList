@@ -61,7 +61,12 @@ export default async function MemoryDetailPage({ params }: { params: Promise<{ i
           )}
           {memory.createdByName && (
             <p className="status-msg m-0 mt-12 text-xs">
-              נשמר ע״י {memory.createdByName}
+              נוצר ע״י {memory.createdByName}
+            </p>
+          )}
+          {memory.lastEditedByName && (
+            <p className="status-msg m-0 mt-4 text-xs">
+              נערך לאחרונה ע״י {memory.lastEditedByName}
             </p>
           )}
         </div>
